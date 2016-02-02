@@ -45,7 +45,7 @@ import org.json.simple.parser.ParseException;
  */
 public class BabelNet {
 
-    private static Dictionary wordNetdictionary;
+//    private static Dictionary wordNetdictionary;
     private static String babelNetKey;
     private static Map<String, String> synsetCache = new HashMap<>();
     private static File synsetCacheFile = new File(System.getProperty("user.home")
@@ -90,39 +90,62 @@ public class BabelNet {
         return babelNetKey;
     }
 
-    public static String lemmatize(String word) throws JWNLException, FileNotFoundException, MalformedURLException, IOException, ParseException {
+    public String lemmatize(String word, String language) throws JWNLException, FileNotFoundException, MalformedURLException, IOException, ParseException, Exception {
         if (nonLemetize(word) || word.contains("_")) {
             return word;
         }
-        wordNetdictionary = getWordNetDictionary();
-        IndexWordSet set = wordNetdictionary.lookupAllIndexWords(word);
-
-        for (IndexWord iw : set.getIndexWordArray()) {
-            return iw.getLemma();
+        //        wordNetdictionary = getWordNetDictionary();
+        //        IndexWordSet set = wordNetdictionary.lookupAllIndexWords(word);
+        //        for (IndexWord iw : set.getIndexWordArray()) {
+        //            return iw.getLemma();
+        //        }
+        String key = getKey();
+        String enWord = URLEncoder.encode(word, "UTF-8");
+        List<String> ids = getcandidateWordIDs(language, enWord, key);
+        if (ids == null || ids.isEmpty()) {
+            return word;
         }
-//        List<String> ids = getcandidateWordIDs("EN", word, getKey());
-//        if (ids == null || ids.isEmpty()) {
-//            return word;
-//        }
-//        for (String id : ids) {
-//            String json = getBabelnetSynset(id, getKey());
-//            JSONObject jo = (org.json.simple.JSONObject) JSONValue.parse(json);
-//            JSONArray senses = (JSONArray) jo.get("senses");
-//            for (Object o : senses) {
-//                String lemma = (String) ((JSONObject)o).get("lemma");
-//                System.err.println("word: " + word + " lemma: " + lemma.toLowerCase());
-//            }
-//        }
+        for (String id : ids) {
+            String synet = getBabelnetSynset(id, language, key);
+            JSONObject jSynet = (JSONObject) JSONValue.parseWithException(synet);
+            JSONArray senses = (JSONArray) jSynet.get("senses");
+            if (senses != null) {
+                for (Object o2 : senses) {
+                    JSONObject jo2 = (JSONObject) o2;
+                    JSONObject synsetID = (JSONObject) jo2.get("synsetID");
+
+                    String lang = (String) jo2.get("language");
+                    if (lang.equals(language)) {
+                        String jlemma = ((String) jo2.get("lemma")).toLowerCase();
+//                        word = word.replaceAll("[^a-zA-Z ]", "");
+                        word = word.replaceAll(" ", "_");
+                        int dist = edu.stanford.nlp.util.StringUtils.editDistance(word, jlemma);
+                        String lemma1, lemma2;
+//                        System.err.println("original: " + word + " jlemma: " + jlemma + " lang " + lang + " dist: " + dist);
+                        if (word.length() < jlemma.length()) {
+                            lemma1 = word;
+                            lemma2 = jlemma;
+                        } else {
+                            lemma2 = word;
+                            lemma1 = jlemma;
+                        }
+
+                        if (dist <= 3 && lemma2.contains(lemma1)) {
+                            return jlemma.replaceAll("_", " ");
+                        }
+                    }
+                }
+            }
+        }
         return word;
     }
 
-    private static Dictionary getWordNetDictionary() {
-        if (wordNetdictionary == null) {
-            wordNetdictionary = Dictionary.getInstance();
-        }
-        return wordNetdictionary;
-    }
-
+//    private static Dictionary getWordNetDictionary() {
+//        if (wordNetdictionary == null) {
+//            wordNetdictionary = Dictionary.getInstance();
+//        }
+//        return wordNetdictionary;
+//    }
     TermVertex getTermNodeByID(String word, String id, boolean fromDiec) throws FileNotFoundException, IOException, Exception {
         TermVertex node = null;
         String language = "EN";
@@ -142,7 +165,7 @@ public class BabelNet {
         String language = "EN";
         TermVertex node = null;
         List<String> ids = getcandidateWordIDs(language, word, key);
-        if (ids.size() == 1) {
+        if (ids != null && ids.size() == 1) {
             correctID = ids.get(0);
             String synet = getBabelnetSynset(correctID, language, key);
             node = TermVertexFactory.create(synet, language, word);
@@ -150,7 +173,7 @@ public class BabelNet {
                 List<TermVertex> h = getHypernyms(language, correctID, key);
                 node.setBroader(h);
             }
-        } else {
+        } else if (ids != null && ids.size() > 1) {
             Map<String, Integer> map = new HashMap<>();
             for (String id : ids) {
                 List<String> categories = getCategories(id, language, key);
@@ -171,46 +194,45 @@ public class BabelNet {
         return node;
     }
 
-    public static POS[] getPOS(String s) throws JWNLException {
-        // Look up all IndexWords (an IndexWord can only be one POS)
-        wordNetdictionary = getWordNetDictionary();
-        IndexWordSet set = wordNetdictionary.lookupAllIndexWords(s);
-        // Turn it into an array of IndexWords
-        IndexWord[] words = set.getIndexWordArray();
-        // Make the array of POS
-        POS[] pos = new POS[words.length];
-        for (int i = 0; i < words.length; i++) {
-            pos[i] = words[i].getPOS();
-        }
-        return pos;
-    }
-
-    private boolean hasPOS(POS[] keywordPOS, POS[] targetPOS) {
-        for (POS p : keywordPOS) {
-            for (POS t : targetPOS) {
-                if (p.equals(t)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    private boolean canCompareKeyword(String line) throws JWNLException {
-        String[] parts = line.split(",");
-        String keyword = parts[0];
-        Integer count = Integer.valueOf(parts[1]);
-        if (count < 3) {
-            return false;
-        }
-        if (keyword.length() < 3) {
-            return false;
-        }
-        POS[] keywordPOS = getPOS(keyword);
-        boolean notExclusizeNoun = hasPOS(keywordPOS, new POS[]{POS.ADVERB, POS.ADJECTIVE, POS.VERB});
-        return !notExclusizeNoun;
-    }
-
+//    public static POS[] getPOS(String s) throws JWNLException {
+//        // Look up all IndexWords (an IndexWord can only be one POS)
+//        wordNetdictionary = getWordNetDictionary();
+//        IndexWordSet set = wordNetdictionary.lookupAllIndexWords(s);
+//        // Turn it into an array of IndexWords
+//        IndexWord[] words = set.getIndexWordArray();
+//        // Make the array of POS
+//        POS[] pos = new POS[words.length];
+//        for (int i = 0; i < words.length; i++) {
+//            pos[i] = words[i].getPOS();
+//        }
+//        return pos;
+//    }
+//
+//    private boolean hasPOS(POS[] keywordPOS, POS[] targetPOS) {
+//        for (POS p : keywordPOS) {
+//            for (POS t : targetPOS) {
+//                if (p.equals(t)) {
+//                    return true;
+//                }
+//            }
+//        }
+//        return false;
+//    }
+//
+//    private boolean canCompareKeyword(String line) throws JWNLException {
+//        String[] parts = line.split(",");
+//        String keyword = parts[0];
+//        Integer count = Integer.valueOf(parts[1]);
+//        if (count < 3) {
+//            return false;
+//        }
+//        if (keyword.length() < 3) {
+//            return false;
+//        }
+//        POS[] keywordPOS = getPOS(keyword);
+//        boolean notExclusizeNoun = hasPOS(keywordPOS, new POS[]{POS.ADVERB, POS.ADJECTIVE, POS.VERB});
+//        return !notExclusizeNoun;
+//    }
 //    private Synset getSynsetFromWordNet(IndexWord[] words) throws FileNotFoundException, IOException, JWNLException {
 //        int index = -1;
 //        try (BufferedReader br = new BufferedReader(new FileReader(keywordsDictionarayFile))) {
@@ -247,6 +269,10 @@ public class BabelNet {
 //    }
     private List<String> getcandidateWordIDs(String language, String word, String key) throws MalformedURLException, IOException, ParseException, Exception {
         List<String> ids = wordIDCache.get(word);
+        if (ids != null && ids.size() == 1 && ids.get(0).equals("NON-EXISTING")) {
+            return null;
+        }
+
         if (ids == null || ids.isEmpty()) {
             ids = new ArrayList<>();
             URL url = new URL("https://babelnet.io/v2/getSynsetIds?word=" + word + "&langs=" + language + "&langs=" + language + "&key=" + key);
@@ -262,7 +288,6 @@ public class BabelNet {
                         if (id != null) {
                             ids.add(id);
                         }
-
                     }
                 }
             } else if (obj instanceof JSONObject) {
@@ -271,7 +296,11 @@ public class BabelNet {
                 if (id != null) {
                     ids.add(id);
                 }
-
+            }
+            if (ids.isEmpty()) {
+                ids.add("NON-EXISTING");
+                wordIDCache.put(word, ids);
+                return null;
             }
             wordIDCache.put(word, ids);
         }
@@ -406,6 +435,9 @@ public class BabelNet {
         if (ngarms.isEmpty()) {
             return null;
         }
+        if (ngarms.size() == 1 && ngarms.get(0).length() <= 1) {
+            return null;
+        }
         HashMap<String, Double> idsMap = new HashMap<>();
         Map<String, TermVertex> termMap = new HashMap<>();
         List<TermVertex> terms = new ArrayList<>();
@@ -415,6 +447,9 @@ public class BabelNet {
         int difflimit = 60;
         Double persent;
         for (String n : ngarms) {
+            if (n.length() <= 1) {
+                continue;
+            }
             count++;
             if (idsMap.size() == 1 && count > oneElementlimit) {
 //                Double score = idsMap.values().iterator().next();

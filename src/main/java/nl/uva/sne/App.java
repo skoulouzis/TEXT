@@ -13,6 +13,7 @@ import java.io.PrintWriter;
 import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -103,18 +104,18 @@ public class App {
             String indexPath = System.getProperty("user.home") + File.separator + "Downloads" + File.separator + "index";
             String keywordsDictionarayFile = System.getProperty("user.home") + File.separator + "Downloads" + File.separator + "textdocs" + File.separator + "dictionary.csv";
 
-            jobDescription2TextFile(jsonDocsPath, textDocsPath);
-            createIndex(textDocsPath, indexPath);
-            
-            createTermDictionary(textDocsPath, keywordsDictionarayFile, true);
+//            jobDescription2TextFile(jsonDocsPath, textDocsPath);
+//            createIndex(textDocsPath, indexPath);
+
+//            createTermDictionary(textDocsPath, keywordsDictionarayFile, true);
 //            buildHyperymTree(keywordsDictionarayFile, indexPath);
 
-//            File taxonomyFile = new File(System.getProperty("user.home")
-//                    + File.separator + "workspace" + File.separator + "TEXT"
-//                    + File.separator + "etc" + File.separator + "ACMComputingClassificationSystemSKOSTaxonomy.rdf");
+            File taxonomyFile = new File(System.getProperty("user.home")
+                    + File.separator + "workspace" + File.separator + "TEXT"
+                    + File.separator + "etc" + File.separator + "ACMComputingClassificationSystemSKOSTaxonomy.rdf");
 //
-//            List<TermVertex> leaves = getLeavesFromTaxonomy(taxonomyFile, "en");
-//            buildHyperymTree(leaves, indexPath, keywordsDictionarayFile);
+            List<TermVertex> leaves = getTermsFromTaxonomy(taxonomyFile, "en", 2);
+            buildHyperymTree(leaves, indexPath, keywordsDictionarayFile);
 
 //            DefaultDirectedWeightedGraph g = taxonomy2Graph(taxonomyFile, "en");
 
@@ -184,7 +185,7 @@ public class App {
         }
     }
 
-    private static void createTermDictionary(String inputJsonDocsPath, String outkeywordsDictionarayFile, boolean tokenize) throws FileNotFoundException, IOException, ParseException, JWNLException {
+    private static void createTermDictionary(String inputJsonDocsPath, String outkeywordsDictionarayFile, boolean tokenize) throws FileNotFoundException, IOException, ParseException, JWNLException, MalformedURLException, Exception {
         System.err.println("in: " + inputJsonDocsPath);
         System.err.println("out: " + outkeywordsDictionarayFile);
         File dir = new File(inputJsonDocsPath);
@@ -198,7 +199,7 @@ public class App {
                         String lang = Utils.detectLang(text);
                         if (lang.toLowerCase().equals("en")) {
                             if (tokenize) {
-                                List<String> tokens = tokenize(text, generateNgrams);
+                                List<String> tokens = tokenize(text, generateNgrams, null);
 
                                 for (String t : tokens) {
 //                                POS[] pos = BabelNet.getPOS(t);
@@ -275,7 +276,10 @@ public class App {
         }
     }
 
-    private static List<String> tokenize(String text, boolean generateNgrams) throws IOException, JWNLException, FileNotFoundException, MalformedURLException, ParseException {
+    private static List<String> tokenize(String text, boolean generateNgrams, BabelNet bbn) throws IOException, JWNLException, FileNotFoundException, MalformedURLException, ParseException, Exception {
+        if (bbn == null) {
+            bbn = new BabelNet();
+        }
 //        text = text.replaceAll("((mailto\\:|(news|(ht|f)tp(s?))\\://){1}\\S+)", "");
 //        text = text.replaceAll("/", " ");
 //        text = text.replaceAll("(\\d+,\\d+)|\\d+", "");
@@ -290,7 +294,7 @@ public class App {
             CharTermAttribute term = tokenStream.addAttribute(CharTermAttribute.class);
             tokenStream.reset();
             while (tokenStream.incrementToken()) {
-                String lemma = BabelNet.lemmatize(term.toString());
+                String lemma = bbn.lemmatize(term.toString(), "EN");
                 if (!Utils.isStopWord(text)) {
                     words.add(lemma);
                     sb.append(lemma).append(" ");
@@ -364,7 +368,7 @@ public class App {
                     break;
                 }
                 String trem = line.split(",")[0];
-                String lemma = BabelNet.lemmatize(trem);
+                String lemma = bbn.lemmatize(trem, "EN");
 
                 if (Integer.valueOf(line.split(",")[1]) > 2) {
                     List<TermVertex> terms = getTermVertices(lemma, null, depth, true, bbn, indexPath, termDictionaryPath, null);
@@ -389,8 +393,7 @@ public class App {
         BabelNet bbn = new BabelNet();
         List<TermVertex> allTerms = new ArrayList<>();
         try {
-            String line;
-            int limit = 2;
+            int limit = 3;
             int count = 0;
             for (TermVertex tv : leaves) {
                 ++count;
@@ -398,10 +401,23 @@ public class App {
                     break;
                 }
 
-                String lemma = BabelNet.lemmatize(tv.getLemma());
-                List<TermVertex> terms = getTermVertices(lemma, null, depth, true, bbn, indexPath, termDictionaryPath, null);
-                if (terms != null || !terms.isEmpty()) {
+                String lemma = bbn.lemmatize(tv.getLemma(), "EN");
+
+                List<TermVertex> terms = getTermVertices(URLEncoder.encode(lemma, "UTF-8"), null, depth, true, bbn, indexPath, termDictionaryPath, null);
+                if (terms != null && !terms.isEmpty()) {
                     allTerms.addAll(terms);
+                } else {
+                    List<String> alt = tv.getAlternativeLables();
+                    if (alt != null) {
+                        for (String a : alt) {
+                            lemma = bbn.lemmatize(a, "EN");
+                            terms = getTermVertices(URLEncoder.encode(lemma, "UTF-8"), null, depth, true, bbn, indexPath, termDictionaryPath, null);
+                            if (terms != null && !terms.isEmpty()) {
+                                allTerms.addAll(terms);
+                                break;
+                            }
+                        }
+                    }
                 }
 
             }
@@ -784,23 +800,23 @@ public class App {
         return g;
     }
 
-    private static List<TermVertex> getLeavesFromTaxonomy(File taxonomyFile, String language) throws SKOSCreationException {
+    private static List<TermVertex> getTermsFromTaxonomy(File taxonomyFile, String language, int levels) throws SKOSCreationException {
         SKOSDataset dataset = SkosUtils.getSKOSManager().loadDatasetFromPhysicalURI(taxonomyFile.toURI());
         List<TermVertex> leaves = new ArrayList<>();
         for (SKOSConcept concept : dataset.getSKOSConcepts()) {
             List<String> nuids = SkosUtils.getNarrowerUIDs(dataset, concept);
-            if (nuids == null || nuids.isEmpty()) {
-                String value = SkosUtils.getPrefLabelValue(dataset, concept, language);
-                TermVertex term = new TermVertex(value);
+//            if (nuids == null || nuids.isEmpty()) {
+            String value = SkosUtils.getPrefLabelValue(dataset, concept, language).toLowerCase();
+            TermVertex term = new TermVertex(value);
 //                String uid = SkosUtils.getUID(concept, taxonomyFile);
 //                term.setUID(uid);
-                List<String> altLables = SkosUtils.getAltLabelValues(dataset, concept, language);
-                term.setAlternativeLables(altLables);
+            List<String> altLables = SkosUtils.getAltLabelValues(dataset, concept, language);
+            term.setAlternativeLables(altLables);
 //                List<String> buids = SkosUtils.getBroaderUIDs(dataset, concept);
 //                term.setBroaderUIDS(buids);
 //                term.setNarrowerUIDS(nuids);
-                leaves.add(term);
-            }
+            leaves.add(term);
+//            }
         }
         return leaves;
 

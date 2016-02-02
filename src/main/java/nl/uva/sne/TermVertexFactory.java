@@ -4,6 +4,7 @@
  */
 package nl.uva.sne;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import org.json.simple.JSONArray;
@@ -17,7 +18,7 @@ import org.json.simple.parser.ParseException;
  */
 public class TermVertexFactory {
 
-    public static TermVertex create(String synet, String language, String lemma) throws ParseException {
+    public static TermVertex create(String synet, String language, String lemma) throws ParseException, UnsupportedEncodingException {
         TermVertex node = null;
         JSONObject jSynet = (JSONObject) JSONValue.parseWithException(synet);
         JSONArray categoriesArray = (JSONArray) jSynet.get("categories");
@@ -62,7 +63,8 @@ public class TermVertexFactory {
                     String jlemma = (String) jo2.get("lemma");
                     jlemma = jlemma.toLowerCase().replaceAll("(\\d+,\\d+)|\\d+", "");
                     altLables.add(jlemma);
-
+                    lemma = java.net.URLDecoder.decode(lemma, "UTF-8");
+                    lemma = lemma.replaceAll(" ", "_");
                     int dist = edu.stanford.nlp.util.StringUtils.editDistance(lemma, jlemma);
                     if (lemma.length() < jlemma.length()) {
                         lemma1 = lemma;
@@ -71,9 +73,9 @@ public class TermVertexFactory {
                         lemma2 = lemma;
                         lemma1 = jlemma;
                     }
-//                    System.err.println("original: " + lemma + " jlemma: " + jlemma + " id: " + babelNetID + " lang " + lang + " dist: " + dist);
+                    System.err.println("original: " + lemma + " jlemma: " + jlemma + " id: " + babelNetID + " lang " + lang + " dist: " + dist);
                     if (dist <= 3 && lemma2.contains(lemma1)) {
-                        node = new TermVertex(lemma);
+                        node = new TermVertex(jlemma);
                         node.setUID(babelNetID);
                         node.setCategories(categories);
                         node.setAlternativeLables(altLables);
