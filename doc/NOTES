@@ -1,0 +1,2 @@
+-----------------------------------export to dot format------------------------
+rapper -o dot ~/workspace/TEXT/etc/taxonomy.rdf | dot -Kfdp -Tsvg -o taxonomy.svg

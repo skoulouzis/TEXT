@@ -1,0 +1,814 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package nl.uva.sne;
+
+import edu.stanford.nlp.util.Pair;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import net.didion.jwnl.JWNL;
+import net.didion.jwnl.JWNLException;
+import net.didion.jwnl.data.IndexWord;
+import net.didion.jwnl.data.IndexWordSet;
+import net.didion.jwnl.data.POS;
+import net.didion.jwnl.dictionary.Dictionary;
+import org._3pq.jgrapht.graph.DefaultDirectedWeightedGraph;
+import org.apache.commons.io.IOUtils;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
+import org.json.simple.parser.ParseException;
+
+/**
+ *
+ * @author S. Koulouzis
+ */
+public class BabelNet {
+
+    private static Dictionary wordNetdictionary;
+    private static String babelNetKey;
+    private static Map<String, String> synsetCache = new HashMap<>();
+    private static File synsetCacheFile = new File(System.getProperty("user.home")
+            + File.separator + "workspace" + File.separator + "TEXT" + File.separator + "cache" + File.separator + "synsetCacheFile.csv");
+    private static Map<String, List<String>> wordIDCache = new HashMap<>();
+    private static File wordIDCacheFile = new File(System.getProperty("user.home")
+            + File.separator + "workspace" + File.separator + "TEXT" + File.separator + "cache" + File.separator + "wordCacheFile.csv");
+//    private final File keywordsDictionarayFile;
+    static Set<String> nonLematizedWords = new HashSet();
+    private static File nonLematizedWordsFile = new File(System.getProperty("user.home")
+            + File.separator + "workspace" + File.separator + "TEXT" + File.separator + "etc" + File.separator + "nonLematizedWords");
+    private static File disambiguateCacheFile = new File(System.getProperty("user.home")
+            + File.separator + "workspace" + File.separator + "TEXT" + File.separator + "cache" + File.separator + "disambiguateCacheFile.csv");
+    private static Map<String, String> disambiguateCache = new HashMap<>();
+    private static Map<String, String> edgesCache = new HashMap<>();
+    private static File edgesCacheFile = new File(System.getProperty("user.home")
+            + File.separator + "workspace" + File.separator + "TEXT" + File.separator + "cache" + File.separator + "edgesCacheFile.csv");
+    private DefaultDirectedWeightedGraph g;
+
+    static {
+        try {
+            JWNL.initialize(new FileInputStream(System.getProperty("user.home")
+                    + File.separator + "workspace" + File.separator + "TEXT"
+                    + File.separator + "etc" + File.separator + "file_properties.xml"));
+        } catch (JWNLException | FileNotFoundException ex) {
+            Logger.getLogger(WordNetDemo.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    BabelNet() throws FileNotFoundException, IOException {
+        loadCache();
+    }
+
+    private static String getKey() throws FileNotFoundException, IOException {
+        if (babelNetKey == null) {
+        }
+        try (BufferedReader br = new BufferedReader(new FileReader(new File(System.getProperty("user.home")
+                + File.separator + "workspace" + File.separator + "TEXT" + File.separator + "etc" + File.separator + "babelnetKey")))) {
+            babelNetKey = br.readLine();
+            br.close();
+        }
+        return babelNetKey;
+    }
+
+    public static String lemmatize(String word) throws JWNLException, FileNotFoundException, MalformedURLException, IOException, ParseException {
+        if (nonLemetize(word) || word.contains("_")) {
+            return word;
+        }
+        wordNetdictionary = getWordNetDictionary();
+        IndexWordSet set = wordNetdictionary.lookupAllIndexWords(word);
+
+        for (IndexWord iw : set.getIndexWordArray()) {
+            return iw.getLemma();
+        }
+//        List<String> ids = getcandidateWordIDs("EN", word, getKey());
+//        if (ids == null || ids.isEmpty()) {
+//            return word;
+//        }
+//        for (String id : ids) {
+//            String json = getBabelnetSynset(id, getKey());
+//            JSONObject jo = (org.json.simple.JSONObject) JSONValue.parse(json);
+//            JSONArray senses = (JSONArray) jo.get("senses");
+//            for (Object o : senses) {
+//                String lemma = (String) ((JSONObject)o).get("lemma");
+//                System.err.println("word: " + word + " lemma: " + lemma.toLowerCase());
+//            }
+//        }
+        return word;
+    }
+
+    private static Dictionary getWordNetDictionary() {
+        if (wordNetdictionary == null) {
+            wordNetdictionary = Dictionary.getInstance();
+        }
+        return wordNetdictionary;
+    }
+
+    TermVertex getTermNodeByID(String word, String id, boolean fromDiec) throws FileNotFoundException, IOException, Exception {
+        TermVertex node = null;
+        String language = "EN";
+        String key = getKey();
+        String synet = getBabelnetSynset(id, language, key);
+        node = TermVertexFactory.create(synet, language, word);
+        if (node != null) {
+            List<TermVertex> h = getHypernyms(language, id, key);
+            node.setBroader(h);
+        }
+        return node;
+    }
+
+    public TermVertex getTermNodeByLemma(String word, boolean isFromDictionary) throws IOException, MalformedURLException, ParseException, Exception {
+        String key = getKey();
+        String correctID = null;
+        String language = "EN";
+        TermVertex node = null;
+        List<String> ids = getcandidateWordIDs(language, word, key);
+        if (ids.size() == 1) {
+            correctID = ids.get(0);
+            String synet = getBabelnetSynset(correctID, language, key);
+            node = TermVertexFactory.create(synet, language, word);
+            if (node != null) {
+                List<TermVertex> h = getHypernyms(language, correctID, key);
+                node.setBroader(h);
+            }
+        } else {
+            Map<String, Integer> map = new HashMap<>();
+            for (String id : ids) {
+                List<String> categories = getCategories(id, language, key);
+                for (String cat : categories) {
+                    Integer count;
+                    if (map.containsKey(cat)) {
+                        count = map.get(cat);
+                        count++;
+                    } else {
+                        count = 1;
+                    }
+                    System.err.println("word: " + word + " id: " + id + " category: " + cat);
+                    map.put(cat, count);
+                }
+            }
+            System.err.println(map);
+        }
+        return node;
+    }
+
+    public static POS[] getPOS(String s) throws JWNLException {
+        // Look up all IndexWords (an IndexWord can only be one POS)
+        wordNetdictionary = getWordNetDictionary();
+        IndexWordSet set = wordNetdictionary.lookupAllIndexWords(s);
+        // Turn it into an array of IndexWords
+        IndexWord[] words = set.getIndexWordArray();
+        // Make the array of POS
+        POS[] pos = new POS[words.length];
+        for (int i = 0; i < words.length; i++) {
+            pos[i] = words[i].getPOS();
+        }
+        return pos;
+    }
+
+    private boolean hasPOS(POS[] keywordPOS, POS[] targetPOS) {
+        for (POS p : keywordPOS) {
+            for (POS t : targetPOS) {
+                if (p.equals(t)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean canCompareKeyword(String line) throws JWNLException {
+        String[] parts = line.split(",");
+        String keyword = parts[0];
+        Integer count = Integer.valueOf(parts[1]);
+        if (count < 3) {
+            return false;
+        }
+        if (keyword.length() < 3) {
+            return false;
+        }
+        POS[] keywordPOS = getPOS(keyword);
+        boolean notExclusizeNoun = hasPOS(keywordPOS, new POS[]{POS.ADVERB, POS.ADJECTIVE, POS.VERB});
+        return !notExclusizeNoun;
+    }
+
+//    private Synset getSynsetFromWordNet(IndexWord[] words) throws FileNotFoundException, IOException, JWNLException {
+//        int index = -1;
+//        try (BufferedReader br = new BufferedReader(new FileReader(keywordsDictionarayFile))) {
+//            String line;
+//            while ((line = br.readLine()) != null) {
+//                String keyword = line.split(",")[0];
+//                if (canCompareKeyword(line)) {
+//                    for (int i = 0; i < words.length; i++) {
+//                        for (Synset s : words[i].getSenses()) {
+//                            if (s.getGloss().contains(keyword)) {
+//                                index = i;
+//                                return s;
+//                            }
+//                        }
+//
+//                    }
+//                }
+//            }
+//        }
+//        return null;
+//    }
+//    public PointerTargetTree getRelatedTree(Synset sense, int depth, PointerType type) throws JWNLException {
+//        PointerTargetTree relatedTree;
+//
+//        // Call a different function based on what type of relationship you are looking for
+//        if (type == PointerType.HYPERNYM) {
+//            relatedTree = PointerUtils.getInstance().getHypernymTree(sense, depth);
+//        } else if (type == PointerType.HYPONYM) {
+//            relatedTree = PointerUtils.getInstance().getHyponymTree(sense, depth);
+//        } else {
+//            relatedTree = PointerUtils.getInstance().getSynonymTree(sense, depth);
+//        }
+//        return relatedTree;
+//    }
+    private List<String> getcandidateWordIDs(String language, String word, String key) throws MalformedURLException, IOException, ParseException, Exception {
+        List<String> ids = wordIDCache.get(word);
+        if (ids == null || ids.isEmpty()) {
+            ids = new ArrayList<>();
+            URL url = new URL("https://babelnet.io/v2/getSynsetIds?word=" + word + "&langs=" + language + "&langs=" + language + "&key=" + key);
+            String genreJson = IOUtils.toString(url);
+            handleKeyLimitException(genreJson);
+            Object obj = JSONValue.parseWithException(genreJson);
+            if (obj instanceof JSONArray) {
+                JSONArray jsonArray = (JSONArray) obj;
+                for (Object o : jsonArray) {
+                    JSONObject jo = (JSONObject) o;
+                    if (jo != null) {
+                        String id = (String) jo.get("id");
+                        if (id != null) {
+                            ids.add(id);
+                        }
+
+                    }
+                }
+            } else if (obj instanceof JSONObject) {
+                JSONObject jsonObj = (JSONObject) obj;
+                String id = (String) jsonObj.get("id");
+                if (id != null) {
+                    ids.add(id);
+                }
+
+            }
+            wordIDCache.put(word, ids);
+        }
+        return ids;
+    }
+
+    private String getBabelnetSynset(String id, String lan, String key) throws IOException, Exception {
+        if (id == null || id.length() < 1) {
+            return null;
+        }
+        String json = synsetCache.get(id);
+        if (json == null) {
+            URL url = new URL("https://babelnet.io/v2/getSynset?id=" + id + "&filterLangs=" + lan + "&langs=" + lan + "&key=" + key);
+            json = IOUtils.toString(url);
+            handleKeyLimitException(json);
+            if (json != null) {
+                synsetCache.put(id, json);
+            }
+        }
+        return json;
+    }
+
+    private void loadCache() throws FileNotFoundException, IOException {
+        if (synsetCacheFile.exists() && synsetCacheFile.length() > 1) {
+            System.err.println("loading " + synsetCacheFile.getAbsolutePath());
+            try (BufferedReader br = new BufferedReader(new FileReader(synsetCacheFile))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    if (line.length() > 2) {
+                        String[] parts = line.split("\t");
+                        if (parts.length > 1) {
+                            synsetCache.put(parts[0], parts[1]);
+                        }
+                    }
+                }
+            }
+        }
+        if (wordIDCacheFile.exists() && wordIDCacheFile.length() > 1) {
+            System.err.println("loading " + wordIDCacheFile.getAbsolutePath());
+            try (BufferedReader br = new BufferedReader(new FileReader(wordIDCacheFile))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    if (line.length() > 2) {
+                        String[] parts = line.split("\t");
+                        if (parts.length > 1) {
+                            List<String> ids = new ArrayList<>();
+                            for (int i = 1; i < parts.length; i++) {
+                                ids.add(parts[i]);
+                            }
+                            wordIDCache.put(parts[0], ids);
+                        }
+                    }
+                }
+            }
+        }
+        loadNonLematizeWords();
+        if (disambiguateCacheFile.exists() && disambiguateCacheFile.length() > 1) {
+            System.err.println("loading " + disambiguateCacheFile.getAbsolutePath());
+            try (BufferedReader br = new BufferedReader(new FileReader(disambiguateCacheFile))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    if (line.length() > 2) {
+                        String[] parts = line.split("\t");
+                        disambiguateCache.put(parts[0], parts[1]);
+                    }
+                }
+            }
+        }
+        if (edgesCacheFile.exists() && edgesCacheFile.length() > 1) {
+            System.err.println("loading " + edgesCacheFile.getAbsolutePath());
+            try (BufferedReader br = new BufferedReader(new FileReader(edgesCacheFile))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    if (line.length() > 2) {
+                        String[] parts = line.split("\t");
+                        edgesCache.put(parts[0], parts[1]);
+                    }
+                }
+            }
+        }
+    }
+
+    public void saveCache() throws FileNotFoundException, IOException {
+//        deleteEntry("bn:03316494n");
+//        deleteEntry("bn:00023236n");
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(wordIDCacheFile, false))) {
+            for (String key : wordIDCache.keySet()) {
+                StringBuilder value = new StringBuilder();
+                for (String v : wordIDCache.get(key)) {
+                    value.append(v).append("\t");
+                }
+                bw.write(key + "\t" + value);
+                bw.newLine();
+                bw.flush();
+            }
+        }
+
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(synsetCacheFile, false))) {
+            for (String key : synsetCache.keySet()) {
+                bw.write(key + "\t" + synsetCache.get(key));
+                bw.newLine();
+                bw.flush();
+            }
+        }
+
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(disambiguateCacheFile, false))) {
+            for (String key : disambiguateCache.keySet()) {
+                bw.write(key + "\t" + disambiguateCache.get(key));
+                bw.newLine();
+                bw.flush();
+            }
+        }
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(edgesCacheFile, false))) {
+            for (String key : edgesCache.keySet()) {
+                bw.write(key + "\t" + edgesCache.get(key));
+                bw.newLine();
+                bw.flush();
+            }
+        }
+
+
+    }
+
+    private static boolean nonLemetize(String word) throws FileNotFoundException, IOException {
+        if (nonLematizedWords.isEmpty() || nonLematizedWords == null) {
+            loadNonLematizeWords();
+        }
+        return nonLematizedWords.contains(word);
+    }
+
+    List<TermVertex> disambiguate(String language, String lemma, List<String> ngarms) throws MalformedURLException, IOException, ParseException, JWNLException, Exception {
+        if (ngarms.isEmpty()) {
+            return null;
+        }
+        HashMap<String, Double> idsMap = new HashMap<>();
+        Map<String, TermVertex> termMap = new HashMap<>();
+        List<TermVertex> terms = new ArrayList<>();
+        int count = 0;
+        int breaklimit = 1000;
+        int oneElementlimit = 65;
+        int difflimit = 60;
+        Double persent;
+        for (String n : ngarms) {
+            count++;
+            if (idsMap.size() == 1 && count > oneElementlimit) {
+//                Double score = idsMap.values().iterator().next();
+//                if (score >= 10) {
+                break;
+//                }
+            }
+
+            if ((count % 2) == 0 && idsMap.size() >= 2 && count > difflimit) {
+                ValueComparator bvc = new ValueComparator(idsMap);
+                TreeMap<String, Double> sorted_map = new TreeMap(bvc);
+                sorted_map.putAll(idsMap);
+                Iterator<String> iter = sorted_map.keySet().iterator();
+                Double first = idsMap.get(iter.next());
+                Double second = idsMap.get(iter.next());
+
+                persent = first / (first + second);
+//                System.err.println("first: " + first + " second: " + second + " persent: " + persent);
+                if (persent > 0.65) {
+                    break;
+                }
+            }
+            if (count > breaklimit) {
+                break;
+            }
+
+            String clearNg = n.replaceAll("_", " ");
+            if (clearNg == null) {
+                continue;
+            }
+            Pair<TermVertex, Double> termPair = null;
+
+            termPair = disambiguate(language, lemma, clearNg);
+            if (termPair != null) {
+                termMap.put(termPair.first.getUID(), termPair.first);
+                Double score;
+                if (idsMap.containsKey(termPair.first.getUID())) {
+                    score = idsMap.get(termPair.first.getUID());
+//                    score++;
+                    score += termPair.second;
+                } else {
+//                    score = 1.0;
+                    score = termPair.second;
+                }
+//                System.err.println(termPair.first.getUID() + " : " + score + " : " + termPair.first.getLemma());
+                idsMap.put(termPair.first.getUID(), score);
+            }
+        }
+        if (!idsMap.isEmpty()) {
+            ValueComparator bvc = new ValueComparator(idsMap);
+            TreeMap<String, Double> sorted_map = new TreeMap(bvc);
+            sorted_map.putAll(idsMap);
+//            System.err.println(sorted_map);
+            count = 0;
+            Double firstScore = idsMap.get(sorted_map.firstKey());
+            terms.add(termMap.get(sorted_map.firstKey()));
+            idsMap.remove(sorted_map.firstKey());
+            for (String tvID : sorted_map.keySet()) {
+                if (count >= 1) {
+                    Double secondScore = idsMap.get(tvID);
+                    persent = secondScore / (firstScore + secondScore);
+                    if (persent > 0.2) {
+                        terms.add(termMap.get(tvID));
+                    }
+                    if (count >= 2) {
+                        break;
+                    }
+                }
+                count++;
+            }
+            return terms;
+        }
+        return null;
+    }
+
+    public Pair<TermVertex, Double> disambiguate(String language, String lemma, String sentence) throws MalformedURLException, IOException, ParseException, JWNLException, Exception {
+        if (lemma == null || lemma.length() < 1) {
+            return null;
+        }
+        String key = getKey();
+        sentence = sentence.replaceAll("_", " ");
+        sentence = URLEncoder.encode(sentence, "UTF-8");
+        String genreJson = disambiguateCache.get(sentence);
+        if (genreJson == null) {
+            URL url = new URL("https://babelfy.io/v1/disambiguate?text=" + sentence + "&lang=" + language + "&key=" + key);
+            genreJson = IOUtils.toString(url);
+            handleKeyLimitException(genreJson);
+
+            if (!genreJson.isEmpty() || genreJson.length() < 1) {
+                disambiguateCache.put(sentence, genreJson);
+            }
+        }
+//        System.err.println(sentence);
+        Object obj = JSONValue.parseWithException(genreJson);
+//        TermVertex term = null;
+        if (obj instanceof JSONArray) {
+            JSONArray ja = (JSONArray) obj;
+            for (Object o : ja) {
+                JSONObject jo = (JSONObject) o;
+                String id = (String) jo.get("babelSynsetID");
+                Double score = (Double) jo.get("score");
+                Double globalScore = (Double) jo.get("globalScore");
+                Double coherenceScore = (Double) jo.get("coherenceScore");
+                double someScore = (score + globalScore + coherenceScore) / 3.0;
+                String synet = getBabelnetSynset(id, language, key);
+                TermVertex t = TermVertexFactory.create(synet, language, lemma);
+                if (t != null) {
+                    List<TermVertex> h = getHypernyms(language, t.getUID(), key);
+                    t.setBroader(h);
+//                    System.err.println("id: " + id + " lemma: " + lemma + " score: " + score + " globalScore: " + globalScore + " coherenceScore: " + coherenceScore + " someScore: " + someScore);
+                    return new Pair<>(t, someScore);
+                }
+            }
+        }
+        return null;
+    }
+
+    private Map<String, Double> getEdgeIDs(String language, String id, String relation, String key) throws MalformedURLException, IOException, ParseException, Exception {
+        String genreJson = edgesCache.get(id);
+        if (genreJson == null) {
+            URL url = new URL("https://babelnet.io/v2/getEdges?id=" + id + "&key=" + key);
+            genreJson = IOUtils.toString(url);
+            handleKeyLimitException(genreJson);
+            if (genreJson != null) {
+                edgesCache.put(id, genreJson);
+            }
+        }
+        Object obj = JSONValue.parseWithException(genreJson);
+        JSONArray edgeArray = (JSONArray) obj;
+        Map<String, Double> map = new HashMap<>();
+        for (Object o : edgeArray) {
+            JSONObject pointer = (JSONObject) ((JSONObject) o).get("pointer");
+            String relationGroup = (String) pointer.get("relationGroup");
+//            System.err.println("relationGroup: "+relationGroup);
+            if (relationGroup.equals(relation)) {
+                String target = (String) ((JSONObject) o).get("target");
+                Double normalizedWeight = (Double) ((JSONObject) o).get("normalizedWeight");
+                Double weight = (Double) ((JSONObject) o).get("weight");
+//                System.err.println("target: " + target + " normalizedWeight: " + normalizedWeight + " weight: " + weight);
+                map.put(target, normalizedWeight);
+            }
+        }
+        return map;
+    }
+
+    public double tf(List<String> doc, String term) {
+        double result = 0;
+        for (String word : doc) {
+            if (term.equalsIgnoreCase(word)) {
+                result++;
+            }
+        }
+        return result / doc.size();
+    }
+
+    public double idf(List<List<String>> docs, String term) {
+        double n = 0;
+        for (List<String> doc : docs) {
+            for (String word : doc) {
+                if (term.equalsIgnoreCase(word)) {
+                    n++;
+                    break;
+                }
+            }
+        }
+        return Math.log(docs.size() / n);
+    }
+
+    public double tfIdf(List<String> doc, List<List<String>> docs, String term) {
+        return tf(doc, term) * idf(docs, term);
+    }
+
+//    void getRelatedTree(String lemma, int i, PointerType HYPERNYM) throws JWNLException {
+//        IndexWord iw = getWordNetDictionary().getIndexWord(POS.NOUN, lemma);
+//        for (Synset s : iw.getSenses()) {
+//            getRelatedTree(s, i, HYPERNYM);
+//        }
+//    }
+//    private List<TermVertex> getSynonymsFromWordNet(IndexWordSet set) throws JWNLException {
+//        List<TermVertex> synonyms = new ArrayList<>();
+//        for (IndexWord iw : set.getIndexWordArray()) {
+//            for (Synset s : iw.getSenses()) {
+//                PointerTargetTree tree = getRelatedTree(s, 1, PointerType.SIMILAR_TO);
+//                PointerTargetTreeNodeList children = tree.getRootNode().getChildTreeList();
+//                for (Object ch : children) {
+//                    PointerTargetTreeNode chNode = (PointerTargetTreeNode) ch;
+//                    for (Word w : chNode.getSynset().getWords()) {
+//                        String syn = w.getLemma().toLowerCase().replaceAll("(\\d+,\\d+)|\\d+", "");
+//                        System.err.println("synonyms: " + syn);
+//                        synonyms.add(new TermVertex(syn));
+//                    }
+//                }
+//            }
+//        }
+//        return synonyms;
+//    }
+//    private String getBabelNetID(List<String> ids, String language, String key, StringBuilder categories) throws ParseException, IOException, JWNLException {
+//        for (String id : ids) {
+//            String synet = getBabelnetSynset(id, language, key);
+//            JSONObject jSynet = (JSONObject) JSONValue.parseWithException(synet);
+//            JSONArray categoriesArray = (JSONArray) jSynet.get("categories");
+//            for (Object o : categoriesArray) {
+//                JSONObject cat = (JSONObject) o;
+//
+//                String lang = (String) cat.get("language");
+//                if (lang.equals(language)) {
+//                    String[] parts = categories.toString().split("_");
+//                    String category = ((String) cat.get("category")).toLowerCase();
+//                    if (isInkeywordsDictionaray(lemmatize(category))) {
+//                        return id;
+//                    }
+//                    for (String s : parts) {
+//                        if (category.contains(s.toLowerCase())) {
+//                            return id;
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//        return null;
+//    }
+//    private boolean isInkeywordsDictionaray(String hyper) throws FileNotFoundException, IOException {
+//        try (BufferedReader br = new BufferedReader(new FileReader(keywordsDictionarayFile))) {
+//            String line;
+//            while ((line = br.readLine()) != null) {
+//                String[] parts = line.split(",");
+//                Integer score = Integer.valueOf(parts[1]);
+//                String keyword = parts[0];
+//                if (score > 1 && keyword.equals(hyper)) {
+//                    return true;
+//                }
+//            }
+//        }
+////        try (BufferedReader br = new BufferedReader(new FileReader(keywordsDictionarayFile))) {
+////            String[] words = hyper.split("_");
+////            String line;
+////            for (String w : words) {
+////                while ((line = br.readLine()) != null) {
+////                    String[] parts = line.split(",");
+////                    Integer score = Integer.valueOf(parts[1]);
+////                    String keyword = parts[0];
+////                    if (score > 1 && keyword.contains(w)) {
+////                        return true;
+////                    }
+////                }
+////            }
+////        }
+//        return false;
+//    }
+//    private TermVertex getTermFromGraph(String word) {
+//        if (g != null) {
+//            Set<TermVertex> vSet = g.vertexSet();
+//            for (TermVertex term : vSet) {
+//                List<TermVertex> hyper = term.getBroader();
+//                if (hyper == null || hyper.isEmpty()) {
+//                    continue;
+//                }
+//                List<TermVertex> syn = term.getSynonyms();
+//                if (syn != null) {
+//                    for (TermVertex s : syn) {
+//                        int dist = edu.stanford.nlp.util.StringUtils.editDistance(s.getLemma(), word);
+//                        if (dist < 15) {
+//                            System.err.println("dist " + s.getLemma() + " " + word + "= " + dist);
+//                        }
+//                        if (s.getLemma().equals(word)) {
+//                            return term;
+//                        }
+//                    }
+//                }
+//                if (term.getLemma().contains(word)) {
+//                    return term;
+//                }
+//                if (term.getLemma().contains("_") && word.contains("_")) {
+//                    String[] termParts = term.getLemma().split("_");
+//                    String[] wordParts = word.split("_");
+//                    for (String tp : termParts) {
+//                        for (String wp : wordParts) {
+//                            if (tp.equals(wp)) {
+//                                TermVertex t = new TermVertex(word);
+//                                t.setBroader(hyper);
+//                                ArrayList<TermVertex> synon = new ArrayList<>();
+//                                synon.add(term);
+//                                t.setSynonyms(synon);
+//                                return t;
+//                            }
+//                        }
+//                    }
+//                } else if (!term.getLemma().contains("_") && word.contains("_")) {
+//                    String[] wordParts = word.split("_");
+//                    for (String wp : wordParts) {
+//                        if (term.getLemma().equals(wp)) {
+//                            TermVertex t = new TermVertex(word);
+//                            t.setBroader(hyper);
+//                            ArrayList<TermVertex> synon = new ArrayList<>();
+//                            synon.add(term);
+//                            t.setSynonyms(synon);
+//                            return t;
+//                        }
+//                    }
+//
+//                } else if (term.getLemma().contains("_") && !word.contains("_")) {
+//                    String[] termParts = term.getLemma().split("_");
+//                    for (String tp : termParts) {
+//                        if (tp.equals(word)) {
+//                            TermVertex t = new TermVertex(word);
+//                            t.setBroader(hyper);
+//                            ArrayList<TermVertex> synon = new ArrayList<>();
+//                            synon.add(term);
+//                            t.setSynonyms(synon);
+//                            return t;
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//        return null;
+//    }
+    private static void loadNonLematizeWords() throws FileNotFoundException, IOException {
+        if (nonLematizedWordsFile.exists() && nonLematizedWordsFile.length() > 1) {
+            System.err.println("loading " + nonLematizedWordsFile.getAbsolutePath());
+            try (BufferedReader br = new BufferedReader(new FileReader(nonLematizedWordsFile))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    nonLematizedWords.add(line);
+                }
+            }
+        }
+    }
+
+    private List<TermVertex> getHypernyms(String language, String correctID, String key) throws MalformedURLException, IOException, ParseException, Exception {
+        Map<String, Double> hypenymMap = getEdgeIDs(language, correctID, "HYPERNYM", key);
+        Map<String, TermVertex> hMap = new HashMap<>();
+        for (String h : hypenymMap.keySet()) {
+            String synetHyper = getBabelnetSynset(h, language, key);
+            JSONObject jSynetHyper = (JSONObject) JSONValue.parseWithException(synetHyper);
+            JSONArray sensestHyper = (JSONArray) jSynetHyper.get("senses");
+            for (Object o : sensestHyper) {
+                JSONObject jo = (JSONObject) o;
+                String lang = (String) jo.get("language");
+                if (lang.equals(language)) {
+                    String lemma = (String) jo.get("lemma");
+                    String id = (String) ((JSONObject) jo.get("synsetID")).get("id");
+                    lemma = lemma.toLowerCase();
+                    //                    String hyper = lemma.toLowerCase().replaceAll("(\\d+,\\d+)|\\d+", "");
+                    //                    String detectedLang = Utils.detectLang(hyper);
+
+                    if (lemma.length() > 1) {
+                        TermVertex v = new TermVertex(lemma);
+                        v.setUID(id);
+                        v.setIsFromDictionary(false);
+//                        System.err.println("hypo: " + correctID + " hyper: " + lemma + " id: " + id);
+                        hMap.put(lemma, v);
+                        break;
+                    }
+
+                }
+            }
+        }
+        List list;
+        if (hMap.values() instanceof List) {
+            list = (List) hMap.values();
+        } else {
+            list = new ArrayList(hMap.values());
+        }
+        return list;
+    }
+
+    private List<String> getCategories(String id, String language, String key) throws IOException, ParseException, Exception {
+        String synet = getBabelnetSynset(id, language, key);
+        JSONObject jSynet = (JSONObject) JSONValue.parseWithException(synet);
+        JSONArray categoriesArray = (JSONArray) jSynet.get("categories");
+        List<String> categories = new ArrayList<>();
+        for (Object o : categoriesArray) {
+            JSONObject cat = (JSONObject) o;
+            String lang = (String) cat.get("language");
+            if (lang.equals(language)) {
+                String category = ((String) cat.get("category")).toLowerCase();
+                categories.add(category);
+            }
+        }
+        return categories;
+    }
+
+    private void handleKeyLimitException(String genreJson) throws Exception {
+        if (genreJson.contains("Your key is not valid or the daily requests limit has been reached")) {
+            saveCache();
+            throw new Exception("Your key is not valid or the daily requests limit has been reached");
+        }
+    }
+
+    private void deleteEntry(String key) {
+        synsetCache.remove(key);
+        wordIDCache.remove(key);
+        disambiguateCache.remove(key);
+        edgesCache.remove(key);
+    }
+}
