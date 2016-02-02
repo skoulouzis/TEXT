@@ -94,7 +94,7 @@ public class App {
     private static File skosFile = new File(System.getProperty("user.home")
             + File.separator + "workspace" + File.separator + "TEXT" + File.separator + "etc" + File.separator + "taxonomy.rdf");
     private static boolean generateNgrams = true;
-    private static int depth = 5;
+    private static int depth = 2;
 
     public static void main(String[] args) {
         try {
@@ -108,14 +108,14 @@ public class App {
 //            createIndex(textDocsPath, indexPath);
 
 //            createTermDictionary(textDocsPath, keywordsDictionarayFile, true);
-//            buildHyperymTree(keywordsDictionarayFile, indexPath);
+            buildHyperymTree(keywordsDictionarayFile, indexPath);
 
-            File taxonomyFile = new File(System.getProperty("user.home")
-                    + File.separator + "workspace" + File.separator + "TEXT"
-                    + File.separator + "etc" + File.separator + "ACMComputingClassificationSystemSKOSTaxonomy.rdf");
+//            File taxonomyFile = new File(System.getProperty("user.home")
+//                    + File.separator + "workspace" + File.separator + "TEXT"
+//                    + File.separator + "etc" + File.separator + "ACMComputingClassificationSystemSKOSTaxonomy.rdf");
 //
-            List<TermVertex> leaves = getTermsFromTaxonomy(taxonomyFile, "en", 2);
-            buildHyperymTree(leaves, indexPath, keywordsDictionarayFile);
+//            List<TermVertex> leaves = getTermsFromTaxonomy(taxonomyFile, "en", 2);
+//            buildHyperymTree(leaves, indexPath, keywordsDictionarayFile);
 
 //            DefaultDirectedWeightedGraph g = taxonomy2Graph(taxonomyFile, "en");
 
@@ -360,7 +360,7 @@ public class App {
         List<TermVertex> allTerms = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(termDictionaryPath))) {
             String line;
-            int limit = 300;
+            int limit = 400;
             int count = 0;
             while ((line = br.readLine()) != null) {
                 ++count;
@@ -393,7 +393,7 @@ public class App {
         BabelNet bbn = new BabelNet();
         List<TermVertex> allTerms = new ArrayList<>();
         try {
-            int limit = 3;
+            int limit = 5;
             int count = 0;
             for (TermVertex tv : leaves) {
                 ++count;

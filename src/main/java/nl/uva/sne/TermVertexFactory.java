@@ -73,7 +73,7 @@ public class TermVertexFactory {
                         lemma2 = lemma;
                         lemma1 = jlemma;
                     }
-                    System.err.println("original: " + lemma + " jlemma: " + jlemma + " id: " + babelNetID + " lang " + lang + " dist: " + dist);
+//                    System.err.println("original: " + lemma + " jlemma: " + jlemma + " id: " + babelNetID + " lang " + lang + " dist: " + dist);
                     if (dist <= 3 && lemma2.contains(lemma1)) {
                         node = new TermVertex(jlemma);
                         node.setUID(babelNetID);
