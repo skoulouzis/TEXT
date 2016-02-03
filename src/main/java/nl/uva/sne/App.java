@@ -661,7 +661,6 @@ public class App {
             ngarms.add(scentense);
             possibleTerms = bbn.disambiguate("EN", lemma, ngarms);
             possibleTerms = resolveTerms(possibleTerms, lemma, bbn, indexPath);
-
         } else {
             possibleTerms = new ArrayList<>();
             possibleTerms.add(termVertex);
@@ -682,7 +681,6 @@ public class App {
                     }
                 }
             }
-
         }
         return terms;
     }
@@ -901,74 +899,47 @@ public class App {
 
     private static List<TermVertex> resolveTerms(List<TermVertex> possibleTerms, String lemma, BabelNet bbn, String indexPath) throws IOException, JWNLException, FileNotFoundException, MalformedURLException, ParseException, Exception {
 
-        Map<String, Double> ambiguateVector;
-        Map<String, Map<String, Double>> featureVectors = new HashMap<>();
+        List<List<String>> allDocs = new ArrayList<>();
+        Map<String, List<String>> docs = new HashMap<>();
         for (TermVertex tv : possibleTerms) {
-            List<List<String>> ambiguateDocs = new ArrayList<>(tv.getGlosses().size());
-            ambiguateVector = new TreeMap<>();
+            List<String> doc = new ArrayList<>();
             for (String s : tv.getGlosses()) {
-                List<String> doc = tokenize(s, false, bbn);
-                ambiguateDocs.add(doc);
+                doc = tokenize(s, false, bbn);
             }
             for (String s : tv.getAlternativeLables()) {
-                List<String> doc = tokenize(s, false, bbn);
-                ambiguateDocs.add(doc);
+                doc.addAll(tokenize(s, false, bbn));
             }
-            for (List<String> doc : ambiguateDocs) {
-                for (String token : doc) {
-                    if (!ambiguateVector.containsKey(token)) {
-                        double score = tfIdf(doc, ambiguateDocs, token);
-                        System.err.println(token + " : " + score);
-                        ambiguateVector.put(token, score);
-                    }
-                }
-            }
-            featureVectors.put(tv.getUID(), ambiguateVector);
-            System.err.println("ambiguateVector: " + ambiguateVector);
+            allDocs.add(doc);
+            docs.put(tv.getUID(), doc);
         }
 
-        List<String> docs = getDocuments(lemma, 800, 50, indexPath);
-        List<List<String>> contextDocs = new ArrayList<>();
-        Map<String, Double> contextVector = new TreeMap<>();
-        for (String s : docs) {
+        List<String> contextDocs = getDocuments(lemma, 100, 10, indexPath);
+        for (String s : contextDocs) {
             List<String> doc = tokenize(s, false, bbn);
-            contextDocs.add(doc);
+            allDocs.add(doc);
+            docs.put("context", doc);
         }
 
-        for (List<String> doc : contextDocs) {
-            for (String token : doc) {
-                if (!contextVector.containsKey(token)) {
-                    double score = tfIdf(doc, contextDocs, token);
-                    System.err.println(token + " : " + score);
-                    contextVector.put(token, score);
+        Map<String, Map<String, Double>> featureVectors = new HashMap<>();
+        for (String k : docs.keySet()) {
+            List<String> doc = docs.get(k);
+            Map<String, Double> featureVector = new TreeMap<>();
+            for (String term : doc) {
+                if (!featureVector.containsKey(term)) {
+                    double score = tfIdf(doc, allDocs, term);
+                    System.err.println(term + " : " + score);
+                    featureVector.put(term, score);
                 }
             }
+            featureVectors.put(k, featureVector);
         }
-        System.err.println("contextVector: " + contextVector);
 
-        for (Map<String, Double> map : featureVectors.values()) {
-            double dist = cosineSimilarity(contextVector, map);
+        Map<String, Double> contextVector = featureVectors.remove("context");
+        for (String key : featureVectors.keySet()) {
+            Double similarity = Utils.cosineSimilarity(contextVector, featureVectors.get(key));
+            System.err.println("context-" + key + ": " + similarity);
         }
 
         return possibleTerms;
-    }
-
-    private static double cosineSimilarity(Map<String, Double> f1, Map<String, Double> f2) {
-        if (f1.size() > f2.size()) {
-            for (String k : f1.keySet()) {
-                if (!f2.containsKey(k)) {
-                    f2.put(k, 0.0);
-                }
-            }
-        } else {
-            for (String k : f2.keySet()) {
-                if (!f1.containsKey(k)) {
-                    f1.put(k, 0.0);
-                }
-            }
-        }
-        System.err.println("f1: " + f1);
-        System.err.println("f2: " + f2);
-        return 0;
     }
 }

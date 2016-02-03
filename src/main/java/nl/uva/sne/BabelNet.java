@@ -153,24 +153,25 @@ public class BabelNet {
                 List<TermVertex> h = getHypernyms(language, correctID, key);
                 node.setBroader(h);
             }
-        } else if (ids != null && ids.size() > 1) {
-            Map<String, Integer> map = new HashMap<>();
-            for (String id : ids) {
-                List<String> categories = getCategories(id, language, key);
-                for (String cat : categories) {
-                    Integer count;
-                    if (map.containsKey(cat)) {
-                        count = map.get(cat);
-                        count++;
-                    } else {
-                        count = 1;
-                    }
-//                    System.err.println("word: " + word + " id: " + id + " category: " + cat);
-                    map.put(cat, count);
-                }
-            }
-//            System.err.println(map);
         }
+//        else if (ids != null && ids.size() > 1) {
+//            Map<String, Integer> map = new HashMap<>();
+//            for (String id : ids) {
+//                List<String> categories = getCategories(id, language, key);
+//                for (String cat : categories) {
+//                    Integer count;
+//                    if (map.containsKey(cat)) {
+//                        count = map.get(cat);
+//                        count++;
+//                    } else {
+//                        count = 1;
+//                    }
+////                    System.err.println("word: " + word + " id: " + id + " category: " + cat);
+//                    map.put(cat, count);
+//                }
+//            }
+////            System.err.println(map);
+//        }
         return node;
     }
 
@@ -779,22 +780,21 @@ public class BabelNet {
         return list;
     }
 
-    private List<String> getCategories(String id, String language, String key) throws IOException, ParseException, Exception {
-        String synet = getBabelnetSynset(id, language, key);
-        JSONObject jSynet = (JSONObject) JSONValue.parseWithException(synet);
-        JSONArray categoriesArray = (JSONArray) jSynet.get("categories");
-        List<String> categories = new ArrayList<>();
-        for (Object o : categoriesArray) {
-            JSONObject cat = (JSONObject) o;
-            String lang = (String) cat.get("language");
-            if (lang.equals(language)) {
-                String category = ((String) cat.get("category")).toLowerCase();
-                categories.add(category);
-            }
-        }
-        return categories;
-    }
-
+//    private List<String> getCategories(String id, String language, String key) throws IOException, ParseException, Exception {
+//        String synet = getBabelnetSynset(id, language, key);
+//        JSONObject jSynet = (JSONObject) JSONValue.parseWithException(synet);
+//        JSONArray categoriesArray = (JSONArray) jSynet.get("categories");
+//        List<String> categories = new ArrayList<>();
+//        for (Object o : categoriesArray) {
+//            JSONObject cat = (JSONObject) o;
+//            String lang = (String) cat.get("language");
+//            if (lang.equals(language)) {
+//                String category = ((String) cat.get("category")).toLowerCase();
+//                categories.add(category);
+//            }
+//        }
+//        return categories;
+//    }
     private void handleKeyLimitException(String genreJson) throws Exception {
         if (genreJson.contains("Your key is not valid or the daily requests limit has been reached")) {
             saveCache();
