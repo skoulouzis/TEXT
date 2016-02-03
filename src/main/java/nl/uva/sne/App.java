@@ -94,7 +94,7 @@ public class App {
     private static File skosFile = new File(System.getProperty("user.home")
             + File.separator + "workspace" + File.separator + "TEXT" + File.separator + "etc" + File.separator + "taxonomy.rdf");
     private static boolean generateNgrams = true;
-    private static int depth = 2;
+    private static int depth = 3;
 
     public static void main(String[] args) {
         try {
@@ -280,8 +280,8 @@ public class App {
         if (bbn == null) {
             bbn = new BabelNet();
         }
-//        text = text.replaceAll("((mailto\\:|(news|(ht|f)tp(s?))\\://){1}\\S+)", "");
-//        text = text.replaceAll("/", " ");
+        text = text.replaceAll("((mailto\\:|(news|(ht|f)tp(s?))\\://){1}\\S+)", "");
+        text = text.replaceAll("[^a-zA-Z\\s]", "");
 //        text = text.replaceAll("(\\d+,\\d+)|\\d+", "");
         text = text.replaceAll("-", "");
         text = text.replaceAll("  ", " ");
@@ -294,7 +294,12 @@ public class App {
             CharTermAttribute term = tokenStream.addAttribute(CharTermAttribute.class);
             tokenStream.reset();
             while (tokenStream.incrementToken()) {
-                String lemma = bbn.lemmatize(term.toString(), "EN");
+                String lemma;
+                try {
+                    lemma = bbn.lemmatize(term.toString(), "EN");
+                } catch (Exception ex) {
+                    lemma = term.toString();
+                }
                 if (!Utils.isStopWord(text)) {
                     words.add(lemma);
                     sb.append(lemma).append(" ");
@@ -355,12 +360,42 @@ public class App {
         return tf(doc, term) * idf(docsFolder, term);
     }
 
+    public static double tfIdf(List<String> doc, List<List<String>> docs, String term) {
+        return tf(doc, term) * idf(docs, term);
+    }
+
+    public static double idf(List<List<String>> docs, String term) {
+        double n = 0;
+        for (List<String> doc : docs) {
+            for (String word : doc) {
+                if (term.equalsIgnoreCase(word)) {
+                    n++;
+                    break;
+                }
+            }
+        }
+        if (n <= 0) {
+            n = 1;
+        }
+        return Math.log(docs.size() / n);
+    }
+
+    public static double tf(List<String> doc, String term) {
+        double result = 0;
+        for (String word : doc) {
+            if (term.equalsIgnoreCase(word)) {
+                result++;
+            }
+        }
+        return result / doc.size();
+    }
+
     private static void buildHyperymTree(String termDictionaryPath, String indexPath) throws FileNotFoundException, IOException, JWNLException, ParseException, ClassCastException, ClassNotFoundException, MalformedURLException, Exception {
         BabelNet bbn = new BabelNet();
         List<TermVertex> allTerms = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(termDictionaryPath))) {
             String line;
-            int limit = 400;
+            int limit = 2;
             int count = 0;
             while ((line = br.readLine()) != null) {
                 ++count;
@@ -372,7 +407,7 @@ public class App {
 
                 if (Integer.valueOf(line.split(",")[1]) > 2) {
                     List<TermVertex> terms = getTermVertices(lemma, null, depth, true, bbn, indexPath, termDictionaryPath, null);
-                    if (terms != null || !terms.isEmpty()) {
+                    if (terms != null && !terms.isEmpty()) {
                         allTerms.addAll(terms);
                     }
                 }
@@ -381,8 +416,8 @@ public class App {
         } finally {
             bbn.saveCache();
             DefaultDirectedWeightedGraph g = buildGraph(allTerms);
-//            export2DOT(g, graphFile);
-            DefaultDirectedWeightedGraph pg = pruneGraph(g);
+            export2DOT(g, graphFile);
+            DefaultDirectedWeightedGraph pg = pruneGraph(g, 3);
             export2DOT(pg, graphFile2);
 //            rapper -o dot ~/workspace/TEXT/etc/taxonomy.rdf | dot -Kfdp -Tsvg -o taxonomy.svg
             export2SKOS(pg, skosFile);
@@ -393,7 +428,7 @@ public class App {
         BabelNet bbn = new BabelNet();
         List<TermVertex> allTerms = new ArrayList<>();
         try {
-            int limit = 5;
+            int limit = 10;
             int count = 0;
             for (TermVertex tv : leaves) {
                 ++count;
@@ -425,8 +460,8 @@ public class App {
         } finally {
             bbn.saveCache();
             DefaultDirectedWeightedGraph g = buildGraph(allTerms);
-//            export2DOT(g, graphFile);
-            DefaultDirectedWeightedGraph pg = pruneGraph(g);
+            export2DOT(g, graphFile);
+            DefaultDirectedWeightedGraph pg = pruneGraph(g, 4);
             export2DOT(pg, graphFile2);
 //            rapper -o dot ~/workspace/TEXT/etc/taxonomy.rdf | dot -Kfdp -Tsvg -o taxonomy.svg
             export2SKOS(pg, skosFile);
@@ -484,10 +519,10 @@ public class App {
         IndexReader reader = indexSearcher.getIndexReader();
 
         Query q = buildQuery(searchString, false);
-        ScoreDoc[] hits = getDocs(q, indexSearcher);
+        ScoreDoc[] hits = getDocs(q, indexSearcher, 10);
         if (hits.length < 1) {
             q = buildQuery(searchString, true);
-            hits = getDocs(q, indexSearcher);
+            hits = getDocs(q, indexSearcher, 10);
         }
 
 
@@ -532,6 +567,57 @@ public class App {
         return scentence.toString().replaceAll("  ", " ");
     }
 
+    private static List<String> getDocuments(String searchString, int numOfWords, int maxDoxs, String INDEX_DIRECTORY) throws IOException, org.apache.lucene.queryparser.classic.ParseException {
+        if (searchString.contains("_")) {
+            searchString = searchString.replaceAll("_", " ");
+        }
+        Directory directory = FSDirectory.open(new File(INDEX_DIRECTORY));
+        IndexReader indexReader = DirectoryReader.open(directory);
+        IndexSearcher indexSearcher = new IndexSearcher(indexReader);
+        IndexReader reader = indexSearcher.getIndexReader();
+
+        Query q = buildQuery(searchString, false);
+        ScoreDoc[] hits = getDocs(q, indexSearcher, maxDoxs);
+        if (hits.length < 1) {
+            q = buildQuery(searchString, true);
+            hits = getDocs(q, indexSearcher, maxDoxs);
+        }
+        List<String> docs = new ArrayList<>(hits.length);
+
+//        System.err.println("Found " + hits.length + " hits.");
+
+        StringBuilder candidateScentence = new StringBuilder();
+        int count = 0;
+        for (int i = 0; i < hits.length; ++i) {
+            int docId = hits[i].doc;
+
+            String path = reader.document(docId).getField("path").stringValue();
+            StringBuilder scentence = new StringBuilder();
+            try (BufferedReader br = new BufferedReader(new FileReader(path))) {
+                for (String line; (line = br.readLine()) != null;) {
+                    line = line.replaceAll(" &amp; ", " and ");
+                    String[] parts = line.split(" ");
+                    for (int j = 0; j < parts.length; j++) {
+                        candidateScentence.append(parts[j]).append(" ");
+                        if (parts[j].endsWith(".") || parts[j].endsWith("?") || parts[j].endsWith("!") || parts[j].endsWith(";") || j >= parts.length) {
+                            if (candidateScentence.toString().toLowerCase().contains(searchString)) {
+                                scentence.append(candidateScentence.toString()).append(" ");
+                                count += scentence.toString().split(" ").length;
+                                if (count >= numOfWords) {
+                                    docs.add(scentence.toString().replaceAll("  ", " "));
+                                    break;
+                                }
+                            }
+                            candidateScentence.setLength(0);
+                        }
+                    }
+                }
+            }
+        }
+        return docs;
+
+    }
+
     private static List<String> getNGrams(String lemma, String keywordsDictionarayFile) throws FileNotFoundException, IOException {
         if (nGramsMap == null) {
             nGramsMap = new HashMap<>();
@@ -574,11 +660,8 @@ public class App {
             scentense = getScentsens(lemma, numOfWords, indexPath);
             ngarms.add(scentense);
             possibleTerms = bbn.disambiguate("EN", lemma, ngarms);
+            possibleTerms = resolveTerms(possibleTerms, lemma, bbn, indexPath);
 
-//            if (termVertex == null) {
-//                scentense = getScentsens(lemma, numOfWords, indexPath);
-//                termVertex = bbn.disambiguate("EN", lemma, scentense);
-//            }
         } else {
             possibleTerms = new ArrayList<>();
             possibleTerms.add(termVertex);
@@ -701,23 +784,22 @@ public class App {
         }
     }
 
-    private static ScoreDoc[] getDocs(Query q, IndexSearcher indexSearcher) throws IOException {
-        TopScoreDocCollector collector = TopScoreDocCollector.create(10, true);
+    private static ScoreDoc[] getDocs(Query q, IndexSearcher indexSearcher, int maxDoxs) throws IOException {
+        TopScoreDocCollector collector = TopScoreDocCollector.create(maxDoxs, true);
         indexSearcher.search(q, collector);
         return collector.topDocs().scoreDocs;
     }
 
-    private static DefaultDirectedWeightedGraph pruneGraph(DefaultDirectedWeightedGraph g) {
+    private static DefaultDirectedWeightedGraph pruneGraph(DefaultDirectedWeightedGraph g, int depth) {
         Set<TermVertex> vs = g.vertexSet();
         List<TermVertex> toRemove = new ArrayList<>();
         for (TermVertex tv : vs) {
             if (!tv.getIsFromDictionary()) {
                 List<DirectedWeightedEdge> outEdges = g.outgoingEdgesOf(tv);
                 List<DirectedWeightedEdge> inEdges = g.incomingEdgesOf(tv);
-                if (outEdges.size() < 1) {
+                if (outEdges.size() <= 0 && inEdges.size() <= 0) {
                     toRemove.add(tv);
                 }
-
                 if (outEdges.size() == 1) {
                     DirectedWeightedEdge out = outEdges.get(0);
                     TermVertex target = (TermVertex) out.getTarget();
@@ -726,18 +808,13 @@ public class App {
                         toRemove.add(tv);
                     }
                 }
-                if (!inEdges.isEmpty() && outEdges.isEmpty()) {
-                    toRemove.add(tv);
-                }
-//                if (inEdges.size() == 1) {
-//                    DirectedWeightedEdge in = inEdges.get(0);
-//                    TermVertex target = (TermVertex) in.getTarget();
-//                    TermVertex source = (TermVertex) in.getSource();
-//                    System.err.println("term: " + tv.getLemma() + " target: " + target.getLemma() + " source: " + source.getLemma());
-//                }
             }
         }
         g.removeAllVertices(toRemove);
+        depth--;
+        if (depth >= 1) {
+            pruneGraph(g, depth);
+        }
         return g;
     }
 
@@ -820,5 +897,78 @@ public class App {
         }
         return leaves;
 
+    }
+
+    private static List<TermVertex> resolveTerms(List<TermVertex> possibleTerms, String lemma, BabelNet bbn, String indexPath) throws IOException, JWNLException, FileNotFoundException, MalformedURLException, ParseException, Exception {
+
+        Map<String, Double> ambiguateVector;
+        Map<String, Map<String, Double>> featureVectors = new HashMap<>();
+        for (TermVertex tv : possibleTerms) {
+            List<List<String>> ambiguateDocs = new ArrayList<>(tv.getGlosses().size());
+            ambiguateVector = new TreeMap<>();
+            for (String s : tv.getGlosses()) {
+                List<String> doc = tokenize(s, false, bbn);
+                ambiguateDocs.add(doc);
+            }
+            for (String s : tv.getAlternativeLables()) {
+                List<String> doc = tokenize(s, false, bbn);
+                ambiguateDocs.add(doc);
+            }
+            for (List<String> doc : ambiguateDocs) {
+                for (String token : doc) {
+                    if (!ambiguateVector.containsKey(token)) {
+                        double score = tfIdf(doc, ambiguateDocs, token);
+                        System.err.println(token + " : " + score);
+                        ambiguateVector.put(token, score);
+                    }
+                }
+            }
+            featureVectors.put(tv.getUID(), ambiguateVector);
+            System.err.println("ambiguateVector: " + ambiguateVector);
+        }
+
+        List<String> docs = getDocuments(lemma, 800, 50, indexPath);
+        List<List<String>> contextDocs = new ArrayList<>();
+        Map<String, Double> contextVector = new TreeMap<>();
+        for (String s : docs) {
+            List<String> doc = tokenize(s, false, bbn);
+            contextDocs.add(doc);
+        }
+
+        for (List<String> doc : contextDocs) {
+            for (String token : doc) {
+                if (!contextVector.containsKey(token)) {
+                    double score = tfIdf(doc, contextDocs, token);
+                    System.err.println(token + " : " + score);
+                    contextVector.put(token, score);
+                }
+            }
+        }
+        System.err.println("contextVector: " + contextVector);
+
+        for (Map<String, Double> map : featureVectors.values()) {
+            double dist = cosineSimilarity(contextVector, map);
+        }
+
+        return possibleTerms;
+    }
+
+    private static double cosineSimilarity(Map<String, Double> f1, Map<String, Double> f2) {
+        if (f1.size() > f2.size()) {
+            for (String k : f1.keySet()) {
+                if (!f2.containsKey(k)) {
+                    f2.put(k, 0.0);
+                }
+            }
+        } else {
+            for (String k : f2.keySet()) {
+                if (!f1.containsKey(k)) {
+                    f1.put(k, 0.0);
+                }
+            }
+        }
+        System.err.println("f1: " + f1);
+        System.err.println("f2: " + f2);
+        return 0;
     }
 }

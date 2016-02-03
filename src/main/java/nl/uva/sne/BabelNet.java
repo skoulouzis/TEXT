@@ -28,10 +28,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.didion.jwnl.JWNL;
 import net.didion.jwnl.JWNLException;
-import net.didion.jwnl.data.IndexWord;
-import net.didion.jwnl.data.IndexWordSet;
-import net.didion.jwnl.data.POS;
-import net.didion.jwnl.dictionary.Dictionary;
 import org._3pq.jgrapht.graph.DefaultDirectedWeightedGraph;
 import org.apache.commons.io.IOUtils;
 import org.json.simple.JSONArray;
@@ -63,17 +59,7 @@ public class BabelNet {
     private static Map<String, String> edgesCache = new HashMap<>();
     private static File edgesCacheFile = new File(System.getProperty("user.home")
             + File.separator + "workspace" + File.separator + "TEXT" + File.separator + "cache" + File.separator + "edgesCacheFile.csv");
-    private DefaultDirectedWeightedGraph g;
-
-    static {
-        try {
-            JWNL.initialize(new FileInputStream(System.getProperty("user.home")
-                    + File.separator + "workspace" + File.separator + "TEXT"
-                    + File.separator + "etc" + File.separator + "file_properties.xml"));
-        } catch (JWNLException | FileNotFoundException ex) {
-            Logger.getLogger(WordNetDemo.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
+//    private DefaultDirectedWeightedGraph g;
 
     BabelNet() throws FileNotFoundException, IOException {
         loadCache();
@@ -94,11 +80,7 @@ public class BabelNet {
         if (nonLemetize(word) || word.contains("_")) {
             return word;
         }
-        //        wordNetdictionary = getWordNetDictionary();
-        //        IndexWordSet set = wordNetdictionary.lookupAllIndexWords(word);
-        //        for (IndexWord iw : set.getIndexWordArray()) {
-        //            return iw.getLemma();
-        //        }
+
         String key = getKey();
         String enWord = URLEncoder.encode(word, "UTF-8");
         List<String> ids = getcandidateWordIDs(language, enWord, key);
@@ -106,13 +88,18 @@ public class BabelNet {
             return word;
         }
         for (String id : ids) {
-            String synet = getBabelnetSynset(id, language, key);
+            String synet;
+            try {
+                synet = getBabelnetSynset(id, language, key);
+            } catch (Exception ex) {
+                return word;
+            }
             JSONObject jSynet = (JSONObject) JSONValue.parseWithException(synet);
             JSONArray senses = (JSONArray) jSynet.get("senses");
             if (senses != null) {
                 for (Object o2 : senses) {
                     JSONObject jo2 = (JSONObject) o2;
-                    JSONObject synsetID = (JSONObject) jo2.get("synsetID");
+//                    JSONObject synsetID = (JSONObject) jo2.get("synsetID");
 
                     String lang = (String) jo2.get("language");
                     if (lang.equals(language)) {
@@ -129,7 +116,6 @@ public class BabelNet {
                             lemma2 = word;
                             lemma1 = jlemma;
                         }
-
                         if (dist <= 3 && lemma2.contains(lemma1)) {
                             return jlemma.replaceAll("_", " ");
                         }
@@ -140,12 +126,6 @@ public class BabelNet {
         return word;
     }
 
-//    private static Dictionary getWordNetDictionary() {
-//        if (wordNetdictionary == null) {
-//            wordNetdictionary = Dictionary.getInstance();
-//        }
-//        return wordNetdictionary;
-//    }
     TermVertex getTermNodeByID(String word, String id, boolean fromDiec) throws FileNotFoundException, IOException, Exception {
         TermVertex node = null;
         String language = "EN";
@@ -161,7 +141,7 @@ public class BabelNet {
 
     public TermVertex getTermNodeByLemma(String word, boolean isFromDictionary) throws IOException, MalformedURLException, ParseException, Exception {
         String key = getKey();
-        String correctID = null;
+        String correctID;
         String language = "EN";
         TermVertex node = null;
         List<String> ids = getcandidateWordIDs(language, word, key);
@@ -185,11 +165,11 @@ public class BabelNet {
                     } else {
                         count = 1;
                     }
-                    System.err.println("word: " + word + " id: " + id + " category: " + cat);
+//                    System.err.println("word: " + word + " id: " + id + " category: " + cat);
                     map.put(cat, count);
                 }
             }
-            System.err.println(map);
+//            System.err.println(map);
         }
         return node;
     }
@@ -312,12 +292,17 @@ public class BabelNet {
             return null;
         }
         String json = synsetCache.get(id);
+        if (json != null && json.equals("NON-EXISTING")) {
+            return null;
+        }
         if (json == null) {
             URL url = new URL("https://babelnet.io/v2/getSynset?id=" + id + "&filterLangs=" + lan + "&langs=" + lan + "&key=" + key);
             json = IOUtils.toString(url);
             handleKeyLimitException(json);
             if (json != null) {
                 synsetCache.put(id, json);
+            } else {
+                synsetCache.put(id, "NON-EXISTING");
             }
         }
         return json;
@@ -533,13 +518,17 @@ public class BabelNet {
         sentence = sentence.replaceAll("_", " ");
         sentence = URLEncoder.encode(sentence, "UTF-8");
         String genreJson = disambiguateCache.get(sentence);
+        if (genreJson != null && genreJson.equals("NON-EXISTING")) {
+            return null;
+        }
         if (genreJson == null) {
             URL url = new URL("https://babelfy.io/v1/disambiguate?text=" + sentence + "&lang=" + language + "&key=" + key);
             genreJson = IOUtils.toString(url);
             handleKeyLimitException(genreJson);
-
             if (!genreJson.isEmpty() || genreJson.length() < 1) {
                 disambiguateCache.put(sentence, genreJson);
+            } else {
+                disambiguateCache.put(sentence, "NON-EXISTING");
             }
         }
 //        System.err.println(sentence);
@@ -593,33 +582,6 @@ public class BabelNet {
             }
         }
         return map;
-    }
-
-    public double tf(List<String> doc, String term) {
-        double result = 0;
-        for (String word : doc) {
-            if (term.equalsIgnoreCase(word)) {
-                result++;
-            }
-        }
-        return result / doc.size();
-    }
-
-    public double idf(List<List<String>> docs, String term) {
-        double n = 0;
-        for (List<String> doc : docs) {
-            for (String word : doc) {
-                if (term.equalsIgnoreCase(word)) {
-                    n++;
-                    break;
-                }
-            }
-        }
-        return Math.log(docs.size() / n);
-    }
-
-    public double tfIdf(List<String> doc, List<List<String>> docs, String term) {
-        return tf(doc, term) * idf(docs, term);
     }
 
 //    void getRelatedTree(String lemma, int i, PointerType HYPERNYM) throws JWNLException {
@@ -836,7 +798,7 @@ public class BabelNet {
     private void handleKeyLimitException(String genreJson) throws Exception {
         if (genreJson.contains("Your key is not valid or the daily requests limit has been reached")) {
             saveCache();
-            throw new Exception("Your key is not valid or the daily requests limit has been reached");
+            throw new Exception(genreJson);
         }
     }
 
