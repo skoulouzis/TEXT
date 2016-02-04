@@ -666,24 +666,22 @@ public class App {
             possibleTerms.add(termVertex);
         }
 
-
-        if (possibleTerms != null) {
-            for (TermVertex tv : possibleTerms) {
-                tv.setIsFromDictionary(isFromDiec);
-                terms.add(tv);
-                if (depth > 1) {
-                    List<TermVertex> hyper = tv.getBroader();
-                    if (hyper != null) {
-                        for (TermVertex h : hyper) {
-                            if (h != null) {
+        for (TermVertex tv : possibleTerms) {
+            tv.setIsFromDictionary(isFromDiec);
+            terms.add(tv);
+            if (depth > 1) {
+                List<TermVertex> hyper = tv.getBroader();
+                if (hyper != null) {
+                    for (TermVertex h : hyper) {
+                        if (h != null) {
 //                            System.err.println("lemma: " + h.getLemma() + " id: " + h.getUID());
-                                getTermVertices(h.getLemma(), h.getUID(), --depth, false, bbn, indexPath, termDictionaryPath, terms);
-                            }
+                            getTermVertices(h.getLemma(), h.getUID(), --depth, false, bbn, indexPath, termDictionaryPath, terms);
                         }
                     }
                 }
             }
         }
+
         return terms;
     }
 
