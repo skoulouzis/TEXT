@@ -1,7 +1,5 @@
 package nl.uva.sne;
 
-import java.awt.Container;
-import java.awt.GridLayout;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -26,8 +24,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
-import javax.swing.JFrame;
-import me.champeau.ld.UberLanguageDetector;
 import net.didion.jwnl.JWNLException;
 import org._3pq.jgrapht.Edge;
 import org._3pq.jgrapht.edge.DirectedWeightedEdge;
@@ -47,10 +43,7 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
-import org.apache.lucene.index.DirectoryReader;
-import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
@@ -71,21 +64,20 @@ import org.semanticweb.skos.SKOSEntityAssertion;
 import org.semanticweb.skos.SKOSStorageException;
 import org.semanticweb.skosapibinding.SKOSFormatExt;
 
-import weka.clusterers.HierarchicalClusterer;
-import weka.core.Attribute;
-import weka.core.EuclideanDistance;
-import weka.core.FastVector;
-import weka.core.Instance;
-import weka.core.Instances;
-import weka.gui.hierarchyvisualizer.HierarchyVisualizer;
-
+//import weka.clusterers.HierarchicalClusterer;
+//import weka.core.Attribute;
+//import weka.core.EuclideanDistance;
+//import weka.core.FastVector;
+//import weka.core.Instance;
+//import weka.core.Instances;
+//import weka.gui.hierarchyvisualizer.HierarchyVisualizer;
 public class App {
 
     private static Map<String, Integer> keywordsDictionaray;
-    private static int maxNGrams = 4;
-    private static UberLanguageDetector inst;
+    private static int maxNGrams = 5;
+//    private static UberLanguageDetector inst;
     private static Map<String, List<String>> nGramsMap;
-    private static int numOfWords = 500;
+//    private static int numOfWords = 500;
     private static File graphFile = new File(System.getProperty("user.home")
             + File.separator + "workspace" + File.separator + "TEXT" + File.separator
             + "etc" + File.separator + "graphFile1.dot");
@@ -125,53 +117,52 @@ public class App {
         }
     }
 
-    private static void hierarchicalClusteringExample() throws Exception {
-        HierarchicalClusterer clusterer = new HierarchicalClusterer();
-        clusterer.setOptions(new String[]{"-L", "COMPLETE"});
-        clusterer.setDebug(true);
-        clusterer.setNumClusters(2);
-        clusterer.setDistanceFunction(new EuclideanDistance());
-        clusterer.setDistanceIsBranchLength(true);
-
-        // Declare the feature vector
-        FastVector fv = new FastVector();
-        fv.addElement(new Attribute("A"));
-        fv.addElement(new Attribute("B"));
-        fv.addElement(new Attribute("C"));
-
-
-        Instances data = new Instances("Weka test", fv, fv.size());
-
-
-        // Add data
-        data.add(new Instance(1.0, new double[]{1.0, 0.0, 1.0})); //vector1
-        data.add(new Instance(1.0, new double[]{0.5, 0.0, 1.0}));
-        data.add(new Instance(1.0, new double[]{0.0, 1.0, 0.0}));
-        data.add(new Instance(1.0, new double[]{0.0, 1.0, 0.3}));//vector4
-
-        // Cluster network
-        clusterer.buildClusterer(data);
-
-        // Print normal
-        clusterer.setPrintNewick(false);
-        System.out.println(clusterer.graph());
-        // Print Newick
-        clusterer.setPrintNewick(true);
-        System.out.println(clusterer.graph());
-
-        // Let's try to show this clustered data!
-        JFrame mainFrame = new JFrame("Weka Test");
-        mainFrame.setSize(600, 400);
-        mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        Container content = mainFrame.getContentPane();
-        content.setLayout(new GridLayout(1, 1));
-
-        HierarchyVisualizer visualizer = new HierarchyVisualizer(clusterer.graph());
-        content.add(visualizer);
-
-        mainFrame.setVisible(true);
-    }
-
+//    private static void hierarchicalClusteringExample() throws Exception {
+//        HierarchicalClusterer clusterer = new HierarchicalClusterer();
+//        clusterer.setOptions(new String[]{"-L", "COMPLETE"});
+//        clusterer.setDebug(true);
+//        clusterer.setNumClusters(2);
+//        clusterer.setDistanceFunction(new EuclideanDistance());
+//        clusterer.setDistanceIsBranchLength(true);
+//
+//        // Declare the feature vector
+//        FastVector fv = new FastVector();
+//        fv.addElement(new Attribute("A"));
+//        fv.addElement(new Attribute("B"));
+//        fv.addElement(new Attribute("C"));
+//
+//
+//        Instances data = new Instances("Weka test", fv, fv.size());
+//
+//
+//        // Add data
+//        data.add(new Instance(1.0, new double[]{1.0, 0.0, 1.0})); //vector1
+//        data.add(new Instance(1.0, new double[]{0.5, 0.0, 1.0}));
+//        data.add(new Instance(1.0, new double[]{0.0, 1.0, 0.0}));
+//        data.add(new Instance(1.0, new double[]{0.0, 1.0, 0.3}));//vector4
+//
+//        // Cluster network
+//        clusterer.buildClusterer(data);
+//
+//        // Print normal
+//        clusterer.setPrintNewick(false);
+//        System.out.println(clusterer.graph());
+//        // Print Newick
+//        clusterer.setPrintNewick(true);
+//        System.out.println(clusterer.graph());
+//
+//        // Let's try to show this clustered data!
+//        JFrame mainFrame = new JFrame("Weka Test");
+//        mainFrame.setSize(600, 400);
+//        mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//        Container content = mainFrame.getContentPane();
+//        content.setLayout(new GridLayout(1, 1));
+//
+//        HierarchyVisualizer visualizer = new HierarchyVisualizer(clusterer.graph());
+//        content.add(visualizer);
+//
+//        mainFrame.setVisible(true);
+//    }
     private static String getRawText(String path) throws FileNotFoundException, IOException, ParseException {
         JSONParser parser = new JSONParser();
         Object obj = parser.parse(new FileReader(path));
@@ -282,9 +273,9 @@ public class App {
             bbn = new BabelNet();
         }
 //        text = text.replaceAll("((mailto\\:|(news|(ht|f)tp(s?))\\://){1}\\S+)", "");
-        text = text.replaceAll("[^a-zA-Z\\s]", "");
+//        text = text.replaceAll("[^a-zA-Z\\s]", "");
 //        text = text.replaceAll("(\\d+,\\d+)|\\d+", "");
-        text = text.replaceAll("-", "");
+//        text = text.replaceAll("-", "");
         text = text.replaceAll("  ", " ");
         text = text.toLowerCase();
 
@@ -396,7 +387,7 @@ public class App {
         List<TermVertex> allTerms = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(termDictionaryPath))) {
             String line;
-            int limit = 100;
+            int limit = 10;
             int count = 0;
             while ((line = br.readLine()) != null) {
                 ++count;
@@ -429,7 +420,7 @@ public class App {
         BabelNet bbn = new BabelNet();
         List<TermVertex> allTerms = new ArrayList<>();
         try {
-            int limit = 10;
+            int limit = 2;
             int count = 0;
             for (TermVertex tv : leaves) {
                 ++count;
@@ -510,115 +501,114 @@ public class App {
         }
     }
 
-    private static String getScentsens(String searchString, int numOfWords, String INDEX_DIRECTORY) throws IOException, org.apache.lucene.queryparser.classic.ParseException {
-        if (searchString.contains("_")) {
-            searchString = searchString.replaceAll("_", " ");
-        }
-        Directory directory = FSDirectory.open(new File(INDEX_DIRECTORY));
-        IndexReader indexReader = DirectoryReader.open(directory);
-        IndexSearcher indexSearcher = new IndexSearcher(indexReader);
-        IndexReader reader = indexSearcher.getIndexReader();
-
-        Query q = buildQuery(searchString, false);
-        ScoreDoc[] hits = getDocs(q, indexSearcher, 10);
-        if (hits.length < 1) {
-            q = buildQuery(searchString, true);
-            hits = getDocs(q, indexSearcher, 10);
-        }
-
-
-//        System.err.println("Found " + hits.length + " hits.");
-        StringBuilder scentence = new StringBuilder();
-        StringBuilder candidateScentence = new StringBuilder();
-        int count = 0;
-        for (int i = 0; i < hits.length; ++i) {
-            int docId = hits[i].doc;
-
-            String path = reader.document(docId).getField("path").stringValue();
-//            System.err.println("path: " + path + "score: " + hits[i].score);
-
-            try (BufferedReader br = new BufferedReader(new FileReader(path))) {
-                for (String line; (line = br.readLine()) != null;) {
-                    line = line.replaceAll(" &amp; ", " and ");
-//                    String regex = "^.*" + searchString + ".*$";
-//                    java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(regex);
+//    private static String getScentsens(String searchString, int numOfWords, String INDEX_DIRECTORY) throws IOException, org.apache.lucene.queryparser.classic.ParseException {
+//        if (searchString.contains("_")) {
+//            searchString = searchString.replaceAll("_", " ");
+//        }
+//        Directory directory = FSDirectory.open(new File(INDEX_DIRECTORY));
+//        IndexReader indexReader = DirectoryReader.open(directory);
+//        IndexSearcher indexSearcher = new IndexSearcher(indexReader);
+//        IndexReader reader = indexSearcher.getIndexReader();
 //
-//                    Matcher matcher = pattern.matcher(line);
-//                    matrchi = matcher.group();
-
-                    String[] parts = line.split(" ");
-                    for (int j = 0; j < parts.length; j++) {
-                        candidateScentence.append(parts[j]).append(" ");
-
-                        if (parts[j].endsWith(".") || parts[j].endsWith("?") || parts[j].endsWith("!") || parts[j].endsWith(";") || j >= parts.length) {
-                            if (candidateScentence.toString().toLowerCase().contains(searchString)) {
-
-                                scentence.append(candidateScentence.toString()).append(" ");
-                                count += scentence.toString().split(" ").length;
-                                if (count >= numOfWords) {
-                                    return scentence.toString().replaceAll("  ", " ");
-                                }
-                            }
-                            candidateScentence.setLength(0);
-                        }
-                    }
-                }
-            }
-        }
-        return scentence.toString().replaceAll("  ", " ");
-    }
-
-    private static List<String> getDocuments(String searchString, int numOfWords, int maxDoxs, String INDEX_DIRECTORY) throws IOException, org.apache.lucene.queryparser.classic.ParseException {
-        if (searchString.contains("_")) {
-            searchString = searchString.replaceAll("_", " ");
-        }
-        Directory directory = FSDirectory.open(new File(INDEX_DIRECTORY));
-        IndexReader indexReader = DirectoryReader.open(directory);
-        IndexSearcher indexSearcher = new IndexSearcher(indexReader);
-        IndexReader reader = indexSearcher.getIndexReader();
-
-        Query q = buildQuery(searchString, false);
-        ScoreDoc[] hits = getDocs(q, indexSearcher, maxDoxs);
-        if (hits.length < 1) {
-            q = buildQuery(searchString, true);
-            hits = getDocs(q, indexSearcher, maxDoxs);
-        }
-        List<String> docs = new ArrayList<>(hits.length);
-
-//        System.err.println("Found " + hits.length + " hits.");
-
-        StringBuilder candidateScentence = new StringBuilder();
-        int count = 0;
-        for (int i = 0; i < hits.length; ++i) {
-            int docId = hits[i].doc;
-
-            String path = reader.document(docId).getField("path").stringValue();
-            StringBuilder scentence = new StringBuilder();
-            try (BufferedReader br = new BufferedReader(new FileReader(path))) {
-                for (String line; (line = br.readLine()) != null;) {
-                    line = line.replaceAll(" &amp; ", " and ");
-                    String[] parts = line.split(" ");
-                    for (int j = 0; j < parts.length; j++) {
-                        candidateScentence.append(parts[j]).append(" ");
-                        if (parts[j].endsWith(".") || parts[j].endsWith("?") || parts[j].endsWith("!") || parts[j].endsWith(";") || j >= parts.length) {
-                            if (candidateScentence.toString().toLowerCase().contains(searchString)) {
-                                scentence.append(candidateScentence.toString()).append(" ");
-                                count += scentence.toString().split(" ").length;
-                                if (count >= numOfWords) {
-                                    docs.add(scentence.toString().replaceAll("  ", " "));
-                                    break;
-                                }
-                            }
-                            candidateScentence.setLength(0);
-                        }
-                    }
-                }
-            }
-        }
-        return docs;
-
-    }
-
+//        Query q = buildQuery(searchString, false);
+//        ScoreDoc[] hits = getDocs(q, indexSearcher, 10);
+//        if (hits.length < 1) {
+//            q = buildQuery(searchString, true);
+//            hits = getDocs(q, indexSearcher, 10);
+//        }
+//
+//
+////        System.err.println("Found " + hits.length + " hits.");
+//        StringBuilder scentence = new StringBuilder();
+//        StringBuilder candidateScentence = new StringBuilder();
+//        int count = 0;
+//        for (int i = 0; i < hits.length; ++i) {
+//            int docId = hits[i].doc;
+//
+//            String path = reader.document(docId).getField("path").stringValue();
+////            System.err.println("path: " + path + "score: " + hits[i].score);
+//
+//            try (BufferedReader br = new BufferedReader(new FileReader(path))) {
+//                for (String line; (line = br.readLine()) != null;) {
+//                    line = line.replaceAll(" &amp; ", " and ");
+////                    String regex = "^.*" + searchString + ".*$";
+////                    java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(regex);
+////
+////                    Matcher matcher = pattern.matcher(line);
+////                    matrchi = matcher.group();
+//
+//                    String[] parts = line.split(" ");
+//                    for (int j = 0; j < parts.length; j++) {
+//                        candidateScentence.append(parts[j]).append(" ");
+//
+//                        if (parts[j].endsWith(".") || parts[j].endsWith("?") || parts[j].endsWith("!") || parts[j].endsWith(";") || j >= parts.length) {
+//                            if (candidateScentence.toString().toLowerCase().contains(searchString)) {
+//
+//                                scentence.append(candidateScentence.toString()).append(" ");
+//                                count += scentence.toString().split(" ").length;
+//                                if (count >= numOfWords) {
+//                                    return scentence.toString().replaceAll("  ", " ");
+//                                }
+//                            }
+//                            candidateScentence.setLength(0);
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//        return scentence.toString().replaceAll("  ", " ");
+//    }
+////
+//    private static List<String> getDocuments(String searchString, int numOfWords, int maxDoxs, String INDEX_DIRECTORY) throws IOException, org.apache.lucene.queryparser.classic.ParseException {
+//        if (searchString.contains("_")) {
+//            searchString = searchString.replaceAll("_", " ");
+//        }
+//        Directory directory = FSDirectory.open(new File(INDEX_DIRECTORY));
+//        IndexReader indexReader = DirectoryReader.open(directory);
+//        IndexSearcher indexSearcher = new IndexSearcher(indexReader);
+//        IndexReader reader = indexSearcher.getIndexReader();
+//
+//        Query q = buildQuery(searchString, false);
+//        ScoreDoc[] hits = getDocs(q, indexSearcher, maxDoxs);
+//        if (hits.length < 1) {
+//            q = buildQuery(searchString, true);
+//            hits = getDocs(q, indexSearcher, maxDoxs);
+//        }
+//        List<String> docs = new ArrayList<>(hits.length);
+//
+////        System.err.println("Found " + hits.length + " hits.");
+//
+//        StringBuilder candidateScentence = new StringBuilder();
+//        int count = 0;
+//        for (int i = 0; i < hits.length; ++i) {
+//            int docId = hits[i].doc;
+//
+//            String path = reader.document(docId).getField("path").stringValue();
+//            StringBuilder scentence = new StringBuilder();
+//            try (BufferedReader br = new BufferedReader(new FileReader(path))) {
+//                for (String line; (line = br.readLine()) != null;) {
+//                    line = line.replaceAll(" &amp; ", " and ");
+//                    String[] parts = line.split(" ");
+//                    for (int j = 0; j < parts.length; j++) {
+//                        candidateScentence.append(parts[j]).append(" ");
+//                        if (parts[j].endsWith(".") || parts[j].endsWith("?") || parts[j].endsWith("!") || parts[j].endsWith(";") || j >= parts.length) {
+//                            if (candidateScentence.toString().toLowerCase().contains(searchString)) {
+//                                scentence.append(candidateScentence.toString()).append(" ");
+//                                count += scentence.toString().split(" ").length;
+//                                if (count >= numOfWords) {
+//                                    docs.add(scentence.toString().replaceAll("  ", " "));
+//                                    break;
+//                                }
+//                            }
+//                            candidateScentence.setLength(0);
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//        return docs;
+//
+//    }
     private static List<String> getNGrams(String lemma, String keywordsDictionarayFile) throws FileNotFoundException, IOException {
         if (nGramsMap == null) {
             nGramsMap = new HashMap<>();
@@ -656,8 +646,8 @@ public class App {
             List<String> ngarms = getNGrams(lemma, termDictionaryPath);
             possibleTerms = resolveTerms(possibleTerms, lemma, bbn, ngarms);
             if (possibleTerms == null || possibleTerms.isEmpty()) {
-                String scentense = getScentsens(lemma, numOfWords, indexPath);
-                ngarms.add(scentense);
+//                String scentense = getScentsens(lemma, numOfWords, indexPath);
+//                ngarms.add(scentense);
                 possibleTerms = bbn.disambiguate("EN", lemma, ngarms);
             }
 
@@ -776,17 +766,16 @@ public class App {
         }
     }
 
-    private static Query buildQuery(String searchString, boolean useWildcard) throws org.apache.lucene.queryparser.classic.ParseException {
-        StandardAnalyzer analyzer = new StandardAnalyzer(Version.LUCENE_42);
-        QueryParser qp = new QueryParser(Version.LUCENE_42, "content", analyzer);
-        qp.setAllowLeadingWildcard(true);
-        if (useWildcard) {
-            return qp.parse("*" + QueryParser.escape(searchString) + "*");
-        } else {
-            return qp.parse(QueryParser.escape(searchString));
-        }
-    }
-
+//    private static Query buildQuery(String searchString, boolean useWildcard) throws org.apache.lucene.queryparser.classic.ParseException {
+//        StandardAnalyzer analyzer = new StandardAnalyzer(Version.LUCENE_42);
+//        QueryParser qp = new QueryParser(Version.LUCENE_42, "content", analyzer);
+//        qp.setAllowLeadingWildcard(true);
+//        if (useWildcard) {
+//            return qp.parse("*" + QueryParser.escape(searchString) + "*");
+//        } else {
+//            return qp.parse(QueryParser.escape(searchString));
+//        }
+//    }
     private static ScoreDoc[] getDocs(Query q, IndexSearcher indexSearcher, int maxDoxs) throws IOException {
         TopScoreDocCollector collector = TopScoreDocCollector.create(maxDoxs, true);
         indexSearcher.search(q, collector);
