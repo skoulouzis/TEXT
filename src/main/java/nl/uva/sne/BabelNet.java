@@ -28,6 +28,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.didion.jwnl.JWNL;
 import net.didion.jwnl.JWNLException;
+import net.didion.jwnl.data.IndexWord;
+import net.didion.jwnl.data.IndexWordSet;
+import net.didion.jwnl.data.POS;
+import net.didion.jwnl.dictionary.Dictionary;
 import org._3pq.jgrapht.graph.DefaultDirectedWeightedGraph;
 import org.apache.commons.io.IOUtils;
 import org.json.simple.JSONArray;
@@ -59,7 +63,17 @@ public class BabelNet {
     private static Map<String, String> edgesCache = new HashMap<>();
     private static File edgesCacheFile = new File(System.getProperty("user.home")
             + File.separator + "workspace" + File.separator + "TEXT" + File.separator + "cache" + File.separator + "edgesCacheFile.csv");
-//    private DefaultDirectedWeightedGraph g;
+    private static Dictionary wordNetdictionary;
+
+    static {
+        try {
+            JWNL.initialize(new FileInputStream(System.getProperty("user.home")
+                    + File.separator + "workspace" + File.separator + "TEXT"
+                    + File.separator + "etc" + File.separator + "file_properties.xml"));
+        } catch (JWNLException | FileNotFoundException ex) {
+            Logger.getLogger(BabelNet.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 
     BabelNet() throws FileNotFoundException, IOException {
         loadCache();
@@ -79,6 +93,11 @@ public class BabelNet {
     public String lemmatize(String word, String language) throws JWNLException, FileNotFoundException, MalformedURLException, IOException, ParseException, Exception {
         if (nonLemetize(word) || word.contains("_")) {
             return word;
+        }
+        wordNetdictionary = getWordNetDictionary();
+        IndexWordSet set = wordNetdictionary.lookupAllIndexWords(word);
+        for (IndexWord iw : set.getIndexWordArray()) {
+            return iw.getLemma();
         }
 
         String key = getKey();
@@ -126,6 +145,13 @@ public class BabelNet {
         return word;
     }
 
+    private static Dictionary getWordNetDictionary() {
+        if (wordNetdictionary == null) {
+            wordNetdictionary = Dictionary.getInstance();
+        }
+        return wordNetdictionary;
+    }
+
     TermVertex getTermNodeByID(String word, String id, boolean fromDiec) throws FileNotFoundException, IOException, Exception {
         TermVertex node = null;
         String language = "EN";
@@ -139,55 +165,52 @@ public class BabelNet {
         return node;
     }
 
-    public TermVertex getTermNodeByLemma(String word, boolean isFromDictionary) throws IOException, MalformedURLException, ParseException, Exception {
+    public List<TermVertex> getTermNodeByLemma(String word, boolean isFromDictionary) throws IOException, MalformedURLException, ParseException, Exception {
         String key = getKey();
         String correctID;
         String language = "EN";
-        TermVertex node = null;
+
         List<String> ids = getcandidateWordIDs(language, word, key);
-        if (ids != null && ids.size() == 1) {
-            correctID = ids.get(0);
-            String synet = getBabelnetSynset(correctID, language, key);
-            node = TermVertexFactory.create(synet, language, word);
-            if (node != null) {
-                List<TermVertex> h = getHypernyms(language, correctID, key);
-                node.setBroader(h);
+//        if (ids != null && ids.size() == 1) {
+//            correctID = ids.get(0);
+//            String synet = getBabelnetSynset(correctID, language, key);
+//            TermVertex node = TermVertexFactory.create(synet, language, word);
+//            if (node != null) {
+//                List<TermVertex> h = getHypernyms(language, correctID, key);
+//                node.setBroader(h);
+//            }
+//            nodes.add(node);
+//        }  
+//        else 
+        List<TermVertex> nodes = null;
+        if (ids != null) {
+            nodes = new ArrayList<>(ids.size());
+            for (String id : ids) {
+                String synet = getBabelnetSynset(id, language, key);
+                TermVertex node = TermVertexFactory.create(synet, language, word);
+                if (node != null) {
+                    List<TermVertex> h = getHypernyms(language, id, key);
+                    node.setBroader(h);
+                    nodes.add(node);
+                }
             }
         }
-//        else if (ids != null && ids.size() > 1) {
-//            Map<String, Integer> map = new HashMap<>();
-//            for (String id : ids) {
-//                List<String> categories = getCategories(id, language, key);
-//                for (String cat : categories) {
-//                    Integer count;
-//                    if (map.containsKey(cat)) {
-//                        count = map.get(cat);
-//                        count++;
-//                    } else {
-//                        count = 1;
-//                    }
-////                    System.err.println("word: " + word + " id: " + id + " category: " + cat);
-//                    map.put(cat, count);
-//                }
-//            }
-////            System.err.println(map);
-//        }
-        return node;
+        return nodes;
     }
 
-//    public static POS[] getPOS(String s) throws JWNLException {
-//        // Look up all IndexWords (an IndexWord can only be one POS)
-//        wordNetdictionary = getWordNetDictionary();
-//        IndexWordSet set = wordNetdictionary.lookupAllIndexWords(s);
-//        // Turn it into an array of IndexWords
-//        IndexWord[] words = set.getIndexWordArray();
-//        // Make the array of POS
-//        POS[] pos = new POS[words.length];
-//        for (int i = 0; i < words.length; i++) {
-//            pos[i] = words[i].getPOS();
-//        }
-//        return pos;
-//    }
+    public static POS[] getPOS(String s) throws JWNLException {
+        // Look up all IndexWords (an IndexWord can only be one POS)
+        wordNetdictionary = getWordNetDictionary();
+        IndexWordSet set = wordNetdictionary.lookupAllIndexWords(s);
+        // Turn it into an array of IndexWords
+        IndexWord[] words = set.getIndexWordArray();
+        // Make the array of POS
+        POS[] pos = new POS[words.length];
+        for (int i = 0; i < words.length; i++) {
+            pos[i] = words[i].getPOS();
+        }
+        return pos;
+    }
 //
 //    private boolean hasPOS(POS[] keywordPOS, POS[] targetPOS) {
 //        for (POS p : keywordPOS) {
@@ -248,6 +271,7 @@ public class BabelNet {
 //        }
 //        return relatedTree;
 //    }
+
     private List<String> getcandidateWordIDs(String language, String word, String key) throws MalformedURLException, IOException, ParseException, Exception {
         List<String> ids = wordIDCache.get(word);
         if (ids != null && ids.size() == 1 && ids.get(0).equals("NON-EXISTING")) {
@@ -578,8 +602,8 @@ public class BabelNet {
                 String target = (String) ((JSONObject) o).get("target");
                 Double normalizedWeight = (Double) ((JSONObject) o).get("normalizedWeight");
                 Double weight = (Double) ((JSONObject) o).get("weight");
-//                System.err.println("target: " + target + " normalizedWeight: " + normalizedWeight + " weight: " + weight);
-                map.put(target, normalizedWeight);
+//                System.err.println("hyponym: " + id + " target: " + target + " normalizedWeight: " + normalizedWeight + " weight: " + weight);
+                map.put(target, ((normalizedWeight + weight) / 2.0));
             }
         }
         return map;
@@ -744,8 +768,17 @@ public class BabelNet {
 
     private List<TermVertex> getHypernyms(String language, String correctID, String key) throws MalformedURLException, IOException, ParseException, Exception {
         Map<String, Double> hypenymMap = getEdgeIDs(language, correctID, "HYPERNYM", key);
-        Map<String, TermVertex> hMap = new HashMap<>();
-        for (String h : hypenymMap.keySet()) {
+        List<TermVertex> hypernyms = new ArrayList<>();
+
+        ValueComparator bvc = new ValueComparator(hypenymMap);
+        Map<String, Double> sorted_map = new TreeMap(bvc);
+        sorted_map.putAll(hypenymMap);
+        int maxNumOfHyper = 3;
+
+        for (String h : sorted_map.keySet()) {
+            if (maxNumOfHyper <= 0) {
+                break;
+            }
             String synetHyper = getBabelnetSynset(h, language, key);
             JSONObject jSynetHyper = (JSONObject) JSONValue.parseWithException(synetHyper);
             JSONArray sensestHyper = (JSONArray) jSynetHyper.get("senses");
@@ -764,20 +797,22 @@ public class BabelNet {
                         v.setUID(id);
                         v.setIsFromDictionary(false);
 //                        System.err.println("hypo: " + correctID + " hyper: " + lemma + " id: " + id);
-                        hMap.put(lemma, v);
+//                        hMap.put(lemma, v);
+                        hypernyms.add(v);
                         break;
                     }
 
                 }
             }
+            maxNumOfHyper--;
         }
-        List list;
-        if (hMap.values() instanceof List) {
-            list = (List) hMap.values();
-        } else {
-            list = new ArrayList(hMap.values());
-        }
-        return list;
+//        List list;
+//        if (hMap.values() instanceof List) {
+//            list = (List) hMap.values();
+//        } else {
+//            list = new ArrayList(hMap.values());
+//        }
+        return hypernyms;
     }
 
 //    private List<String> getCategories(String id, String language, String key) throws IOException, ParseException, Exception {

@@ -925,6 +925,8 @@ class Utils {
 
         Set<String> intersection = getIntersection(leftVector, rightVector);
 
+//        System.err.println(leftVector);
+//        System.err.println(rightVector);
         double dotProduct = dot(leftVector, rightVector, intersection);
         double d1 = 0.0d;
         for (Double value : leftVector.values()) {
@@ -969,7 +971,7 @@ class Utils {
      */
     private static double dot(Map<String, Double> leftVector, Map<String, Double> rightVector,
             Set<String> intersection) {
-        long dotProduct = 0;
+        Double dotProduct = 0.0;
         for (String key : intersection) {
             dotProduct += leftVector.get(key) * rightVector.get(key);
         }

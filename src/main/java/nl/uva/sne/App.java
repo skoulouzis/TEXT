@@ -17,6 +17,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -248,9 +249,9 @@ public class App {
                 multiTermRank++;
                 if (!key1.contains("_") && key2.contains("_") && key2.split("_")[0].equals(key1)) {
                     int diff = multiTermRank - singleTermRank;
-                    System.err.println(key1 + ":" + singleTermRank + " " + key2 + ":" + multiTermRank + " diff: " + diff);
+//                    System.err.println(key1 + ":" + singleTermRank + " " + key2 + ":" + multiTermRank + " diff: " + diff);
                     if (diff <= 5 && diff > 0) {
-                        System.err.println(key1 + ":" + singleTermRank + " " + key2 + ":" + multiTermRank + " diff: " + diff);
+//                        System.err.println(key1 + ":" + singleTermRank + " " + key2 + ":" + multiTermRank + " diff: " + diff);
                         if (!toRemove.contains(key1)) {
                             toRemove.add(key1);
                         }
@@ -260,7 +261,7 @@ public class App {
             }
         }
         for (String k : toRemove) {
-            System.err.println("removing: " + k);
+//            System.err.println("removing: " + k);
             keywordsDictionaray.remove(k);
         }
         bvc = new ValueComparator(keywordsDictionaray);
@@ -280,7 +281,7 @@ public class App {
         if (bbn == null) {
             bbn = new BabelNet();
         }
-        text = text.replaceAll("((mailto\\:|(news|(ht|f)tp(s?))\\://){1}\\S+)", "");
+//        text = text.replaceAll("((mailto\\:|(news|(ht|f)tp(s?))\\://){1}\\S+)", "");
         text = text.replaceAll("[^a-zA-Z\\s]", "");
 //        text = text.replaceAll("(\\d+,\\d+)|\\d+", "");
         text = text.replaceAll("-", "");
@@ -395,7 +396,7 @@ public class App {
         List<TermVertex> allTerms = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(termDictionaryPath))) {
             String line;
-            int limit = 2;
+            int limit = 100;
             int count = 0;
             while ((line = br.readLine()) != null) {
                 ++count;
@@ -417,7 +418,7 @@ public class App {
             bbn.saveCache();
             DefaultDirectedWeightedGraph g = buildGraph(allTerms);
             export2DOT(g, graphFile);
-            DefaultDirectedWeightedGraph pg = pruneGraph(g, 3);
+            DefaultDirectedWeightedGraph pg = pruneGraph(g, 4);
             export2DOT(pg, graphFile2);
 //            rapper -o dot ~/workspace/TEXT/etc/taxonomy.rdf | dot -Kfdp -Tsvg -o taxonomy.svg
             export2SKOS(pg, skosFile);
@@ -647,24 +648,28 @@ public class App {
         TermVertex termVertex = null;
         List<TermVertex> possibleTerms = null;
         if (isFromDiec) {
-            termVertex = bbn.getTermNodeByLemma(lemma, isFromDiec);
+            possibleTerms = bbn.getTermNodeByLemma(lemma, isFromDiec);
         } else {
             termVertex = bbn.getTermNodeByID(lemma, id, isFromDiec);
         }
-
-
-        if (termVertex == null) {
-            String scentense = null;
-            //            String 
+        if (possibleTerms != null && termVertex == null) {
             List<String> ngarms = getNGrams(lemma, termDictionaryPath);
-            scentense = getScentsens(lemma, numOfWords, indexPath);
-            ngarms.add(scentense);
-            possibleTerms = bbn.disambiguate("EN", lemma, ngarms);
-            possibleTerms = resolveTerms(possibleTerms, lemma, bbn, indexPath);
-        } else {
+            possibleTerms = resolveTerms(possibleTerms, lemma, bbn, ngarms);
+            if (possibleTerms == null || possibleTerms.isEmpty()) {
+                String scentense = getScentsens(lemma, numOfWords, indexPath);
+                ngarms.add(scentense);
+                possibleTerms = bbn.disambiguate("EN", lemma, ngarms);
+            }
+
+        }
+        if (possibleTerms == null) {
             possibleTerms = new ArrayList<>();
+        }
+        if (termVertex != null) {
             possibleTerms.add(termVertex);
         }
+
+
         if (possibleTerms != null) {
             for (TermVertex tv : possibleTerms) {
                 tv.setIsFromDictionary(isFromDiec);
@@ -897,29 +902,56 @@ public class App {
 
     }
 
-    private static List<TermVertex> resolveTerms(List<TermVertex> possibleTerms, String lemma, BabelNet bbn, String indexPath) throws IOException, JWNLException, FileNotFoundException, MalformedURLException, ParseException, Exception {
+    private static List<TermVertex> resolveTerms(List<TermVertex> possibleTerms, String lemma, BabelNet bbn, List<String> nGrams) throws IOException, JWNLException, FileNotFoundException, MalformedURLException, ParseException, Exception {
 
         List<List<String>> allDocs = new ArrayList<>();
         Map<String, List<String>> docs = new HashMap<>();
         for (TermVertex tv : possibleTerms) {
-            List<String> doc = new ArrayList<>();
-            for (String s : tv.getGlosses()) {
-                doc = tokenize(s, false, bbn);
+            Set<String> doc = new HashSet<>();
+            List<String> g = tv.getGlosses();
+            if (g != null) {
+                for (String s : g) {
+                    doc.addAll(tokenize(s, false, bbn));
+                }
             }
-            for (String s : tv.getAlternativeLables()) {
-                doc.addAll(tokenize(s, false, bbn));
+            List<String> al = tv.getAlternativeLables();
+            if (al != null) {
+                for (String s : al) {
+                    doc.addAll(tokenize(s, false, bbn));
+                }
             }
-            allDocs.add(doc);
-            docs.put(tv.getUID(), doc);
+            List<String> cat = tv.getCategories();
+            if (cat != null) {
+                for (String s : cat) {
+                    doc.addAll(tokenize(s, false, bbn));
+                }
+            }
+//            doc.addAll(doc);
+            allDocs.add(new ArrayList<>(doc));
+//            System.err.println(doc);
+            docs.put(tv.getUID(), new ArrayList<>(doc));
         }
 
-        List<String> contextDocs = getDocuments(lemma, 100, 10, indexPath);
-        for (String s : contextDocs) {
-            List<String> doc = tokenize(s, false, bbn);
-            allDocs.add(doc);
-            docs.put("context", doc);
-        }
 
+        Set<String> contextDoc = new HashSet<>();
+        for (String s : nGrams) {
+            String[] parts = s.split("_");
+            for (String token : parts) {
+
+                if (token.length() > 1) {
+//                    contextDoc.addAll(tokenize(token, false, bbn));
+                    contextDoc.add(token);
+                }
+            }
+        }
+//        System.err.println(contextDoc);
+        docs.put("context", new ArrayList<>(contextDoc));
+        //        List<String> contextDocs = getDocuments(lemma, 100, 10, indexPath);
+        //        for (String s : contextDocs) {
+        //            List<String> doc = tokenize(s, false, bbn);
+        //            allDocs.add(doc);
+        //            docs.put("context", doc);
+        //        }
         Map<String, Map<String, Double>> featureVectors = new HashMap<>();
         for (String k : docs.keySet()) {
             List<String> doc = docs.get(k);
@@ -927,19 +959,35 @@ public class App {
             for (String term : doc) {
                 if (!featureVector.containsKey(term)) {
                     double score = tfIdf(doc, allDocs, term);
-                    System.err.println(term + " : " + score);
                     featureVector.put(term, score);
                 }
             }
+//            System.err.println(featureVector);
             featureVectors.put(k, featureVector);
         }
 
+        double highScore = 0.03;
+        String winner = null;
         Map<String, Double> contextVector = featureVectors.remove("context");
         for (String key : featureVectors.keySet()) {
             Double similarity = Utils.cosineSimilarity(contextVector, featureVectors.get(key));
-            System.err.println("context-" + key + ": " + similarity);
+            if (similarity > highScore) {
+                highScore = similarity;
+                winner = key;
+            }
         }
+        List<TermVertex> terms = new ArrayList<>();
+        for (TermVertex t : possibleTerms) {
+            if (t.getUID().equals(winner)) {
 
-        return possibleTerms;
+                System.err.println("Winner: " + winner + " score: " + highScore);
+                terms.add(t);
+            }
+        }
+        if (!terms.isEmpty()) {
+            return terms;
+        } else {
+            return null;//return possibleTerms;
+        }
     }
 }
