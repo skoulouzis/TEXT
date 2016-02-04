@@ -387,7 +387,7 @@ public class App {
         List<TermVertex> allTerms = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(termDictionaryPath))) {
             String line;
-            int limit = 10;
+            int limit = 9999;
             int count = 0;
             while ((line = br.readLine()) != null) {
                 ++count;
