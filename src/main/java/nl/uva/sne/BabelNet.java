@@ -143,7 +143,7 @@ public class BabelNet {
                         shortLemma = tmpWord;
                         longLemma = wNetlemma;
                     }
-                    System.err.println("original: " + word + " shortLemma: " + shortLemma + " longLemma: " + longLemma + " dist: " + dist);
+//                    System.err.println("original: " + word + " shortLemma: " + shortLemma + " longLemma: " + longLemma + " dist: " + dist);
                     if (dist <= 3 && longLemma.startsWith(shortLemma)) {
                         lemmaCache.put(word, wNetlemma);
                         System.err.println("return: " + wNetlemma);

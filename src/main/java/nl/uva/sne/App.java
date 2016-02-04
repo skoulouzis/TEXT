@@ -97,10 +97,10 @@ public class App {
             String indexPath = System.getProperty("user.home") + File.separator + "Downloads" + File.separator + "index";
             String keywordsDictionarayFile = System.getProperty("user.home") + File.separator + "Downloads" + File.separator + "textdocs" + File.separator + "dictionary.csv";
 
-//            jobDescription2TextFile(jsonDocsPath, textDocsPath);
+            jobDescription2TextFile(jsonDocsPath, textDocsPath);
 //            createIndex(textDocsPath, indexPath);
 
-//            createTermDictionary(textDocsPath, keywordsDictionarayFile, true);
+            createTermDictionary(textDocsPath, keywordsDictionarayFile, true);
             buildHyperymTree(keywordsDictionarayFile, indexPath);
 
 //            File taxonomyFile = new File(System.getProperty("user.home")
@@ -409,7 +409,7 @@ public class App {
             bbn.saveCache();
             DefaultDirectedWeightedGraph g = buildGraph(allTerms);
             export2DOT(g, graphFile);
-            DefaultDirectedWeightedGraph pg = pruneGraph(g, 4);
+            DefaultDirectedWeightedGraph pg = pruneGraph(g, 3);
             export2DOT(pg, graphFile2);
 //            rapper -o dot ~/workspace/TEXT/etc/taxonomy.rdf | dot -Kfdp -Tsvg -o taxonomy.svg
             export2SKOS(pg, skosFile);
