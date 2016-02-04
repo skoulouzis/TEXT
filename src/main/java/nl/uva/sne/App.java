@@ -88,10 +88,11 @@ public class App {
             + File.separator + "workspace" + File.separator + "TEXT" + File.separator + "etc" + File.separator + "taxonomy.rdf");
     private static boolean generateNgrams = true;
     private static int depth = 3;
+    private static BabelNet bbn;
 
     public static void main(String[] args) {
         try {
-
+            bbn = new BabelNet();
             String jsonDocsPath = System.getProperty("user.home") + File.separator + "Downloads" + File.separator + "jsondocs";
             String textDocsPath = System.getProperty("user.home") + File.separator + "Downloads" + File.separator + "textdocs";
             String indexPath = System.getProperty("user.home") + File.separator + "Downloads" + File.separator + "index";
@@ -178,6 +179,7 @@ public class App {
     }
 
     private static void createTermDictionary(String inputJsonDocsPath, String outkeywordsDictionarayFile, boolean tokenize) throws FileNotFoundException, IOException, ParseException, JWNLException, MalformedURLException, Exception {
+
         System.err.println("in: " + inputJsonDocsPath);
         System.err.println("out: " + outkeywordsDictionarayFile);
         File dir = new File(inputJsonDocsPath);
@@ -191,7 +193,7 @@ public class App {
                         String lang = Utils.detectLang(text);
                         if (lang.toLowerCase().equals("en")) {
                             if (tokenize) {
-                                List<String> tokens = tokenize(text, generateNgrams, null);
+                                List<String> tokens = tokenize(text, generateNgrams);
 
                                 for (String t : tokens) {
 //                                POS[] pos = BabelNet.getPOS(t);
@@ -268,7 +270,7 @@ public class App {
         }
     }
 
-    private static List<String> tokenize(String text, boolean generateNgrams, BabelNet bbn) throws IOException, JWNLException, FileNotFoundException, MalformedURLException, ParseException, Exception {
+    private static List<String> tokenize(String text, boolean generateNgrams) throws IOException, JWNLException, FileNotFoundException, MalformedURLException, ParseException, Exception {
         if (bbn == null) {
             bbn = new BabelNet();
         }
@@ -383,7 +385,10 @@ public class App {
     }
 
     private static void buildHyperymTree(String termDictionaryPath, String indexPath) throws FileNotFoundException, IOException, JWNLException, ParseException, ClassCastException, ClassNotFoundException, MalformedURLException, Exception {
-        BabelNet bbn = new BabelNet();
+        if (bbn == null) {
+            bbn = new BabelNet();
+        }
+
         List<TermVertex> allTerms = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(termDictionaryPath))) {
             String line;
@@ -417,7 +422,9 @@ public class App {
     }
 
     private static void buildHyperymTree(List<TermVertex> leaves, String indexPath, String termDictionaryPath) throws FileNotFoundException, IOException, JWNLException, MalformedURLException, ParseException, Exception {
-        BabelNet bbn = new BabelNet();
+        if (bbn == null) {
+            bbn = new BabelNet();
+        }
         List<TermVertex> allTerms = new ArrayList<>();
         try {
             int limit = 2;
@@ -644,7 +651,7 @@ public class App {
         }
         if (possibleTerms != null && termVertex == null) {
             List<String> ngarms = getNGrams(lemma, termDictionaryPath);
-            possibleTerms = resolveTerms(possibleTerms, lemma, bbn, ngarms);
+            possibleTerms = resolveTerms(possibleTerms, lemma, ngarms);
             if (possibleTerms == null || possibleTerms.isEmpty()) {
 //                String scentense = getScentsens(lemma, numOfWords, indexPath);
 //                ngarms.add(scentense);
@@ -891,7 +898,7 @@ public class App {
 
     }
 
-    private static List<TermVertex> resolveTerms(List<TermVertex> possibleTerms, String lemma, BabelNet bbn, List<String> nGrams) throws IOException, JWNLException, FileNotFoundException, MalformedURLException, ParseException, Exception {
+    private static List<TermVertex> resolveTerms(List<TermVertex> possibleTerms, String lemma, List<String> nGrams) throws IOException, JWNLException, FileNotFoundException, MalformedURLException, ParseException, Exception {
 
         List<List<String>> allDocs = new ArrayList<>();
         Map<String, List<String>> docs = new HashMap<>();
@@ -900,19 +907,19 @@ public class App {
             List<String> g = tv.getGlosses();
             if (g != null) {
                 for (String s : g) {
-                    doc.addAll(tokenize(s, false, bbn));
+                    doc.addAll(tokenize(s, false));
                 }
             }
             List<String> al = tv.getAlternativeLables();
             if (al != null) {
                 for (String s : al) {
-                    doc.addAll(tokenize(s, false, bbn));
+                    doc.addAll(tokenize(s, false));
                 }
             }
             List<String> cat = tv.getCategories();
             if (cat != null) {
                 for (String s : cat) {
-                    doc.addAll(tokenize(s, false, bbn));
+                    doc.addAll(tokenize(s, false));
                 }
             }
 //            doc.addAll(doc);
