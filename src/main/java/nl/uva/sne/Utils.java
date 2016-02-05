@@ -1004,4 +1004,8 @@ class Utils {
     static int getTreeDepth() throws IOException {
         return Integer.valueOf(getProperties().getProperty("tree.depth", "2"));
     }
+
+    static int getMaxNGrams() throws IOException {
+        return Integer.valueOf(getProperties().getProperty("max.ngrams", "2"));
+    }
 }

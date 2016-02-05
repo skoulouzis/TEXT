@@ -74,7 +74,7 @@ import org.semanticweb.skosapibinding.SKOSFormatExt;
 public class App {
 
     private static Map<String, Integer> keywordsDictionaray;
-    private static int maxNGrams = 5;
+    private static int maxNGrams = 2;
 //    private static UberLanguageDetector inst;
     private static Map<String, List<String>> nGramsMap;
 //    private static int numOfWords = 500;
@@ -103,6 +103,7 @@ public class App {
 
             termLimit = Utils.getTermLimit();
             depth = Utils.getTreeDepth();
+            maxNGrams = Utils.getMaxNGrams();
             boolean json2text = false, createIndex = false, creatDict = false, buildTree = false;
             if (args != null) {
                 for (int i = 0; i < args.length; i++) {
@@ -147,18 +148,19 @@ public class App {
                         keywordsDictionarayFile = new File(args[i + 2]).getAbsolutePath();
                     }
                     //-t $HOME/Downloads/textdocs/dictionary.csv $HOME/Downloads/index
+                    //-t $HOME/Downloads/ACMComputingClassificationSystemSKOSTaxonomy.rdf $HOME/Downloads/textdocs/dictionary.csv $HOME/Downloads/index
                     if (args[i].equals("-t")) {
                         buildTree = true;
                         File in = new File(args[i + 1]);
                         if (in.exists()) {
                             if (FilenameUtils.getExtension(in.getName()).endsWith("rdf") || FilenameUtils.getExtension(in.getName()).endsWith("xml")) {
                                 taxonomyFile = in;
-                                keywordsDictionarayFile = null;
+                                keywordsDictionarayFile = new File(args[i + 2]).getAbsolutePath();
                             } else {
                                 keywordsDictionarayFile = in.getAbsolutePath();
                                 taxonomyFile = null;
                             }
-                            indexPath = new File(args[i + 2]).getAbsolutePath();
+                            indexPath = new File(args[i + 3]).getAbsolutePath();
                         } else {
                             throw new Exception(in.getAbsolutePath() + " not found");
                         }
@@ -179,7 +181,7 @@ public class App {
             if (buildTree && keywordsDictionarayFile != null) {
                 buildHyperymTree(keywordsDictionarayFile, indexPath);
             } else if (buildTree && taxonomyFile != null) {
-                List<TermVertex> leaves = getTermsFromTaxonomy(taxonomyFile, "en", 2);
+                List<TermVertex> leaves = getTermsFromTaxonomy(taxonomyFile, "en");
                 buildHyperymTree(leaves, indexPath, keywordsDictionarayFile);
             }
 
@@ -465,7 +467,7 @@ public class App {
         if (bbn == null) {
             bbn = new BabelNet();
         }
-
+        Logger.getLogger(App.class.getName()).log(Level.INFO, "Building tree from ", termDictionaryPath);
         List<TermVertex> allTerms = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(termDictionaryPath))) {
             String line;
@@ -501,6 +503,7 @@ public class App {
         if (bbn == null) {
             bbn = new BabelNet();
         }
+        Logger.getLogger(App.class.getName()).log(Level.INFO, "Building tree exiting taxonomy ", leaves.size());
         List<TermVertex> allTerms = new ArrayList<>();
         try {
             int count = 0;
@@ -954,11 +957,12 @@ public class App {
         return g;
     }
 
-    private static List<TermVertex> getTermsFromTaxonomy(File taxonomyFile, String language, int levels) throws SKOSCreationException {
+    private static List<TermVertex> getTermsFromTaxonomy(File taxonomyFile, String language) throws SKOSCreationException {
+        Logger.getLogger(App.class.getName()).log(Level.INFO, "Extracting terms from: {0}", taxonomyFile.getAbsolutePath());
         SKOSDataset dataset = SkosUtils.getSKOSManager().loadDatasetFromPhysicalURI(taxonomyFile.toURI());
         List<TermVertex> leaves = new ArrayList<>();
         for (SKOSConcept concept : dataset.getSKOSConcepts()) {
-            List<String> nuids = SkosUtils.getNarrowerUIDs(dataset, concept);
+//            List<String> nuids = SkosUtils.getNarrowerUIDs(dataset, concept);
 //            if (nuids == null || nuids.isEmpty()) {
             String value = SkosUtils.getPrefLabelValue(dataset, concept, language).toLowerCase();
             TermVertex term = new TermVertex(value);
