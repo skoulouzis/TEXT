@@ -490,8 +490,8 @@ public class App {
             DefaultDirectedWeightedGraph g = buildGraph(allTerms);
             int prunDepth = 4;
             DefaultDirectedWeightedGraph pg = pruneGraph(g, prunDepth);
-            export2SKOS(pg, skosFile + 1 + ".rdf");
-            export2DOT(pg, graphFile + 1 + ".dot");
+            export2SKOS(pg, skosFile + ".rdf");
+            export2DOT(pg, graphFile + ".dot");
 //            rapper -o dot ~/workspace/TEXT/etc/taxonomy.rdf | dot -Kfdp -Tsvg -o taxonomy.svg
         }
     }
@@ -535,8 +535,8 @@ public class App {
             DefaultDirectedWeightedGraph g = buildGraph(allTerms);
             int pruneDepth = 4;
             DefaultDirectedWeightedGraph pg = pruneGraph(g, pruneDepth);
-            export2SKOS(pg, skosFile + pruneDepth + ".rdf");
-            export2DOT(pg, graphFile + pruneDepth + ".dot");
+            export2SKOS(pg, skosFile + ".rdf");
+            export2DOT(pg, graphFile + ".dot");
         }
     }
 
