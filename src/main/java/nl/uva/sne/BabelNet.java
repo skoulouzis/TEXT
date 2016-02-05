@@ -13,6 +13,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -30,20 +31,15 @@ import net.didion.jwnl.JWNL;
 import net.didion.jwnl.JWNLException;
 import net.didion.jwnl.data.IndexWord;
 import net.didion.jwnl.data.IndexWordSet;
-import net.didion.jwnl.data.POS;
 import net.didion.jwnl.dictionary.Dictionary;
-import org._3pq.jgrapht.graph.DefaultDirectedWeightedGraph;
 import org.apache.commons.io.IOUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.json.simple.parser.ParseException;
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.Attribute;
-import org.jsoup.nodes.Attributes;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.nodes.Node;
 import org.jsoup.select.Elements;
 
 /**
@@ -98,107 +94,17 @@ public class BabelNet {
         if (nonLemetize(word) || word.contains("_")) {
             return word;
         }
-//        if (lemmaCache == null) {
-//            lemmaCache = new HashMap<>();
-//        }
-//        String lemma = lemmaCache.get(word);
-//        if (lemma != null) {
-//            return lemma;
-//        } else {
-//            Document doc = Jsoup.connect("http://wordnetweb.princeton.edu/perl/webwn?s=" + word).get();
-//            Elements elements = doc.getElementsContainingText(" S: (");
-//            for (Element e : elements) {
-//                if (e.text().contains("S: (")) {
-//                    String wNetlemma = e.text().substring(e.text().indexOf("S: (") + "S: (".length());
-//                    wNetlemma = wNetlemma.substring(wNetlemma.indexOf(") ") + 2);
-//                    wNetlemma = wNetlemma.replaceAll("[^a-zA-Z\\s]", "");
-//                    wNetlemma = wNetlemma.substring(0, wNetlemma.indexOf(" ")).toLowerCase();
-//
-//                    int dist = edu.stanford.nlp.util.StringUtils.editDistance(word, wNetlemma);
-//                    if (dist >= 4) {
-//                        lemmaCache.put(word, word);
-//                        return word;
-//                    }
-//                    if (dist <= 2) {
-//                        lemmaCache.put(word, wNetlemma);
-//                        return wNetlemma;
-//                    }
-//
-//                    String longLemma, shortLemma;
-//                    String tmpWord = word;
-//                    if (language.equals("EN")) {
-//                        if (word.endsWith("ing") || word.endsWith("ies")) {
-//                            tmpWord = word.substring(0, 3);
-//                        }
-//                    }
-//
-////                    tmpWord = tmpWord.substring(0, word.length() - 1);
-//                    if (tmpWord.length() > wNetlemma.length()) {
-//                        longLemma = tmpWord;
-//                        shortLemma = wNetlemma;
-//                    } else {
-//                        shortLemma = tmpWord;
-//                        longLemma = wNetlemma;
-//                    }
-////                    System.err.println("original: " + word + " shortLemma: " + shortLemma + " longLemma: " + longLemma + " dist: " + dist);
-//                    if (dist <= 3 && longLemma.startsWith(shortLemma)) {
-//                        lemmaCache.put(word, wNetlemma);
-////                        System.err.println("return: " + wNetlemma);
-//                        return wNetlemma;
-//                    }
-//                }
-//
-//            }
-//            lemmaCache.put(word, word);
-//        }
+
 
         wordNetdictionary = getWordNetDictionary();
         IndexWordSet set = wordNetdictionary.lookupAllIndexWords(word);
         for (IndexWord iw : set.getIndexWordArray()) {
             return iw.getLemma();
         }
-//        String key = getKey();
-//        String enWord = URLEncoder.encode(word, "UTF-8");
-//        List<String> ids = getcandidateWordIDs(language, enWord, key);
-//        if (ids == null || ids.isEmpty()) {
-//            return word;
-//        }
-//        for (String id : ids) {
-//            String synet;
-//            try {
-//                synet = getBabelnetSynset(id, language, key);
-//            } catch (Exception ex) {
-//                return word;
-//            }
-//            JSONObject jSynet = (JSONObject) JSONValue.parseWithException(synet);
-//            JSONArray senses = (JSONArray) jSynet.get("senses");
-//            if (senses != null) {
-//                for (Object o2 : senses) {
-//                    JSONObject jo2 = (JSONObject) o2;
-////                    JSONObject synsetID = (JSONObject) jo2.get("synsetID");
-//
-//                    String lang = (String) jo2.get("language");
-//                    if (lang.equals(language)) {
-//                        String jlemma = ((String) jo2.get("lemma")).toLowerCase();
-////                        word = word.replaceAll("[^a-zA-Z ]", "");
-//                        word = word.replaceAll(" ", "_");
-//                        int dist = edu.stanford.nlp.util.StringUtils.editDistance(word, jlemma);
-//                        String lemma1, lemma2;
-////                        System.err.println("original: " + word + " jlemma: " + jlemma + " lang " + lang + " dist: " + dist);
-//                        if (word.length() < jlemma.length()) {
-//                            lemma1 = word;
-//                            lemma2 = jlemma;
-//                        } else {
-//                            lemma2 = word;
-//                            lemma1 = jlemma;
-//                        }
-//                        if (dist <= 3 && lemma2.contains(lemma1)) {
-//                            return jlemma.replaceAll("_", " ");
-//                        }
-//                    }
-//                }
-//            }
-//        }
+        word = lmmtizeFromOnlineWordNet(word, language);
+//        word = lemmatizeFromBabelNet(word, language);
+
+
         return word;
     }
 
@@ -228,17 +134,6 @@ public class BabelNet {
         String language = "EN";
 
         List<String> ids = getcandidateWordIDs(language, word, key);
-//        if (ids != null && ids.size() == 1) {
-//            correctID = ids.get(0);
-//            String synet = getBabelnetSynset(correctID, language, key);
-//            TermVertex node = TermVertexFactory.create(synet, language, word);
-//            if (node != null) {
-//                List<TermVertex> h = getHypernyms(language, correctID, key);
-//                node.setBroader(h);
-//            }
-//            nodes.add(node);
-//        }  
-//        else 
         List<TermVertex> nodes = null;
         if (ids != null) {
             nodes = new ArrayList<>(ids.size());
@@ -915,5 +810,108 @@ public class BabelNet {
         wordIDCache.remove(key);
         disambiguateCache.remove(key);
         edgesCache.remove(key);
+    }
+
+    private String lmmtizeFromOnlineWordNet(String word, String language) throws IOException {
+        if (lemmaCache == null) {
+            lemmaCache = new HashMap<>();
+        }
+        String lemma = lemmaCache.get(word);
+        if (lemma != null) {
+            return lemma;
+        } else {
+            Document doc = Jsoup.connect("http://wordnetweb.princeton.edu/perl/webwn?s=" + word).get();
+            Elements elements = doc.getElementsContainingText(" S: (");
+            for (Element e : elements) {
+                if (e.text().contains("S: (")) {
+                    String wNetlemma = e.text().substring(e.text().indexOf("S: (") + "S: (".length());
+                    wNetlemma = wNetlemma.substring(wNetlemma.indexOf(") ") + 2);
+                    wNetlemma = wNetlemma.replaceAll("[^a-zA-Z\\s]", "");
+                    wNetlemma = wNetlemma.substring(0, wNetlemma.indexOf(" ")).toLowerCase();
+
+                    int dist = edu.stanford.nlp.util.StringUtils.editDistance(word, wNetlemma);
+                    if (dist >= 4) {
+                        lemmaCache.put(word, word);
+                        return word;
+                    }
+                    if (dist <= 2) {
+                        lemmaCache.put(word, wNetlemma);
+                        return wNetlemma;
+                    }
+
+                    String longLemma, shortLemma;
+                    String tmpWord = word;
+                    if (language.equals("EN")) {
+                        if (word.endsWith("ing") || word.endsWith("ies")) {
+                            tmpWord = word.substring(0, 3);
+                        }
+                    }
+
+//                    tmpWord = tmpWord.substring(0, word.length() - 1);
+                    if (tmpWord.length() > wNetlemma.length()) {
+                        longLemma = tmpWord;
+                        shortLemma = wNetlemma;
+                    } else {
+                        shortLemma = tmpWord;
+                        longLemma = wNetlemma;
+                    }
+//                    System.err.println("original: " + word + " shortLemma: " + shortLemma + " longLemma: " + longLemma + " dist: " + dist);
+                    if (dist <= 3 && longLemma.startsWith(shortLemma)) {
+                        lemmaCache.put(word, wNetlemma);
+//                        System.err.println("return: " + wNetlemma);
+                        return wNetlemma;
+                    }
+                }
+
+            }
+            lemmaCache.put(word, word);
+        }
+        return word;
+    }
+
+    private String lemmatizeFromBabelNet(String word, String language) throws MalformedURLException, UnsupportedEncodingException, IOException, ParseException, Exception {
+        String key = getKey();
+        String enWord = URLEncoder.encode(word, "UTF-8");
+        List<String> ids = getcandidateWordIDs(language, enWord, key);
+        if (ids == null || ids.isEmpty()) {
+            return word;
+        }
+        for (String id : ids) {
+            String synet;
+            try {
+                synet = getBabelnetSynset(id, language, key);
+            } catch (Exception ex) {
+                return word;
+            }
+            JSONObject jSynet = (JSONObject) JSONValue.parseWithException(synet);
+            JSONArray senses = (JSONArray) jSynet.get("senses");
+            if (senses != null) {
+                for (Object o2 : senses) {
+                    JSONObject jo2 = (JSONObject) o2;
+//                    JSONObject synsetID = (JSONObject) jo2.get("synsetID");
+
+                    String lang = (String) jo2.get("language");
+                    if (lang.equals(language)) {
+                        String jlemma = ((String) jo2.get("lemma")).toLowerCase();
+//                        word = word.replaceAll("[^a-zA-Z ]", "");
+                        word = word.replaceAll(" ", "_");
+                        int dist = edu.stanford.nlp.util.StringUtils.editDistance(word, jlemma);
+                        String lemma1, lemma2;
+//                        System.err.println("original: " + word + " jlemma: " + jlemma + " lang " + lang + " dist: " + dist);
+                        if (word.length() < jlemma.length()) {
+                            lemma1 = word;
+                            lemma2 = jlemma;
+                        } else {
+                            lemma2 = word;
+                            lemma1 = jlemma;
+                        }
+                        if (dist <= 3 && lemma2.contains(lemma1)) {
+                            return jlemma.replaceAll("_", " ");
+                        }
+                    }
+                }
+            }
+        }
+        return word;
     }
 }
