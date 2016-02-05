@@ -4,18 +4,17 @@
  */
 package nl.uva.sne;
 
-import java.net.URI;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import me.champeau.ld.UberLanguageDetector;
 import org.apache.lucene.analysis.util.CharArraySet;
 import org.apache.lucene.util.Version;
-import org.semanticweb.skos.SKOSCreationException;
-import org.semanticweb.skos.SKOSDataFactory;
-import org.semanticweb.skos.SKOSDataset;
-import org.semanticweb.skosapibinding.SKOSManager;
 
 /**
  *
@@ -23,6 +22,7 @@ import org.semanticweb.skosapibinding.SKOSManager;
  */
 class Utils {
 
+    public static final String propertiesPath = "text.properties";
     static Set<String> stopwords = new HashSet();
     private static UberLanguageDetector uberLanguageDetector;
 
@@ -976,5 +976,32 @@ class Utils {
             dotProduct += leftVector.get(key) * rightVector.get(key);
         }
         return dotProduct;
+    }
+
+    private static Properties getProperties() throws IOException {
+        InputStream in = null;
+        try {
+            ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+            in = classLoader.getResourceAsStream(propertiesPath);
+            Properties properties = new Properties();
+            properties.load(in);
+
+            return properties;
+        } catch (IOException ex) {
+            Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            if (in != null) {
+                in.close();
+            }
+        }
+        return null;
+    }
+
+    public static int getTermLimit() throws IOException {
+        return Integer.valueOf(getProperties().getProperty("term.limit", "2"));
+    }
+
+    static int getTreeDepth() throws IOException {
+        return Integer.valueOf(getProperties().getProperty("tree.depth", "2"));
     }
 }

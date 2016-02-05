@@ -84,8 +84,8 @@ public class App {
     private static String skosFile = (System.getProperty("user.home")
             + File.separator + "workspace" + File.separator + "TEXT" + File.separator + "etc" + File.separator + "taxonomy");
     private static boolean generateNgrams = true;
-    private static final int depth = 4;
-    private static final int termLimit = 4;
+    private static int depth = 3;
+    private static int termLimit = 2;
     private static BabelNet bbn;
 
     public static void main(String[] args) {
@@ -101,7 +101,8 @@ public class App {
                     + File.separator + "etc" + File.separator + "ACMComputingClassificationSystemSKOSTaxonomy.rdf");
 
 
-
+            termLimit = Utils.getTermLimit();
+            depth = Utils.getTreeDepth();
             boolean json2text = false, createIndex = false, creatDict = false, buildTree = false;
             if (args != null) {
                 for (int i = 0; i < args.length; i++) {
