@@ -146,9 +146,6 @@ public class App {
                             throw new Exception(in.getAbsolutePath() + " not found");
                         }
                         keywordsDictionarayFile = new File(args[i + 2]).getAbsolutePath();
-                        if (!FilenameUtils.getExtension(keywordsDictionarayFile).equalsIgnoreCase("cvs")) {
-                            keywordsDictionarayFile += ".csv";
-                        }
                     }
                     if (args[i].equals("-t")) {
                         buildTree = true;
