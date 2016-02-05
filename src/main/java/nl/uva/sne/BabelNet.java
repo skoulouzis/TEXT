@@ -52,7 +52,7 @@ import org.jsoup.select.Elements;
  */
 public class BabelNet {
 
-//    private static Dictionary wordNetdictionary;
+    private static Dictionary wordNetdictionary;
     private static String babelNetKey;
     private static Map<String, String> synsetCache = new HashMap<>();
     private static File synsetCacheFile = new File(System.getProperty("user.home")
@@ -70,21 +70,17 @@ public class BabelNet {
     private static Map<String, String> edgesCache = new HashMap<>();
     private static File edgesCacheFile = new File(System.getProperty("user.home")
             + File.separator + "workspace" + File.separator + "TEXT" + File.separator + "cache" + File.separator + "edgesCacheFile.csv");
-//    private static Dictionary wordNetdictionary;
-//    static {
-//        try {
-//            JWNL.initialize(new FileInputStream(System.getProperty("user.home")
-//                    + File.separator + "workspace" + File.separator + "TEXT"
-//                    + File.separator + "etc" + File.separator + "file_properties.xml"));
-//        } catch (JWNLException | FileNotFoundException ex) {
-//            Logger.getLogger(BabelNet.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-//    }
-    private HashMap<String, String> lemmaCache;
 
-    BabelNet() throws FileNotFoundException, IOException {
-        loadCache();
+    static {
+        try {
+            JWNL.initialize(new FileInputStream(System.getProperty("user.home")
+                    + File.separator + "workspace" + File.separator + "TEXT"
+                    + File.separator + "etc" + File.separator + "file_properties.xml"));
+        } catch (JWNLException | FileNotFoundException ex) {
+            Logger.getLogger(BabelNet.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
+    private HashMap<String, String> lemmaCache;
 
     private static String getKey() throws FileNotFoundException, IOException {
         if (babelNetKey == null) {
@@ -96,70 +92,71 @@ public class BabelNet {
         }
         return babelNetKey;
     }
+    private boolean cacheIsLoaded;
 
     public String lemmatize(String word, String language) throws JWNLException, FileNotFoundException, MalformedURLException, IOException, ParseException, Exception {
         if (nonLemetize(word) || word.contains("_")) {
             return word;
         }
-        if (lemmaCache == null) {
-            lemmaCache = new HashMap<>();
-        }
-        String lemma = lemmaCache.get(word);
-        if (lemma != null) {
-            return lemma;
-        } else {
-            Document doc = Jsoup.connect("http://wordnetweb.princeton.edu/perl/webwn?s=" + word).get();
-            Elements elements = doc.getElementsContainingText(" S: (");
-            for (Element e : elements) {
-                if (e.text().contains("S: (")) {
-                    String wNetlemma = e.text().substring(e.text().indexOf("S: (") + "S: (".length());
-                    wNetlemma = wNetlemma.substring(wNetlemma.indexOf(") ") + 2);
-                    wNetlemma = wNetlemma.replaceAll("[^a-zA-Z\\s]", "");
-                    wNetlemma = wNetlemma.substring(0, wNetlemma.indexOf(" ")).toLowerCase();
-
-                    int dist = edu.stanford.nlp.util.StringUtils.editDistance(word, wNetlemma);
-                    if (dist >= 4) {
-                        lemmaCache.put(word, word);
-                        return word;
-                    }
-                    if (dist <= 2) {
-                        lemmaCache.put(word, wNetlemma);
-                        return wNetlemma;
-                    }
-
-                    String longLemma, shortLemma;
-                    String tmpWord = word;
-                    if (language.equals("EN")) {
-                        if (word.endsWith("ing") || word.endsWith("ies")) {
-                            tmpWord = word.substring(0, 3);
-                        }
-                    }
-
-//                    tmpWord = tmpWord.substring(0, word.length() - 1);
-                    if (tmpWord.length() > wNetlemma.length()) {
-                        longLemma = tmpWord;
-                        shortLemma = wNetlemma;
-                    } else {
-                        shortLemma = tmpWord;
-                        longLemma = wNetlemma;
-                    }
-//                    System.err.println("original: " + word + " shortLemma: " + shortLemma + " longLemma: " + longLemma + " dist: " + dist);
-                    if (dist <= 3 && longLemma.startsWith(shortLemma)) {
-                        lemmaCache.put(word, wNetlemma);
-//                        System.err.println("return: " + wNetlemma);
-                        return wNetlemma;
-                    }
-                }
-
-            }
-            lemmaCache.put(word, word);
-        }
-
-//        wordNetdictionary = getWordNetDictionary();
-//        IndexWordSet set = wordNetdictionary.lookupAllIndexWords(word);
-//        for (IndexWord iw : set.getIndexWordArray()) {
-//            return iw.getLemma();
+//        if (lemmaCache == null) {
+//            lemmaCache = new HashMap<>();
 //        }
+//        String lemma = lemmaCache.get(word);
+//        if (lemma != null) {
+//            return lemma;
+//        } else {
+//            Document doc = Jsoup.connect("http://wordnetweb.princeton.edu/perl/webwn?s=" + word).get();
+//            Elements elements = doc.getElementsContainingText(" S: (");
+//            for (Element e : elements) {
+//                if (e.text().contains("S: (")) {
+//                    String wNetlemma = e.text().substring(e.text().indexOf("S: (") + "S: (".length());
+//                    wNetlemma = wNetlemma.substring(wNetlemma.indexOf(") ") + 2);
+//                    wNetlemma = wNetlemma.replaceAll("[^a-zA-Z\\s]", "");
+//                    wNetlemma = wNetlemma.substring(0, wNetlemma.indexOf(" ")).toLowerCase();
+//
+//                    int dist = edu.stanford.nlp.util.StringUtils.editDistance(word, wNetlemma);
+//                    if (dist >= 4) {
+//                        lemmaCache.put(word, word);
+//                        return word;
+//                    }
+//                    if (dist <= 2) {
+//                        lemmaCache.put(word, wNetlemma);
+//                        return wNetlemma;
+//                    }
+//
+//                    String longLemma, shortLemma;
+//                    String tmpWord = word;
+//                    if (language.equals("EN")) {
+//                        if (word.endsWith("ing") || word.endsWith("ies")) {
+//                            tmpWord = word.substring(0, 3);
+//                        }
+//                    }
+//
+////                    tmpWord = tmpWord.substring(0, word.length() - 1);
+//                    if (tmpWord.length() > wNetlemma.length()) {
+//                        longLemma = tmpWord;
+//                        shortLemma = wNetlemma;
+//                    } else {
+//                        shortLemma = tmpWord;
+//                        longLemma = wNetlemma;
+//                    }
+////                    System.err.println("original: " + word + " shortLemma: " + shortLemma + " longLemma: " + longLemma + " dist: " + dist);
+//                    if (dist <= 3 && longLemma.startsWith(shortLemma)) {
+//                        lemmaCache.put(word, wNetlemma);
+////                        System.err.println("return: " + wNetlemma);
+//                        return wNetlemma;
+//                    }
+//                }
+//
+//            }
+//            lemmaCache.put(word, word);
+//        }
+
+        wordNetdictionary = getWordNetDictionary();
+        IndexWordSet set = wordNetdictionary.lookupAllIndexWords(word);
+        for (IndexWord iw : set.getIndexWordArray()) {
+            return iw.getLemma();
+        }
 //        String key = getKey();
 //        String enWord = URLEncoder.encode(word, "UTF-8");
 //        List<String> ids = getcandidateWordIDs(language, enWord, key);
@@ -205,12 +202,13 @@ public class BabelNet {
         return word;
     }
 
-//    private static Dictionary getWordNetDictionary() {
-//        if (wordNetdictionary == null) {
-//            wordNetdictionary = Dictionary.getInstance();
-//        }
-//        return wordNetdictionary;
-//    }
+    private static Dictionary getWordNetDictionary() {
+        if (wordNetdictionary == null) {
+            wordNetdictionary = Dictionary.getInstance();
+        }
+        return wordNetdictionary;
+    }
+
     TermVertex getTermNodeByID(String word, String id, boolean fromDiec) throws FileNotFoundException, IOException, Exception {
         TermVertex node = null;
         String language = "EN";
@@ -331,6 +329,9 @@ public class BabelNet {
 //        return relatedTree;
 //    }
     private List<String> getcandidateWordIDs(String language, String word, String key) throws MalformedURLException, IOException, ParseException, Exception {
+        if (!cacheIsLoaded) {
+            loadCache();
+        }
         List<String> ids = wordIDCache.get(word);
         if (ids != null && ids.size() == 1 && ids.get(0).equals("NON-EXISTING")) {
             return null;
@@ -371,6 +372,10 @@ public class BabelNet {
     }
 
     private String getBabelnetSynset(String id, String lan, String key) throws IOException, Exception {
+        if (!cacheIsLoaded) {
+            loadCache();
+        }
+
         if (id == null || id.length() < 1) {
             return null;
         }
@@ -392,8 +397,9 @@ public class BabelNet {
     }
 
     private void loadCache() throws FileNotFoundException, IOException {
+        Logger.getLogger(BabelNet.class.getName()).log(Level.INFO, "Loading cache");
         if (synsetCacheFile.exists() && synsetCacheFile.length() > 1) {
-            System.err.println("loading " + synsetCacheFile.getAbsolutePath());
+            Logger.getLogger(BabelNet.class.getName()).log(Level.CONFIG, "Loading: {0}", synsetCacheFile.getAbsolutePath());
             try (BufferedReader br = new BufferedReader(new FileReader(synsetCacheFile))) {
                 String line;
                 while ((line = br.readLine()) != null) {
@@ -407,7 +413,7 @@ public class BabelNet {
             }
         }
         if (wordIDCacheFile.exists() && wordIDCacheFile.length() > 1) {
-            System.err.println("loading " + wordIDCacheFile.getAbsolutePath());
+            Logger.getLogger(BabelNet.class.getName()).log(Level.CONFIG, "Loading: {0}", wordIDCacheFile.getAbsolutePath());
             try (BufferedReader br = new BufferedReader(new FileReader(wordIDCacheFile))) {
                 String line;
                 while ((line = br.readLine()) != null) {
@@ -426,7 +432,7 @@ public class BabelNet {
         }
         loadNonLematizeWords();
         if (disambiguateCacheFile.exists() && disambiguateCacheFile.length() > 1) {
-            System.err.println("loading " + disambiguateCacheFile.getAbsolutePath());
+            Logger.getLogger(BabelNet.class.getName()).log(Level.CONFIG, "Loading: {0}", disambiguateCacheFile.getAbsolutePath());
             try (BufferedReader br = new BufferedReader(new FileReader(disambiguateCacheFile))) {
                 String line;
                 while ((line = br.readLine()) != null) {
@@ -438,7 +444,7 @@ public class BabelNet {
             }
         }
         if (edgesCacheFile.exists() && edgesCacheFile.length() > 1) {
-            System.err.println("loading " + edgesCacheFile.getAbsolutePath());
+            Logger.getLogger(BabelNet.class.getName()).log(Level.CONFIG, "Loading: {0}", edgesCacheFile.getAbsolutePath());
             try (BufferedReader br = new BufferedReader(new FileReader(edgesCacheFile))) {
                 String line;
                 while ((line = br.readLine()) != null) {
@@ -449,11 +455,13 @@ public class BabelNet {
                 }
             }
         }
+        cacheIsLoaded = true;
     }
 
     public void saveCache() throws FileNotFoundException, IOException {
 //        deleteEntry("bn:03316494n");
 //        deleteEntry("bn:00023236n");
+        Logger.getLogger(BabelNet.class.getName()).log(Level.INFO, "Saving cache");
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(wordIDCacheFile, false))) {
             for (String key : wordIDCache.keySet()) {
                 StringBuilder value = new StringBuilder();
@@ -506,6 +514,7 @@ public class BabelNet {
         if (ngarms.size() == 1 && ngarms.get(0).length() <= 1) {
             return null;
         }
+        Logger.getLogger(BabelNet.class.getName()).log(Level.INFO, "lemma: {0}", lemma);
         HashMap<String, Double> idsMap = new HashMap<>();
         Map<String, TermVertex> termMap = new HashMap<>();
         List<TermVertex> terms = new ArrayList<>();
@@ -597,6 +606,9 @@ public class BabelNet {
         if (lemma == null || lemma.length() < 1) {
             return null;
         }
+        if (!cacheIsLoaded) {
+            loadCache();
+        }
         String key = getKey();
         sentence = sentence.replaceAll("_", " ");
         sentence = URLEncoder.encode(sentence, "UTF-8");
@@ -640,6 +652,9 @@ public class BabelNet {
     }
 
     private Map<String, Double> getEdgeIDs(String language, String id, String relation, String key) throws MalformedURLException, IOException, ParseException, Exception {
+        if (!cacheIsLoaded) {
+            loadCache();
+        }
         String genreJson = edgesCache.get(id);
         if (genreJson == null) {
             URL url = new URL("https://babelnet.io/v2/getEdges?id=" + id + "&key=" + key);
@@ -814,7 +829,7 @@ public class BabelNet {
 //    }
     private static void loadNonLematizeWords() throws FileNotFoundException, IOException {
         if (nonLematizedWordsFile.exists() && nonLematizedWordsFile.length() > 1) {
-            System.err.println("loading " + nonLematizedWordsFile.getAbsolutePath());
+            Logger.getLogger(BabelNet.class.getName()).log(Level.INFO, "Loading: {0}", nonLematizedWordsFile.getAbsolutePath());
             try (BufferedReader br = new BufferedReader(new FileReader(nonLematizedWordsFile))) {
                 String line;
                 while ((line = br.readLine()) != null) {

@@ -74,7 +74,7 @@ import org.semanticweb.skosapibinding.SKOSFormatExt;
 public class App {
 
     private static Map<String, Integer> keywordsDictionaray;
-    private static int maxNGrams = 5;
+    private static int maxNGrams = 2;
 //    private static UberLanguageDetector inst;
     private static Map<String, List<String>> nGramsMap;
 //    private static int numOfWords = 500;
@@ -92,24 +92,102 @@ public class App {
 
     public static void main(String[] args) {
         try {
-            bbn = new BabelNet();
+
             String jsonDocsPath = System.getProperty("user.home") + File.separator + "Downloads" + File.separator + "jsondocs";
             String textDocsPath = System.getProperty("user.home") + File.separator + "Downloads" + File.separator + "textdocs";
             String indexPath = System.getProperty("user.home") + File.separator + "Downloads" + File.separator + "index";
-            String keywordsDictionarayFile = System.getProperty("user.home") + File.separator + "Downloads" + File.separator + "textdocs" + File.separator + "dictionary.csv";
-            
-//            jobDescription2TextFile(jsonDocsPath, textDocsPath);
-//            createIndex(textDocsPath, indexPath);
+            String keywordsDictionarayFile = System.getProperty("user.home") + File.separator
+                    + "Downloads" + File.separator + "textdocs" + File.separator + "dictionary.csv";
+            File taxonomyFile = new File(System.getProperty("user.home")
+                    + File.separator + "workspace" + File.separator + "TEXT"
+                    + File.separator + "etc" + File.separator + "ACMComputingClassificationSystemSKOSTaxonomy.rdf");
 
-            createTermDictionary(textDocsPath, keywordsDictionarayFile, true);
-//            buildHyperymTree(keywordsDictionarayFile, indexPath);
 
-//            File taxonomyFile = new File(System.getProperty("user.home")
-//                    + File.separator + "workspace" + File.separator + "TEXT"
-//                    + File.separator + "etc" + File.separator + "ACMComputingClassificationSystemSKOSTaxonomy.rdf");
-//
-//            List<TermVertex> leaves = getTermsFromTaxonomy(taxonomyFile, "en", 2);
-//            buildHyperymTree(leaves, indexPath, keywordsDictionarayFile);
+
+            boolean json2text = false, createIndex = false, creatDict = false, buildTree = false;
+            if (args != null) {
+                for (int i = 0; i < args.length; i++) {
+                    //-json2text $HOME/Downloads/jsondocs/ $HOME/Downloads/textdocs/ 
+                    if (args[i].equals("-json2text")) {
+                        json2text = true;
+                        File in = new File(args[i + 1]);
+                        if (in.exists()) {
+                            jsonDocsPath = in.getAbsolutePath();
+                        } else {
+                            throw new Exception(in.getAbsolutePath() + " not found");
+                        }
+                        File out = new File(args[i + 2]);
+                        if (out.isDirectory()) {
+                            textDocsPath = out.getAbsolutePath();
+                        } else {
+                            throw new Exception(out.getAbsolutePath() + " not a directory");
+                        }
+
+                    }
+                    //-i $HOME/Downloads/textdocs/ $HOME/Downloads/index
+                    if (args[i].equals("-i")) {
+                        createIndex = true;
+                        File in = new File(args[i + 1]);
+                        if (in.exists() && in.isDirectory()) {
+                            textDocsPath = in.getAbsolutePath();
+                        } else {
+                            throw new Exception(in.getAbsolutePath() + " not found");
+                        }
+                        indexPath = new File(args[i + 2]).getAbsolutePath();
+
+                    }
+                    //-d $HOME/Downloads/textdocs/ $HOME/Downloads/textdocs/dictionary.csv
+                    if (args[i].equals("-d")) {
+                        creatDict = true;
+                        File in = new File(args[i + 1]);
+                        if (in.exists() && in.isDirectory()) {
+                            textDocsPath = in.getAbsolutePath();
+                        } else {
+                            throw new Exception(in.getAbsolutePath() + " not found");
+                        }
+                        keywordsDictionarayFile = new File(args[i + 2]).getAbsolutePath();
+                        if (!FilenameUtils.getExtension(keywordsDictionarayFile).equalsIgnoreCase("cvs")) {
+                            keywordsDictionarayFile += ".csv";
+                        }
+                    }
+                    if (args[i].equals("-t")) {
+                        buildTree = true;
+                        File in = new File(args[i + 1]);
+                        if (in.exists()) {
+                            if (FilenameUtils.getExtension(in.getName()).endsWith("rdf") || FilenameUtils.getExtension(in.getName()).endsWith("xml")) {
+                                taxonomyFile = in;
+                                keywordsDictionarayFile = null;
+                            } else {
+                                keywordsDictionarayFile = in.getAbsolutePath();
+                                taxonomyFile = null;
+                            }
+                            indexPath = new File(args[i + 2]).getAbsolutePath();
+                        } else {
+                            throw new Exception(in.getAbsolutePath() + " not found");
+                        }
+
+                    }
+                }
+            }
+            bbn = new BabelNet();
+            if (json2text) {
+                jobDescription2TextFile(jsonDocsPath, textDocsPath);
+            }
+            if (createIndex) {
+                createIndex(textDocsPath, indexPath);
+            }
+            if (creatDict) {
+                createTermDictionary(textDocsPath, keywordsDictionarayFile, true);
+            }
+            if (buildTree && keywordsDictionarayFile != null) {
+                buildHyperymTree(keywordsDictionarayFile, indexPath);
+            } else if (buildTree && taxonomyFile != null) {
+                List<TermVertex> leaves = getTermsFromTaxonomy(taxonomyFile, "en", 2);
+                buildHyperymTree(leaves, indexPath, keywordsDictionarayFile);
+            }
+
+
+
 
 //            DefaultDirectedWeightedGraph g = taxonomy2Graph(taxonomyFile, "en");
 
@@ -179,46 +257,46 @@ public class App {
     }
 
     private static void createTermDictionary(String inputJsonDocsPath, String outkeywordsDictionarayFile, boolean tokenize) throws FileNotFoundException, IOException, ParseException, JWNLException, MalformedURLException, Exception {
-
-        System.err.println("in: " + inputJsonDocsPath);
-        System.err.println("out: " + outkeywordsDictionarayFile);
         File dir = new File(inputJsonDocsPath);
         if (keywordsDictionaray == null) {
             keywordsDictionaray = new HashMap();
         }
+        int count = 0;
         for (File f : dir.listFiles()) {
             if (FilenameUtils.getExtension(f.getName()).endsWith("txt")) {
                 try (BufferedReader br = new BufferedReader(new FileReader(f))) {
                     for (String text; (text = br.readLine()) != null;) {
+                        count++;
                         String lang = Utils.detectLang(text);
                         if (lang.toLowerCase().equals("en")) {
                             if (tokenize) {
+                                Logger.getLogger(App.class.getName()).log(Level.INFO, "Tokenizing: {0} {1} / {2}", new Object[]{f.getAbsolutePath(), count, dir.list().length});
                                 List<String> tokens = tokenize(text, generateNgrams);
 
                                 for (String t : tokens) {
 //                                POS[] pos = BabelNet.getPOS(t);
 //                                if (pos.length == 1 && pos[0].equals(POS.NOUN)) {
-                                    Integer count;
+                                    Integer tf;
                                     if (keywordsDictionaray.containsKey(t)) {
-                                        count = keywordsDictionaray.get(t);
-                                        count++;
+                                        tf = keywordsDictionaray.get(t);
+                                        tf++;
                                     } else {
-                                        count = 1;
+                                        tf = 1;
                                     }
-                                    keywordsDictionaray.put(t, count);
+                                    keywordsDictionaray.put(t, tf);
 //                                }
                                 }
                             } else {
                                 //                                POS[] pos = BabelNet.getPOS(t);
 //                                if (pos.length == 1 && pos[0].equals(POS.NOUN)) {
-                                Integer count;
+                                Integer tf;
                                 if (keywordsDictionaray.containsKey(text.toLowerCase())) {
-                                    count = keywordsDictionaray.get(text.toLowerCase());
-                                    count++;
+                                    tf = keywordsDictionaray.get(text.toLowerCase());
+                                    tf++;
                                 } else {
-                                    count = 1;
+                                    tf = 1;
                                 }
-                                keywordsDictionaray.put(text.toLowerCase(), count);
+                                keywordsDictionaray.put(text.toLowerCase(), tf);
                             }
                         }
                     }
@@ -233,6 +311,7 @@ public class App {
 
         //remove terms that only apear with others. e.g. if we only 
         //have 'machine learning' there is no point to keep 'machine' or 'learning'
+        Logger.getLogger(App.class.getName()).log(Level.INFO, "Filtering out terms");
         List<String> toRemove = new ArrayList<>();
         Integer singleTermRank = 0;
         for (String key1 : sorted_map.keySet()) {
@@ -246,6 +325,7 @@ public class App {
                     if (diff <= 5 && diff > 0) {
 //                        System.err.println(key1 + ":" + singleTermRank + " " + key2 + ":" + multiTermRank + " diff: " + diff);
                         if (!toRemove.contains(key1)) {
+                            Logger.getLogger(App.class.getName()).log(Level.INFO, "Will remove: {0}", key1);
                             toRemove.add(key1);
                         }
                     }
@@ -261,8 +341,8 @@ public class App {
         sorted_map = new TreeMap(bvc);
         sorted_map.putAll(keywordsDictionaray);
 
+        Logger.getLogger(App.class.getName()).log(Level.INFO, "Writing : {0}", outkeywordsDictionarayFile);
 
-        System.err.println("writing : " + outkeywordsDictionarayFile);
         try (PrintWriter out = new PrintWriter(outkeywordsDictionarayFile)) {
             for (String key : sorted_map.keySet()) {
                 out.print(key + "," + keywordsDictionaray.get(key) + "\n");
@@ -468,9 +548,8 @@ public class App {
     }
 
     private static void jobDescription2TextFile(String inputJsonDocsPath, String outputTextDocsPath) throws FileNotFoundException, IOException, ParseException {
-        System.err.println("in: " + inputJsonDocsPath);
-        System.err.println("out: " + inputJsonDocsPath);
         File dir = new File(inputJsonDocsPath);
+        Logger.getLogger(App.class.getName()).log(Level.INFO, "Reading: {0}", dir.getAbsolutePath());
         for (File f : dir.listFiles()) {
             if (FilenameUtils.getExtension(f.getName()).endsWith("json")) {
                 String text = getRawText(f.getAbsolutePath());
@@ -483,11 +562,12 @@ public class App {
                 }
             }
         }
+        Logger.getLogger(App.class.getName()).log(Level.INFO, "Text files in: {0}", outputTextDocsPath);
     }
 
     private static void createIndex(String textDocsPath, String indexDir) throws IOException {
-        System.err.println("in: " + textDocsPath);
-        System.err.println("out: " + indexDir);
+        Logger.getLogger(App.class.getName()).log(Level.INFO, "Indexing *.txt files in : {0}", textDocsPath);
+
         Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_42);
         IndexWriterConfig conf = new IndexWriterConfig(Version.LUCENE_42, analyzer);
         Directory iDir = FSDirectory.open(new File(indexDir));
@@ -495,17 +575,21 @@ public class App {
             File dir = new File(textDocsPath);
             File[] files = dir.listFiles();
             for (File file : files) {
-                Document document = new Document();
+                if (FilenameUtils.getExtension(file.getName()).endsWith("txt")) {
 
-                String path = file.getCanonicalPath();
+                    Document document = new Document();
+                    String path = file.getCanonicalPath();
 
-                FileReader fr = new FileReader(path);
-                document.add(new TextField("content", fr));
+                    FileReader fr = new FileReader(path);
+                    document.add(new TextField("content", fr));
 
-                document.add(new StringField("path", path, Field.Store.YES));
-                indexWriter.addDocument(document);
+                    document.add(new StringField("path", path, Field.Store.YES));
+                    indexWriter.addDocument(document);
+                }
+
             }
         }
+        Logger.getLogger(App.class.getName()).log(Level.INFO, "Index in : {0}", indexDir);
     }
 
 //    private static String getScentsens(String searchString, int numOfWords, String INDEX_DIRECTORY) throws IOException, org.apache.lucene.queryparser.classic.ParseException {
