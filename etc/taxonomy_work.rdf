@@ -1,0 +1,191 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns="http://uva.sne.nl/"
+     xml:base="http://uva.sne.nl/"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+    <owl:Ontology rdf:about="http://uva.sne.nl/work"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Annotation properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.w3.org/2004/02/skos/core#definition -->
+
+    <owl:AnnotationProperty rdf:about="http://www.w3.org/2004/02/skos/core#definition"/>
+    
+
+
+    <!-- http://www.w3.org/2004/02/skos/core#notation -->
+
+    <owl:AnnotationProperty rdf:about="http://www.w3.org/2004/02/skos/core#notation"/>
+    
+
+
+    <!-- http://www.w3.org/2004/02/skos/core#prefLabel -->
+
+    <owl:AnnotationProperty rdf:about="http://www.w3.org/2004/02/skos/core#prefLabel"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Object Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.w3.org/2004/02/skos/core#broader -->
+
+    <owl:ObjectProperty rdf:about="http://www.w3.org/2004/02/skos/core#broader"/>
+    
+
+
+    <!-- http://www.w3.org/2004/02/skos/core#narrower -->
+
+    <owl:ObjectProperty rdf:about="http://www.w3.org/2004/02/skos/core#narrower"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.w3.org/2004/02/skos/core#ConceptScheme -->
+
+    <owl:Class rdf:about="http://www.w3.org/2004/02/skos/core#ConceptScheme"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Individuals
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://uva.sne.nl/DS-BoK -->
+
+    <owl:NamedIndividual rdf:about="http://uva.sne.nl/DS-BoK">
+        <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#ConceptScheme"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://uva.sne.nl/#bn:00001172n -->
+
+    <owl:NamedIndividual rdf:about="http://uva.sne.nl/#bn:00001172n">
+        <skos:prefLabel rdf:datatype="http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral">activity</skos:prefLabel>
+        <skos:broader rdf:resource="http://uva.sne.nl/#bn:00014138n"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://uva.sne.nl/#bn:00014138n -->
+
+    <owl:NamedIndividual rdf:about="http://uva.sne.nl/#bn:00014138n">
+        <skos:definition rdf:datatype="http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral">a customer service issue or problem reported by a customer and the activities that customer service representatives use to resolve it.</skos:definition>
+        <skos:definition rdf:datatype="http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral">a grouping of responsibilities, duties, and job functions that compose an activity.</skos:definition>
+        <skos:definition rdf:datatype="http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral">a job is an activity, often regular, and often performed in exchange for payment.</skos:definition>
+        <skos:definition rdf:datatype="http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral">a regular activity performed in exchange for payment.</skos:definition>
+        <skos:definition rdf:datatype="http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral">an activity to which one devotes time</skos:definition>
+        <skos:definition rdf:datatype="http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral">an activity to which one devotes time.</skos:definition>
+        <skos:definition rdf:datatype="http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral">an occurrence of an activity performed between specific start and end times and at specific locations.</skos:definition>
+        <skos:notation rdf:datatype="http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral">employment</skos:notation>
+        <skos:definition rdf:datatype="http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral">productive activity, service, trade, or craft for which one is regularly paid.</skos:definition>
+        <skos:definition rdf:datatype="http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral">regular activity performed in exchange for payment</skos:definition>
+        <skos:definition rdf:datatype="http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral">the activity, position or site associated with commerce or the earning of a livelihood.</skos:definition>
+        <skos:definition rdf:datatype="http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral">the principal activity in your life that you do to earn money</skos:definition>
+        <skos:prefLabel rdf:datatype="http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral">work</skos:prefLabel>
+        <skos:narrower rdf:resource="http://uva.sne.nl/#bn:00001172n"/>
+        <skos:narrower rdf:resource="http://uva.sne.nl/#bn:00045632n"/>
+        <skos:narrower rdf:resource="http://uva.sne.nl/#bn:14959529n"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://uva.sne.nl/#bn:00021547n -->
+
+    <owl:NamedIndividual rdf:about="http://uva.sne.nl/#bn:00021547n">
+        <skos:prefLabel rdf:datatype="http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral">concept</skos:prefLabel>
+        <skos:broader rdf:resource="http://uva.sne.nl/#bn:00045632n"/>
+        <skos:broader rdf:resource="http://uva.sne.nl/#bn:14959529n"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://uva.sne.nl/#bn:00045632n -->
+
+    <owl:NamedIndividual rdf:about="http://uva.sne.nl/#bn:00045632n">
+        <skos:definition rdf:datatype="http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral">a hypothesis is a proposed explanation for a phenomenon.</skos:definition>
+        <skos:definition rdf:datatype="http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral">a hypothesis or conjecture.</skos:definition>
+        <skos:definition rdf:datatype="http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral">a tentative conjecture explaining an observation, phenomenon, or scientific problem that can be tested by further observation, investigation, and/or experimentation.</skos:definition>
+        <skos:definition rdf:datatype="http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral">a tentative insight into the natural world; a concept that is not yet verified but that if true would explain certain facts or phenomena</skos:definition>
+        <skos:definition rdf:datatype="http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral">antecedent of a conditional statement.</skos:definition>
+        <skos:notation rdf:datatype="http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral">circuits</skos:notation>
+        <skos:notation rdf:datatype="http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral">concepts</skos:notation>
+        <skos:notation rdf:datatype="http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral">epistemology</skos:notation>
+        <skos:prefLabel rdf:datatype="http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral">hypothesis</skos:prefLabel>
+        <skos:notation rdf:datatype="http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral">imagination</skos:notation>
+        <skos:notation rdf:datatype="http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral">mathematical_terminology</skos:notation>
+        <skos:notation rdf:datatype="http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral">mental_structures</skos:notation>
+        <skos:notation rdf:datatype="http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral">philosophy_of_science</skos:notation>
+        <skos:definition rdf:datatype="http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral">proposed explanation for a phenomenon</skos:definition>
+        <skos:notation rdf:datatype="http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral">scientific_method</skos:notation>
+        <skos:notation rdf:datatype="http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral">theories</skos:notation>
+        <skos:definition rdf:datatype="http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral">theory is a contemplative and rational type of abstract or generalizing thinking, or the results of such thinking.</skos:definition>
+        <skos:definition rdf:datatype="http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral">used loosely, a tentative conjecture explaining an observation, phenomenon or scientific problem that can be tested by further observation, investigation and/or experimentation. as a scientific term of art, see the attached quotation. compare to theory, and quotation given there.</skos:definition>
+        <skos:broader rdf:resource="http://uva.sne.nl/#bn:00014138n"/>
+        <skos:narrower rdf:resource="http://uva.sne.nl/#bn:00021547n"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://uva.sne.nl/#bn:14959529n -->
+
+    <owl:NamedIndividual rdf:about="http://uva.sne.nl/#bn:14959529n">
+        <skos:definition rdf:datatype="http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral">a particular form of activity, is used to make a life</skos:definition>
+        <skos:notation rdf:datatype="http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral">economics</skos:notation>
+        <skos:notation rdf:datatype="http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral">labor</skos:notation>
+        <skos:prefLabel rdf:datatype="http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral">labour</skos:prefLabel>
+        <skos:notation rdf:datatype="http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral">manufacturing</skos:notation>
+        <skos:definition rdf:datatype="http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral">one of the factors of production. it includes all the exertions - manual, physical or mental - by individuals, directed towards the production of wealth.</skos:definition>
+        <skos:notation rdf:datatype="http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral">psychology</skos:notation>
+        <skos:notation rdf:datatype="http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral">social_sciences</skos:notation>
+        <skos:notation rdf:datatype="http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral">society</skos:notation>
+        <skos:notation rdf:datatype="http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral">sociology</skos:notation>
+        <skos:broader rdf:resource="http://uva.sne.nl/#bn:00014138n"/>
+        <skos:narrower rdf:resource="http://uva.sne.nl/#bn:00021547n"/>
+    </owl:NamedIndividual>
+</rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 3.4.4) http://owlapi.sourceforge.net -->
+

@@ -101,7 +101,7 @@ public class BabelNet {
         for (IndexWord iw : set.getIndexWordArray()) {
             return iw.getLemma();
         }
-        word = lmmtizeFromOnlineWordNet(word, language);
+//        word = lmmtizeFromOnlineWordNet(word, language);
 //        word = lemmatizeFromBabelNet(word, language);
 
 
