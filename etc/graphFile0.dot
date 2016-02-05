@@ -1,0 +1,242 @@
+digraph G {
+"cognition" -> "data"
+"data" [shape=rectangle]
+"sequence" -> "data"
+"data" [shape=rectangle]
+"identifier" -> "data"
+"data" [shape=rectangle]
+"concept" -> "cognition"
+"abstract_object" -> "concept"
+"entity" -> "concept"
+"entity" -> "sequence"
+"concept" -> "entity"
+"abstract_object" -> "identifier"
+"education" -> "experience"
+"experience" [shape=rectangle]
+"concept" -> "experience"
+"experience" [shape=rectangle]
+"activity" -> "work"
+"work" [shape=rectangle]
+"hypothesis" -> "work"
+"work" [shape=rectangle]
+"labour" -> "work"
+"work" [shape=rectangle]
+"concept" -> "hypothesis"
+"concept" -> "labour"
+"sequence"
+"identifier"
+"concept"
+"entity"
+"abstract_object"
+"experience"
+"experience" [shape=rectangle]
+"education"
+"work"
+"work" [shape=rectangle]
+"activity"
+"hypothesis"
+"labour"
+"cognition"
+"identifier"
+"concept"
+"entity"
+"abstract_object"
+"experience"
+"experience" [shape=rectangle]
+"education"
+"work"
+"work" [shape=rectangle]
+"activity"
+"hypothesis"
+"labour"
+"cognition"
+"sequence"
+"concept"
+"entity"
+"abstract_object"
+"experience"
+"experience" [shape=rectangle]
+"education"
+"work"
+"work" [shape=rectangle]
+"activity"
+"hypothesis"
+"labour"
+"data"
+"data" [shape=rectangle]
+"sequence"
+"identifier"
+"entity"
+"abstract_object"
+"experience"
+"experience" [shape=rectangle]
+"education"
+"work"
+"work" [shape=rectangle]
+"activity"
+"hypothesis"
+"labour"
+"data"
+"data" [shape=rectangle]
+"cognition"
+"sequence"
+"identifier"
+"entity"
+"experience"
+"experience" [shape=rectangle]
+"education"
+"work"
+"work" [shape=rectangle]
+"activity"
+"hypothesis"
+"labour"
+"data"
+"data" [shape=rectangle]
+"cognition"
+"sequence"
+"identifier"
+"abstract_object"
+"experience"
+"experience" [shape=rectangle]
+"education"
+"work"
+"work" [shape=rectangle]
+"activity"
+"hypothesis"
+"labour"
+"data"
+"data" [shape=rectangle]
+"cognition"
+"identifier"
+"concept"
+"abstract_object"
+"experience"
+"experience" [shape=rectangle]
+"education"
+"work"
+"work" [shape=rectangle]
+"activity"
+"hypothesis"
+"labour"
+"data"
+"data" [shape=rectangle]
+"cognition"
+"sequence"
+"identifier"
+"abstract_object"
+"experience"
+"experience" [shape=rectangle]
+"education"
+"work"
+"work" [shape=rectangle]
+"activity"
+"hypothesis"
+"labour"
+"data"
+"data" [shape=rectangle]
+"cognition"
+"sequence"
+"concept"
+"entity"
+"experience"
+"experience" [shape=rectangle]
+"education"
+"work"
+"work" [shape=rectangle]
+"activity"
+"hypothesis"
+"labour"
+"data"
+"data" [shape=rectangle]
+"cognition"
+"sequence"
+"identifier"
+"concept"
+"entity"
+"abstract_object"
+"work"
+"work" [shape=rectangle]
+"activity"
+"hypothesis"
+"labour"
+"data"
+"data" [shape=rectangle]
+"cognition"
+"sequence"
+"identifier"
+"entity"
+"abstract_object"
+"education"
+"work"
+"work" [shape=rectangle]
+"activity"
+"hypothesis"
+"labour"
+"data"
+"data" [shape=rectangle]
+"cognition"
+"sequence"
+"identifier"
+"concept"
+"entity"
+"abstract_object"
+"experience"
+"experience" [shape=rectangle]
+"education"
+"hypothesis"
+"labour"
+"data"
+"data" [shape=rectangle]
+"cognition"
+"sequence"
+"identifier"
+"concept"
+"entity"
+"abstract_object"
+"experience"
+"experience" [shape=rectangle]
+"education"
+"activity"
+"labour"
+"data"
+"data" [shape=rectangle]
+"cognition"
+"sequence"
+"identifier"
+"concept"
+"entity"
+"abstract_object"
+"experience"
+"experience" [shape=rectangle]
+"education"
+"activity"
+"hypothesis"
+"data"
+"data" [shape=rectangle]
+"cognition"
+"sequence"
+"identifier"
+"entity"
+"abstract_object"
+"experience"
+"experience" [shape=rectangle]
+"education"
+"work"
+"work" [shape=rectangle]
+"activity"
+"labour"
+"data"
+"data" [shape=rectangle]
+"cognition"
+"sequence"
+"identifier"
+"entity"
+"abstract_object"
+"experience"
+"experience" [shape=rectangle]
+"education"
+"work"
+"work" [shape=rectangle]
+"activity"
+"hypothesis"
+}

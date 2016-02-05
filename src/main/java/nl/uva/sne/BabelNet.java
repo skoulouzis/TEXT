@@ -430,7 +430,7 @@ public class BabelNet {
                 }
             }
         }
-        loadNonLematizeWords();
+//        loadNonLematizeWords();
         if (disambiguateCacheFile.exists() && disambiguateCacheFile.length() > 1) {
             Logger.getLogger(BabelNet.class.getName()).log(Level.CONFIG, "Loading: {0}", disambiguateCacheFile.getAbsolutePath());
             try (BufferedReader br = new BufferedReader(new FileReader(disambiguateCacheFile))) {

@@ -74,20 +74,18 @@ import org.semanticweb.skosapibinding.SKOSFormatExt;
 public class App {
 
     private static Map<String, Integer> keywordsDictionaray;
-    private static int maxNGrams = 2;
+    private static int maxNGrams = 5;
 //    private static UberLanguageDetector inst;
     private static Map<String, List<String>> nGramsMap;
 //    private static int numOfWords = 500;
-    private static File graphFile = new File(System.getProperty("user.home")
+    private static String graphFile = (System.getProperty("user.home")
             + File.separator + "workspace" + File.separator + "TEXT" + File.separator
-            + "etc" + File.separator + "graphFile1.dot");
-    private static File graphFile2 = new File(System.getProperty("user.home")
-            + File.separator + "workspace" + File.separator + "TEXT" + File.separator
-            + "etc" + File.separator + "graphFile2.dot");
-    private static File skosFile = new File(System.getProperty("user.home")
-            + File.separator + "workspace" + File.separator + "TEXT" + File.separator + "etc" + File.separator + "taxonomy.rdf");
+            + "etc" + File.separator + "graphFile");
+    private static String skosFile = (System.getProperty("user.home")
+            + File.separator + "workspace" + File.separator + "TEXT" + File.separator + "etc" + File.separator + "taxonomy");
     private static boolean generateNgrams = true;
-    private static int depth = 3;
+    private static final int depth = 4;
+    private static final int termLimit = 4;
     private static BabelNet bbn;
 
     public static void main(String[] args) {
@@ -147,6 +145,7 @@ public class App {
                         }
                         keywordsDictionarayFile = new File(args[i + 2]).getAbsolutePath();
                     }
+                    //-t $HOME/Downloads/textdocs/dictionary.csv $HOME/Downloads/index
                     if (args[i].equals("-t")) {
                         buildTree = true;
                         File in = new File(args[i + 1]);
@@ -351,10 +350,10 @@ public class App {
         if (bbn == null) {
             bbn = new BabelNet();
         }
+        text = text.replaceAll("-", "");
 //        text = text.replaceAll("((mailto\\:|(news|(ht|f)tp(s?))\\://){1}\\S+)", "");
-//        text = text.replaceAll("[^a-zA-Z\\s]", "");
+        text = text.replaceAll("[^a-zA-Z\\s]", "");
 //        text = text.replaceAll("(\\d+,\\d+)|\\d+", "");
-//        text = text.replaceAll("-", "");
         text = text.replaceAll("  ", " ");
         text = text.toLowerCase();
 
@@ -469,11 +468,10 @@ public class App {
         List<TermVertex> allTerms = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(termDictionaryPath))) {
             String line;
-            int limit = 9999;
             int count = 0;
             while ((line = br.readLine()) != null) {
                 ++count;
-                if (count >= limit) {
+                if (count >= termLimit) {
                     break;
                 }
                 String trem = line.split(",")[0];
@@ -490,11 +488,11 @@ public class App {
         } finally {
             bbn.saveCache();
             DefaultDirectedWeightedGraph g = buildGraph(allTerms);
-            export2DOT(g, graphFile);
-            DefaultDirectedWeightedGraph pg = pruneGraph(g, 3);
-            export2DOT(pg, graphFile2);
+            int prunDepth = 4;
+            DefaultDirectedWeightedGraph pg = pruneGraph(g, prunDepth);
+            export2SKOS(pg, skosFile + 1 + ".rdf");
+            export2DOT(pg, graphFile + 1 + ".dot");
 //            rapper -o dot ~/workspace/TEXT/etc/taxonomy.rdf | dot -Kfdp -Tsvg -o taxonomy.svg
-            export2SKOS(pg, skosFile);
         }
     }
 
@@ -504,11 +502,10 @@ public class App {
         }
         List<TermVertex> allTerms = new ArrayList<>();
         try {
-            int limit = 2;
             int count = 0;
             for (TermVertex tv : leaves) {
                 ++count;
-                if (count >= limit) {
+                if (count >= termLimit) {
                     break;
                 }
 
@@ -536,11 +533,10 @@ public class App {
         } finally {
             bbn.saveCache();
             DefaultDirectedWeightedGraph g = buildGraph(allTerms);
-            export2DOT(g, graphFile);
-            DefaultDirectedWeightedGraph pg = pruneGraph(g, 4);
-            export2DOT(pg, graphFile2);
-//            rapper -o dot ~/workspace/TEXT/etc/taxonomy.rdf | dot -Kfdp -Tsvg -o taxonomy.svg
-            export2SKOS(pg, skosFile);
+            int pruneDepth = 4;
+            DefaultDirectedWeightedGraph pg = pruneGraph(g, pruneDepth);
+            export2SKOS(pg, skosFile + pruneDepth + ".rdf");
+            export2DOT(pg, graphFile + pruneDepth + ".dot");
         }
     }
 
@@ -787,7 +783,7 @@ public class App {
         return g;
     }
 
-    public static void export2DOT(DefaultDirectedWeightedGraph g, File graphFile) throws IOException {
+    public static void export2DOT(DefaultDirectedWeightedGraph g, String graphFile) throws IOException {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(graphFile, false))) {
             Set<Edge> set = g.edgeSet();
             bw.write("digraph G {");
@@ -868,7 +864,7 @@ public class App {
         return collector.topDocs().scoreDocs;
     }
 
-    private static DefaultDirectedWeightedGraph pruneGraph(DefaultDirectedWeightedGraph g, int depth) {
+    private static DefaultDirectedWeightedGraph pruneGraph(DefaultDirectedWeightedGraph g, int depth) throws ParseException, IOException, SKOSCreationException, SKOSChangeException, SKOSStorageException {
         Set<TermVertex> vs = g.vertexSet();
         List<TermVertex> toRemove = new ArrayList<>();
         for (TermVertex tv : vs) {
@@ -890,13 +886,15 @@ public class App {
         }
         g.removeAllVertices(toRemove);
         depth--;
+        export2SKOS(g, skosFile + depth + ".rdf");
+        export2DOT(g, graphFile + depth + ".dot");
         if (depth >= 1) {
             pruneGraph(g, depth);
         }
         return g;
     }
 
-    private static void export2SKOS(DefaultDirectedWeightedGraph g, File skosFile) throws ParseException, SKOSCreationException, SKOSChangeException, SKOSStorageException {
+    private static void export2SKOS(DefaultDirectedWeightedGraph g, String skosFile) throws ParseException, SKOSCreationException, SKOSChangeException, SKOSStorageException {
 
         SKOSConceptScheme scheme = SkosUtils.getSKOSDataFactory().getSKOSConceptScheme(URI.create(SkosUtils.SKOS_URI + "DS-BoK"));
 
@@ -909,7 +907,7 @@ public class App {
             change.addAll(SkosUtils.create(e, "EN"));
         }
         SkosUtils.getSKOSManager().applyChanges(change);
-        SkosUtils.getSKOSManager().save(SkosUtils.getSKOSDataset(), SKOSFormatExt.RDFXML, skosFile.toURI());
+        SkosUtils.getSKOSManager().save(SkosUtils.getSKOSDataset(), SKOSFormatExt.RDFXML, new File(skosFile).toURI());
     }
 
     private static DefaultDirectedWeightedGraph taxonomy2Graph(File taxonomyFile, String language) throws SKOSCreationException {
@@ -1054,8 +1052,7 @@ public class App {
         List<TermVertex> terms = new ArrayList<>();
         for (TermVertex t : possibleTerms) {
             if (t.getUID().equals(winner)) {
-
-                System.err.println("Winner: " + winner + " score: " + highScore);
+//                System.err.println("Winner: " + winner + " score: " + highScore);
                 terms.add(t);
             }
         }
