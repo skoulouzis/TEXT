@@ -156,11 +156,13 @@ public class App {
                             if (FilenameUtils.getExtension(in.getName()).endsWith("rdf") || FilenameUtils.getExtension(in.getName()).endsWith("xml")) {
                                 taxonomyFile = in;
                                 keywordsDictionarayFile = new File(args[i + 2]).getAbsolutePath();
+                                indexPath = new File(args[i + 3]).getAbsolutePath();
                             } else {
                                 keywordsDictionarayFile = in.getAbsolutePath();
+                                indexPath = new File(args[i + 2]).getAbsolutePath();
                                 taxonomyFile = null;
                             }
-                            indexPath = new File(args[i + 3]).getAbsolutePath();
+
                         } else {
                             throw new Exception(in.getAbsolutePath() + " not found");
                         }
