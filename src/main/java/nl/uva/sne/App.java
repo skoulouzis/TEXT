@@ -97,12 +97,12 @@ public class App {
             String textDocsPath = System.getProperty("user.home") + File.separator + "Downloads" + File.separator + "textdocs";
             String indexPath = System.getProperty("user.home") + File.separator + "Downloads" + File.separator + "index";
             String keywordsDictionarayFile = System.getProperty("user.home") + File.separator + "Downloads" + File.separator + "textdocs" + File.separator + "dictionary.csv";
-
-            jobDescription2TextFile(jsonDocsPath, textDocsPath);
+            
+//            jobDescription2TextFile(jsonDocsPath, textDocsPath);
 //            createIndex(textDocsPath, indexPath);
 
             createTermDictionary(textDocsPath, keywordsDictionarayFile, true);
-            buildHyperymTree(keywordsDictionarayFile, indexPath);
+//            buildHyperymTree(keywordsDictionarayFile, indexPath);
 
 //            File taxonomyFile = new File(System.getProperty("user.home")
 //                    + File.separator + "workspace" + File.separator + "TEXT"
