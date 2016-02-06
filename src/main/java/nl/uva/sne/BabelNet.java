@@ -492,8 +492,10 @@ public class BabelNet {
                 continue;
             }
             Pair<TermVertex, Double> termPair = null;
-
-            termPair = disambiguate(language, lemma, clearNg);
+            try {
+                termPair = disambiguate(language, lemma, clearNg);
+            } catch (Exception ex) {
+            }
             if (termPair != null) {
                 termMap.put(termPair.first.getUID(), termPair.first);
                 Double score;
