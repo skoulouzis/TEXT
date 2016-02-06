@@ -232,7 +232,7 @@ public class BabelNet {
 //        return relatedTree;
 //    }
     private List<String> getcandidateWordIDs(String language, String word, String key) throws MalformedURLException, IOException, ParseException, Exception {
-        if (!cacheIsLoaded) {
+        if (db == null || db.isClosed()) {
             loadCache();
         }
         List<String> ids = wordIDCache.get(word);
@@ -277,7 +277,7 @@ public class BabelNet {
     }
 
     private String getBabelnetSynset(String id, String lan, String key) throws IOException, Exception {
-        if (!cacheIsLoaded) {
+        if (db == null || db.isClosed()) {
             loadCache();
         }
 
@@ -392,10 +392,13 @@ public class BabelNet {
         Logger.getLogger(BabelNet.class.getName()).log(Level.INFO, "Saving cache");
 //        deleteEntry("bn:03316494n");
 //        deleteEntry("bn:00023236n");
-        if (!db.isClosed()) {
-            db.commit();
-            db.close();
+        if (db != null) {
+            if (!db.isClosed()) {
+                db.commit();
+                db.close();
+            }
         }
+
 
 
 //        try (BufferedWriter bw = new BufferedWriter(new FileWriter(wordIDCacheFile, false))) {
@@ -542,7 +545,7 @@ public class BabelNet {
         if (lemma == null || lemma.length() < 1) {
             return null;
         }
-        if (!cacheIsLoaded) {
+        if (db == null || db.isClosed()) {
             loadCache();
         }
         String key = getKey();
@@ -589,7 +592,7 @@ public class BabelNet {
     }
 
     private Map<String, Double> getEdgeIDs(String language, String id, String relation, String key) throws MalformedURLException, IOException, ParseException, Exception {
-        if (!cacheIsLoaded) {
+        if (db == null || db.isClosed()) {
             loadCache();
         }
         String genreJson = edgesCache.get(id);
