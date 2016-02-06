@@ -348,8 +348,7 @@ public class BabelNet {
                 }
             }
         }
-
-        loadNonLematizeWords();
+        
         disambiguateCache = db.get("disambiguateCacheDB");
         if (disambiguateCache == null) {
             disambiguateCache = db.createHashMap("").keySerializer(Serializer.STRING).valueSerializer(Serializer.STRING).make();
