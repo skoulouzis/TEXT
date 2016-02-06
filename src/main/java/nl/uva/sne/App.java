@@ -482,9 +482,9 @@ public class App {
                     if (terms != null && !terms.isEmpty()) {
                         allTerms.addAll(terms);
                     }
-                    if (count % 500 == 0) {
+                    if (count % 100 == 0) {
 //                        bbn.saveCache();
-                        Logger.getLogger(App.class.getName()).log(Level.FINE, "Word Num.: " + count);
+                        Logger.getLogger(App.class.getName()).log(Level.FINE, "Word Num.: {0}", count);
                     }
                 }
             }
