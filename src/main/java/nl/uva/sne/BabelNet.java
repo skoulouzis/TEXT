@@ -41,6 +41,12 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.mapdb.BTreeKeySerializer;
+import org.mapdb.BTreeMap;
+import org.mapdb.DB;
+import org.mapdb.DBMaker;
+import org.mapdb.HTreeMap;
+import org.mapdb.Serializer;
 
 /**
  *
@@ -50,10 +56,10 @@ public class BabelNet {
 
     private static Dictionary wordNetdictionary;
     private static String babelNetKey;
-    private static Map<String, String> synsetCache = new HashMap<>();
+    private static Map<String, String> synsetCache;
     private static File synsetCacheFile = new File(System.getProperty("user.home")
             + File.separator + "workspace" + File.separator + "TEXT" + File.separator + "cache" + File.separator + "synsetCacheFile.csv");
-    private static Map<String, List<String>> wordIDCache = new HashMap<>();
+    private static Map<String, List<String>> wordIDCache;
     private static File wordIDCacheFile = new File(System.getProperty("user.home")
             + File.separator + "workspace" + File.separator + "TEXT" + File.separator + "cache" + File.separator + "wordCacheFile.csv");
 //    private final File keywordsDictionarayFile;
@@ -63,9 +69,11 @@ public class BabelNet {
     private static File disambiguateCacheFile = new File(System.getProperty("user.home")
             + File.separator + "workspace" + File.separator + "TEXT" + File.separator + "cache" + File.separator + "disambiguateCacheFile.csv");
     private static Map<String, String> disambiguateCache = new HashMap<>();
-    private static Map<String, String> edgesCache = new HashMap<>();
+    private static HTreeMap<String, String> edgesCache;
     private static File edgesCacheFile = new File(System.getProperty("user.home")
             + File.separator + "workspace" + File.separator + "TEXT" + File.separator + "cache" + File.separator + "edgesCacheFile.csv");
+    private static File cacheDBFile = new File(System.getProperty("user.home")
+            + File.separator + "workspace" + File.separator + "TEXT" + File.separator + "cache" + File.separator + "cacheDB");
 
     static {
         try {
@@ -89,6 +97,7 @@ public class BabelNet {
         return babelNetKey;
     }
     private boolean cacheIsLoaded;
+    private DB db;
 
     public String lemmatize(String word, String language) throws JWNLException, FileNotFoundException, MalformedURLException, IOException, ParseException, Exception {
         if (nonLemetize(word) || word.contains("_")) {
@@ -130,7 +139,6 @@ public class BabelNet {
 
     public List<TermVertex> getTermNodeByLemma(String word, boolean isFromDictionary) throws IOException, MalformedURLException, ParseException, Exception {
         String key = getKey();
-        String correctID;
         String language = "EN";
 
         List<String> ids = getcandidateWordIDs(language, word, key);
@@ -259,9 +267,11 @@ public class BabelNet {
             if (ids.isEmpty()) {
                 ids.add("NON-EXISTING");
                 wordIDCache.put(word, ids);
+                db.commit();
                 return null;
             }
             wordIDCache.put(word, ids);
+            db.commit();
         }
         return ids;
     }
@@ -284,115 +294,142 @@ public class BabelNet {
             handleKeyLimitException(json);
             if (json != null) {
                 synsetCache.put(id, json);
+                        db.commit();
             } else {
                 synsetCache.put(id, "NON-EXISTING");
+                        db.commit();
             }
         }
+
         return json;
     }
 
     private void loadCache() throws FileNotFoundException, IOException {
         Logger.getLogger(BabelNet.class.getName()).log(Level.INFO, "Loading cache");
-        if (synsetCacheFile.exists() && synsetCacheFile.length() > 1) {
-            Logger.getLogger(BabelNet.class.getName()).log(Level.CONFIG, "Loading: {0}", synsetCacheFile.getAbsolutePath());
-            try (BufferedReader br = new BufferedReader(new FileReader(synsetCacheFile))) {
-                String line;
-                while ((line = br.readLine()) != null) {
-                    if (line.length() > 2) {
-                        String[] parts = line.split("\t");
-                        if (parts.length > 1) {
-                            synsetCache.put(parts[0], parts[1]);
-                        }
-                    }
-                }
-            }
-        }
-        if (wordIDCacheFile.exists() && wordIDCacheFile.length() > 1) {
-            Logger.getLogger(BabelNet.class.getName()).log(Level.CONFIG, "Loading: {0}", wordIDCacheFile.getAbsolutePath());
-            try (BufferedReader br = new BufferedReader(new FileReader(wordIDCacheFile))) {
-                String line;
-                while ((line = br.readLine()) != null) {
-                    if (line.length() > 2) {
-                        String[] parts = line.split("\t");
-                        if (parts.length > 1) {
-                            List<String> ids = new ArrayList<>();
-                            for (int i = 1; i < parts.length; i++) {
-                                ids.add(parts[i]);
+        db = DBMaker.newFileDB(cacheDBFile).make();
+        synsetCache = db.getHashMap("synsetCacheDB");
+        if (synsetCache == null) {
+            synsetCache = db.createHashMap("synsetCacheDB").keySerializer(Serializer.STRING).valueSerializer(Serializer.STRING).make();
+
+            if (synsetCacheFile.exists() && synsetCacheFile.length() > 1) {
+                Logger.getLogger(BabelNet.class.getName()).log(Level.CONFIG, "Loading: {0}", synsetCacheFile.getAbsolutePath());
+                try (BufferedReader br = new BufferedReader(new FileReader(synsetCacheFile))) {
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        if (line.length() > 2) {
+                            String[] parts = line.split("\t");
+                            if (parts.length > 1) {
+                                synsetCache.put(parts[0], parts[1]);
                             }
-                            wordIDCache.put(parts[0], ids);
                         }
                     }
                 }
             }
         }
-//        loadNonLematizeWords();
-        if (disambiguateCacheFile.exists() && disambiguateCacheFile.length() > 1) {
-            Logger.getLogger(BabelNet.class.getName()).log(Level.CONFIG, "Loading: {0}", disambiguateCacheFile.getAbsolutePath());
-            try (BufferedReader br = new BufferedReader(new FileReader(disambiguateCacheFile))) {
-                String line;
-                while ((line = br.readLine()) != null) {
-                    if (line.length() > 2) {
-                        String[] parts = line.split("\t");
-                        disambiguateCache.put(parts[0], parts[1]);
+        wordIDCache = db.get("wordIDCacheDB");
+        if (wordIDCache == null) {
+            wordIDCache = db.createHashMap("wordIDCacheDB").keySerializer(Serializer.STRING).valueSerializer(Serializer.BASIC).make();
+            if (wordIDCacheFile.exists() && wordIDCacheFile.length() > 1) {
+                Logger.getLogger(BabelNet.class.getName()).log(Level.CONFIG, "Loading: {0}", wordIDCacheFile.getAbsolutePath());
+                try (BufferedReader br = new BufferedReader(new FileReader(wordIDCacheFile))) {
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        if (line.length() > 2) {
+                            String[] parts = line.split("\t");
+                            if (parts.length > 1) {
+                                List<String> ids = new ArrayList<>();
+                                for (int i = 1; i < parts.length; i++) {
+                                    ids.add(parts[i]);
+                                }
+                                wordIDCache.put(parts[0], ids);
+                            }
+                        }
                     }
                 }
             }
         }
-        if (edgesCacheFile.exists() && edgesCacheFile.length() > 1) {
-            Logger.getLogger(BabelNet.class.getName()).log(Level.CONFIG, "Loading: {0}", edgesCacheFile.getAbsolutePath());
-            try (BufferedReader br = new BufferedReader(new FileReader(edgesCacheFile))) {
-                String line;
-                while ((line = br.readLine()) != null) {
-                    if (line.length() > 2) {
-                        String[] parts = line.split("\t");
-                        edgesCache.put(parts[0], parts[1]);
+
+        loadNonLematizeWords();
+        disambiguateCache = db.get("disambiguateCacheDB");
+        if (disambiguateCache == null) {
+            disambiguateCache = db.createHashMap("").keySerializer(Serializer.STRING).valueSerializer(Serializer.STRING).make();
+            if (disambiguateCacheFile.exists() && disambiguateCacheFile.length() > 1) {
+                Logger.getLogger(BabelNet.class.getName()).log(Level.CONFIG, "Loading: {0}", disambiguateCacheFile.getAbsolutePath());
+                try (BufferedReader br = new BufferedReader(new FileReader(disambiguateCacheFile))) {
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        if (line.length() > 2) {
+                            String[] parts = line.split("\t");
+                            disambiguateCache.put(parts[0], parts[1]);
+                        }
                     }
                 }
             }
         }
+
+        edgesCache = db.getHashMap("edgesCacheDB");
+        if (edgesCache == null) {
+            edgesCache = db.createHashMap("edgesCacheDB").keySerializer(Serializer.STRING).valueSerializer(Serializer.STRING).make();
+            if (edgesCacheFile.exists() && edgesCacheFile.length() > 1) {
+                Logger.getLogger(BabelNet.class.getName()).log(Level.CONFIG, "Loading: {0}", edgesCacheFile.getAbsolutePath());
+                try (BufferedReader br = new BufferedReader(new FileReader(edgesCacheFile))) {
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        if (line.length() > 2) {
+                            String[] parts = line.split("\t");
+                            edgesCache.put(parts[0], parts[1]);
+                        }
+                    }
+                }
+            }
+        }
+
+
+        db.commit();
         cacheIsLoaded = true;
     }
 
     public void saveCache() throws FileNotFoundException, IOException {
+        Logger.getLogger(BabelNet.class.getName()).log(Level.INFO, "Saving cache");
 //        deleteEntry("bn:03316494n");
 //        deleteEntry("bn:00023236n");
-        Logger.getLogger(BabelNet.class.getName()).log(Level.INFO, "Saving cache");
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(wordIDCacheFile, false))) {
-            for (String key : wordIDCache.keySet()) {
-                StringBuilder value = new StringBuilder();
-                for (String v : wordIDCache.get(key)) {
-                    value.append(v).append("\t");
-                }
-                bw.write(key + "\t" + value);
-                bw.newLine();
-                bw.flush();
-            }
-        }
+        db.commit();
+        db.close();
 
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(synsetCacheFile, false))) {
-            for (String key : synsetCache.keySet()) {
-                bw.write(key + "\t" + synsetCache.get(key));
-                bw.newLine();
-                bw.flush();
-            }
-        }
-
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(disambiguateCacheFile, false))) {
-            for (String key : disambiguateCache.keySet()) {
-                bw.write(key + "\t" + disambiguateCache.get(key));
-                bw.newLine();
-                bw.flush();
-            }
-        }
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(edgesCacheFile, false))) {
-            for (String key : edgesCache.keySet()) {
-                bw.write(key + "\t" + edgesCache.get(key));
-                bw.newLine();
-                bw.flush();
-            }
-        }
-
-
+//        try (BufferedWriter bw = new BufferedWriter(new FileWriter(wordIDCacheFile, false))) {
+//            for (String key : wordIDCache.keySet()) {
+//                StringBuilder value = new StringBuilder();
+//                for (String v : wordIDCache.get(key)) {
+//                    value.append(v).append("\t");
+//                }
+//                bw.write(key + "\t" + value);
+//                bw.newLine();
+//                bw.flush();
+//            }
+//        }
+//
+//        try (BufferedWriter bw = new BufferedWriter(new FileWriter(synsetCacheFile, false))) {
+//            for (String key : synsetCache.keySet()) {
+//                bw.write(key + "\t" + synsetCache.get(key));
+//                bw.newLine();
+//                bw.flush();
+//            }
+//        }
+//
+//        try (BufferedWriter bw = new BufferedWriter(new FileWriter(disambiguateCacheFile, false))) {
+//            for (String key : disambiguateCache.keySet()) {
+//                bw.write(key + "\t" + disambiguateCache.get(key));
+//                bw.newLine();
+//                bw.flush();
+//            }
+//        }
+//        try (BufferedWriter bw = new BufferedWriter(new FileWriter(edgesCacheFile, false))) {
+//            for (String key : edgesCache.keySet()) {
+//                bw.write(key + "\t" + edgesCache.get(key));
+//                bw.newLine();
+//                bw.flush();
+//            }
+//        }
     }
 
     private static boolean nonLemetize(String word) throws FileNotFoundException, IOException {
@@ -520,6 +557,7 @@ public class BabelNet {
             } else {
                 disambiguateCache.put(sentence, "NON-EXISTING");
             }
+            db.commit();
         }
 //        System.err.println(sentence);
         Object obj = JSONValue.parseWithException(genreJson);
@@ -558,6 +596,10 @@ public class BabelNet {
             if (genreJson != null) {
                 edgesCache.put(id, genreJson);
             }
+            if (genreJson == null) {
+                edgesCache.put(id, "NON-EXISTING");
+            }
+            db.commit();
         }
         Object obj = JSONValue.parseWithException(genreJson);
         JSONArray edgeArray = (JSONArray) obj;
