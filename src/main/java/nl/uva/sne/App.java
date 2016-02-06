@@ -187,17 +187,6 @@ public class App {
                 buildHyperymTree(leaves, indexPath, keywordsDictionarayFile);
             }
 
-            String tax1 = System.getProperty("user.home") + File.separator
-                    + "workspace" + File.separator + "TEXT" + File.separator + "etc" + File.separator + "taxonomy_work.rdf";
-
-
-            String tax2 = System.getProperty("user.home") + File.separator
-                    + "workspace" + File.separator + "TEXT" + File.separator + "etc" + File.separator + "taxonomy_experience.rdf";
-
-
-
-            mergeGraphs(tax1, tax2, "en");
-
         } catch (Exception ex) {
             Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -493,6 +482,10 @@ public class App {
                     if (terms != null && !terms.isEmpty()) {
                         allTerms.addAll(terms);
                     }
+                    if (count % 500 == 0) {
+//                        bbn.saveCache();
+                        Logger.getLogger(App.class.getName()).log(Level.FINE, "Word Num.: " + count);
+                    }
                 }
             }
 
@@ -539,7 +532,9 @@ public class App {
                         }
                     }
                 }
-
+                if (count % 100 == 0) {
+                    bbn.saveCache();
+                }
             }
 
         } finally {
@@ -1074,23 +1069,5 @@ public class App {
         } else {
             return null;//return possibleTerms;
         }
-    }
-
-    private static void mergeGraphs(String tax1, String tax2, String language) throws SKOSCreationException {
-        SKOSDataset dataset1 = SkosUtils.getSKOSManager().loadDatasetFromPhysicalURI(new File(tax1).toURI());
-
-        for (SKOSConcept concept : dataset1.getSKOSConcepts()) {
-
-//            String value = SkosUtils.getPrefLabelValue(dataset1, concept, language);
-
-            String uid = SkosUtils.getUID(concept, new File(tax1));
-
-//            List<String> altLables = SkosUtils.getAltLabelValues(dataset1, concept, language);
-
-//            List<String> buids = SkosUtils.getBroaderUIDs(dataset1, concept);
-
-//            List<String> nuids = SkosUtils.getNarrowerUIDs(dataset1, concept);
-        }
-
     }
 }
