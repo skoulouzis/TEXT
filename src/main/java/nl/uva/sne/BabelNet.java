@@ -294,10 +294,10 @@ public class BabelNet {
             handleKeyLimitException(json);
             if (json != null) {
                 synsetCache.put(id, json);
-                        db.commit();
+                db.commit();
             } else {
                 synsetCache.put(id, "NON-EXISTING");
-                        db.commit();
+                db.commit();
             }
         }
 
@@ -348,7 +348,7 @@ public class BabelNet {
                 }
             }
         }
-        
+
         disambiguateCache = db.get("disambiguateCacheDB");
         if (disambiguateCache == null) {
             disambiguateCache = db.createHashMap("").keySerializer(Serializer.STRING).valueSerializer(Serializer.STRING).make();
@@ -392,8 +392,11 @@ public class BabelNet {
         Logger.getLogger(BabelNet.class.getName()).log(Level.INFO, "Saving cache");
 //        deleteEntry("bn:03316494n");
 //        deleteEntry("bn:00023236n");
-        db.commit();
-        db.close();
+        if (!db.isClosed()) {
+            db.commit();
+            db.close();
+        }
+
 
 //        try (BufferedWriter bw = new BufferedWriter(new FileWriter(wordIDCacheFile, false))) {
 //            for (String key : wordIDCache.keySet()) {
