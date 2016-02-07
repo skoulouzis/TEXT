@@ -6,10 +6,12 @@ package nl.uva.sne;
 
 import edu.stanford.nlp.util.Pair;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -39,6 +41,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.mapdb.BTreeKeySerializer;
+import org.mapdb.BTreeMap;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
 import org.mapdb.HTreeMap;
@@ -83,8 +87,6 @@ public class BabelNet {
     private HashMap<String, String> lemmaCache;
 
     private static String getKey() throws FileNotFoundException, IOException {
-        if (babelNetKey == null) {
-        }
         try (BufferedReader br = new BufferedReader(new FileReader(new File(System.getProperty("user.home")
                 + File.separator + "workspace" + File.separator + "TEXT" + File.separator + "etc" + File.separator + "babelnetKey")))) {
             babelNetKey = br.readLine();
