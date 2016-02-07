@@ -733,7 +733,7 @@ public class App {
         } else {
             termVertex = bbn.getTermNodeByID(lemma, id, isFromDiec);
         }
-        if (possibleTerms != null && termVertex == null) {
+        if (possibleTerms != null && possibleTerms.size() > 1 && termVertex == null) {
             List<String> ngarms = getNGrams(lemma, termDictionaryPath);
             possibleTerms = resolveTerms(possibleTerms, lemma, ngarms);
             if (possibleTerms == null || possibleTerms.isEmpty()) {
