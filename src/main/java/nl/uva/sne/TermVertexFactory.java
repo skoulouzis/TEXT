@@ -88,7 +88,7 @@ public class TermVertexFactory {
                         }
                     }
                     int dist = edu.stanford.nlp.util.StringUtils.editDistance(lemma, jlemma);
-                    System.err.println("original: " + lemma + " jlemma: " + jlemma + " id: " + babelNetID + " lang " + lang + " dist: " + dist);
+//                    System.err.println("original: " + lemma + " jlemma: " + jlemma + " id: " + babelNetID + " lang " + lang + " dist: " + dist);
                     if (lemma.length() < jlemma.length()) {
                         lemma1 = lemma;
                         lemma2 = jlemma;

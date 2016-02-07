@@ -992,21 +992,18 @@ public class App {
             List<String> g = tv.getGlosses();
             if (g != null) {
                 for (String s : g) {
-                    Logger.getLogger(App.class.getName()).log(Level.INFO, s);
                     doc.addAll(tokenize(s, false));
                 }
             }
             List<String> al = tv.getAlternativeLables();
             if (al != null) {
                 for (String s : al) {
-                    Logger.getLogger(App.class.getName()).log(Level.INFO, s);
                     doc.addAll(tokenize(s, false));
                 }
             }
             List<String> cat = tv.getCategories();
             if (cat != null) {
                 for (String s : cat) {
-                    Logger.getLogger(App.class.getName()).log(Level.INFO, s);
                     doc.addAll(tokenize(s, false));
                 }
             }

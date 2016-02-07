@@ -146,10 +146,6 @@ public class BabelNet {
         if (ids != null) {
             nodes = new ArrayList<>(ids.size());
             for (String id : ids) {
-                if (id.equals("bn:01090316n")) {
-                    System.err.println("------------");
-                }
-
                 String synet = getBabelnetSynset(id, language, key);
                 TermVertex node = TermVertexFactory.create(synet, language, word, null);
                 if (node != null) {
