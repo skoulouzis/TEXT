@@ -129,7 +129,7 @@ public class BabelNet {
         String language = "EN";
         String key = getKey();
         String synet = getBabelnetSynset(id, language, key);
-        node = TermVertexFactory.create(synet, language, word);
+        node = TermVertexFactory.create(synet, language, word, id);
         if (node != null) {
             List<TermVertex> h = getHypernyms(language, id, key);
             node.setBroader(h);
@@ -146,11 +146,18 @@ public class BabelNet {
         if (ids != null) {
             nodes = new ArrayList<>(ids.size());
             for (String id : ids) {
+                if (id.equals("bn:01090316n")) {
+                    System.err.println("------------");
+                }
+
                 String synet = getBabelnetSynset(id, language, key);
-                TermVertex node = TermVertexFactory.create(synet, language, word);
+                TermVertex node = TermVertexFactory.create(synet, language, word, null);
                 if (node != null) {
-                    List<TermVertex> h = getHypernyms(language, id, key);
-                    node.setBroader(h);
+                    try {
+                        List<TermVertex> h = getHypernyms(language, id, key);
+                        node.setBroader(h);
+                    } catch (Exception ex) {
+                    }
                     nodes.add(node);
                 }
             }
@@ -579,7 +586,7 @@ public class BabelNet {
                 Double coherenceScore = (Double) jo.get("coherenceScore");
                 double someScore = (score + globalScore + coherenceScore) / 3.0;
                 String synet = getBabelnetSynset(id, language, key);
-                TermVertex t = TermVertexFactory.create(synet, language, lemma);
+                TermVertex t = TermVertexFactory.create(synet, language, lemma, null);
                 if (t != null) {
                     List<TermVertex> h = getHypernyms(language, t.getUID(), key);
                     t.setBroader(h);
