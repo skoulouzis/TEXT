@@ -6,12 +6,10 @@ package nl.uva.sne;
 
 import edu.stanford.nlp.util.Pair;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -41,8 +39,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.mapdb.BTreeKeySerializer;
-import org.mapdb.BTreeMap;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
 import org.mapdb.HTreeMap;
@@ -96,7 +92,6 @@ public class BabelNet {
         }
         return babelNetKey;
     }
-    private boolean cacheIsLoaded;
     private DB db;
 
     public String lemmatize(String word, String language) throws JWNLException, FileNotFoundException, MalformedURLException, IOException, ParseException, Exception {
@@ -388,7 +383,6 @@ public class BabelNet {
 
 
         db.commit();
-        cacheIsLoaded = true;
     }
 
     public void saveCache() throws FileNotFoundException, IOException {
