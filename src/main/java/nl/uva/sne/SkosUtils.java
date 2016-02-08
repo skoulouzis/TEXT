@@ -5,6 +5,7 @@
 package nl.uva.sne;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -17,6 +18,7 @@ import org.semanticweb.skos.SKOSAnnotation;
 import org.semanticweb.skos.SKOSAssertion;
 import org.semanticweb.skos.SKOSChange;
 import org.semanticweb.skos.SKOSConcept;
+import org.semanticweb.skos.SKOSConceptScheme;
 import org.semanticweb.skos.SKOSCreationException;
 import org.semanticweb.skos.SKOSDataFactory;
 import org.semanticweb.skos.SKOSDataset;
@@ -58,15 +60,19 @@ class SkosUtils {
         return dataset;
     }
 
-    public static List<SKOSChange> create(DirectedWeightedEdge edge, String lang) throws ParseException, SKOSCreationException {
+    public static List<SKOSChange> create(DirectedWeightedEdge edge, String lang) throws ParseException, SKOSCreationException, IOException {
 
         TermVertex target = (TermVertex) edge.getTarget();
         TermVertex source = (TermVertex) edge.getSource();
 
         List<SKOSChange> addAssertions = new ArrayList<>();
+        SKOSConceptScheme scheme = getSKOSDataFactory().getSKOSConceptScheme(URI.create(SKOS_URI + Utils.getScheme()));
+
         SKOSConcept targetConcept = getSKOSDataFactory().getSKOSConcept(URI.create(SKOS_URI + "#" + target.getUID()));
 
         addAssertions.add(new AddAssertion(getSKOSDataset(), getPrefAssertion(targetConcept, target.getLemma(), lang)));
+        addAssertions.add(new AddAssertion(getSKOSDataset(), getInSchemeAssertion(targetConcept, scheme)));
+
         List<String> alt = target.getAlternativeLables();
         if (alt != null) {
             for (String s : alt) {
@@ -92,6 +98,7 @@ class SkosUtils {
 
         SKOSConcept sourceConcept = getSKOSDataFactory().getSKOSConcept(URI.create(SKOS_URI + "#" + source.getUID()));
         addAssertions.add(new AddAssertion(getSKOSDataset(), getPrefAssertion(sourceConcept, source.getLemma(), lang)));
+        addAssertions.add(new AddAssertion(getSKOSDataset(), getInSchemeAssertion(sourceConcept, scheme)));
 
         alt = source.getAlternativeLables();
         if (alt != null) {
@@ -143,6 +150,10 @@ class SkosUtils {
         SKOSAnnotation altLabel = getSKOSDataFactory().getSKOSAnnotation(getSKOSDataFactory().
                 getSKOSAltLabelProperty().getURI(), s, lang);
         return getSKOSDataFactory().getSKOSAnnotationAssertion(concept, altLabel);
+    }
+
+    private static SKOSAssertion getInSchemeAssertion(SKOSConcept concept, SKOSConceptScheme scheme) throws SKOSCreationException {
+        return getSKOSDataFactory().getSKOSObjectRelationAssertion(concept, getSKOSDataFactory().getSKOSInSchemeProperty(), scheme);
     }
 
     private static SKOSAssertion getPrefAssertion(SKOSConcept concept, String lemma, String lang) throws SKOSCreationException {

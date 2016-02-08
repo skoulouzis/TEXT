@@ -909,8 +909,8 @@ public class App {
         List<SKOSChange> change = new ArrayList<>();
         SKOSEntityAssertion schemaAss = SkosUtils.getSKOSDataFactory().getSKOSEntityAssertion(scheme);
         change.add(new AddAssertion(SkosUtils.getSKOSDataset(), schemaAss));
+        
         Set<DirectedWeightedEdge> edges = g.edgeSet();
-
         for (DirectedWeightedEdge e : edges) {
             change.addAll(SkosUtils.create(e, "EN"));
         }

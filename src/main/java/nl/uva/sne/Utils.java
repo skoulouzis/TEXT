@@ -1008,4 +1008,8 @@ class Utils {
     static int getMaxNGrams() throws IOException {
         return Integer.valueOf(getProperties().getProperty("max.ngrams", "2"));
     }
+
+    static String getScheme() throws IOException {
+        return (getProperties().getProperty("scheme.name", ""));
+    }
 }
