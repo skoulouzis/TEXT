@@ -23,6 +23,7 @@ import org.semanticweb.skos.SKOSCreationException;
 import org.semanticweb.skos.SKOSDataFactory;
 import org.semanticweb.skos.SKOSDataset;
 import org.semanticweb.skos.SKOSEntity;
+import org.semanticweb.skos.SKOSEntityAssertion;
 import org.semanticweb.skos.SKOSLiteral;
 import org.semanticweb.skos.SKOSObjectRelationAssertion;
 import org.semanticweb.skos.SKOSUntypedLiteral;
@@ -67,6 +68,8 @@ class SkosUtils {
 
         List<SKOSChange> addAssertions = new ArrayList<>();
         SKOSConceptScheme scheme = getSKOSDataFactory().getSKOSConceptScheme(URI.create(SKOS_URI + Utils.getScheme()));
+        SKOSEntityAssertion schemaAss = getSKOSDataFactory().getSKOSEntityAssertion(scheme);
+        addAssertions.add(new AddAssertion(getSKOSDataset(), schemaAss));
 
         SKOSConcept targetConcept = getSKOSDataFactory().getSKOSConcept(URI.create(SKOS_URI + "#" + target.getUID()));
 

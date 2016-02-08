@@ -187,6 +187,10 @@ public class App {
                 List<TermVertex> leaves = getTermsFromTaxonomy(taxonomyFile, "en");
                 buildHyperymTree(leaves, indexPath, keywordsDictionarayFile);
             }
+            
+            String skosFile1 ="file";
+            String skosFile2 ="file";
+//            buildSKOSMappings(skosFile1,skosFile2);
 
         } catch (Exception ex) {
             Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
@@ -902,7 +906,7 @@ public class App {
         return g;
     }
 
-    private static void export2SKOS(DefaultDirectedWeightedGraph g, String skosFile) throws ParseException, SKOSCreationException, SKOSChangeException, SKOSStorageException {
+    private static void export2SKOS(DefaultDirectedWeightedGraph g, String skosFile) throws ParseException, SKOSCreationException, SKOSChangeException, SKOSStorageException, IOException {
 
         SKOSConceptScheme scheme = SkosUtils.getSKOSDataFactory().getSKOSConceptScheme(URI.create(SkosUtils.SKOS_URI + "DS-BoK"));
 
@@ -1070,5 +1074,11 @@ public class App {
         } else {
             return null;//return possibleTerms;
         }
+    }
+
+    private static void buildSKOSMappings(String skosFile1, String skosFile2) throws SKOSCreationException {
+         SKOSDataset dataset = SkosUtils.getSKOSManager().loadDatasetFromPhysicalURI(new File(skosFile1).toURI());
+        
+        
     }
 }
