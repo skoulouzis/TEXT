@@ -122,7 +122,7 @@ public class App {
                         } else {
                             throw new Exception(out.getAbsolutePath() + " not a directory");
                         }
-
+                        break;
                     }
                     //-i $HOME/Downloads/textdocs/ $HOME/Downloads/index
                     if (args[i].equals("-i")) {
@@ -134,7 +134,7 @@ public class App {
                             throw new Exception(in.getAbsolutePath() + " not found");
                         }
                         indexPath = new File(args[i + 2]).getAbsolutePath();
-
+                        break;
                     }
                     //-d $HOME/Downloads/textdocs/ $HOME/Downloads/textdocs/dictionary.csv
                     if (args[i].equals("-d")) {
@@ -146,6 +146,7 @@ public class App {
                             throw new Exception(in.getAbsolutePath() + " not found");
                         }
                         keywordsDictionarayFile = new File(args[i + 2]).getAbsolutePath();
+                        break;
                     }
                     //-t $HOME/Downloads/textdocs/dictionary.csv $HOME/Downloads/index
                     //-t $HOME/Downloads/ACMComputingClassificationSystemSKOSTaxonomy.rdf $HOME/Downloads/textdocs/dictionary.csv $HOME/Downloads/index
@@ -166,7 +167,7 @@ public class App {
                         } else {
                             throw new Exception(in.getAbsolutePath() + " not found");
                         }
-
+                        break;
                     }
                 }
             }
@@ -180,7 +181,7 @@ public class App {
             if (creatDict) {
                 createTermDictionary(textDocsPath, keywordsDictionarayFile, true);
             }
-            if (buildTree && keywordsDictionarayFile != null) {
+            if (buildTree && taxonomyFile == null) {
                 buildHyperymTree(keywordsDictionarayFile, indexPath);
             } else if (buildTree && taxonomyFile != null) {
                 List<TermVertex> leaves = getTermsFromTaxonomy(taxonomyFile, "en");
