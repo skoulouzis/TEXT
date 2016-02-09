@@ -737,51 +737,56 @@ public class App {
     }
 
     private static List<TermVertex> getTermVertices(String lemma, String id, int depth, boolean isFromDiec, BabelNet bbn, String indexPath, String termDictionaryPath, List<TermVertex> terms) throws IOException, MalformedURLException, ParseException, Exception {
-        POS[] pos = BabelNet.getPOS(lemma);
-        if (Utils.getUseNouns() && pos.length == 1 && pos[0].equals(POS.NOUN)) {
-            if (terms == null) {
-                terms = new ArrayList<>();
+        if (Utils.getUseNouns()) {
+            POS[] pos = BabelNet.getPOS(lemma);
+            if (pos.length > 1 || !pos[0].equals(POS.NOUN)) {
+                return null;
             }
-            TermVertex termVertex = null;
-            List<TermVertex> possibleTerms = null;
-            if (isFromDiec) {
-                possibleTerms = bbn.getTermNodeByLemma(lemma, isFromDiec);
-            } else {
-                termVertex = bbn.getTermNodeByID(lemma, id, isFromDiec);
-            }
-            if (possibleTerms != null && possibleTerms.size() > 1 && termVertex == null) {
-                List<String> ngarms = getNGrams(lemma, termDictionaryPath);
-                possibleTerms = resolveTerms(possibleTerms, lemma, ngarms);
-                if (possibleTerms == null || possibleTerms.isEmpty()) {
+        }
+
+
+
+        if (terms == null) {
+            terms = new ArrayList<>();
+        }
+        TermVertex termVertex = null;
+        List<TermVertex> possibleTerms = null;
+        if (isFromDiec) {
+            possibleTerms = bbn.getTermNodeByLemma(lemma, isFromDiec);
+        } else {
+            termVertex = bbn.getTermNodeByID(lemma, id, isFromDiec);
+        }
+        if (possibleTerms != null && possibleTerms.size() > 1 && termVertex == null) {
+            List<String> ngarms = getNGrams(lemma, termDictionaryPath);
+            possibleTerms = resolveTerms(possibleTerms, lemma, ngarms);
+            if (possibleTerms == null || possibleTerms.isEmpty()) {
 //                String scentense = getScentsens(lemma, numOfWords, indexPath);
 //                ngarms.add(scentense);
-                    possibleTerms = bbn.disambiguate("EN", lemma, ngarms);
-                }
-
-            }
-            if (possibleTerms == null) {
-                possibleTerms = new ArrayList<>();
-            }
-            if (termVertex != null) {
-                possibleTerms.add(termVertex);
+                possibleTerms = bbn.disambiguate("EN", lemma, ngarms);
             }
 
-            for (TermVertex tv : possibleTerms) {
-                tv.setIsFromDictionary(isFromDiec);
-                terms.add(tv);
-                if (depth > 1) {
-                    List<TermVertex> hyper = tv.getBroader();
-                    if (hyper != null) {
-                        for (TermVertex h : hyper) {
-                            if (h != null) {
+        }
+        if (possibleTerms == null) {
+            possibleTerms = new ArrayList<>();
+        }
+        if (termVertex != null) {
+            possibleTerms.add(termVertex);
+        }
+
+        for (TermVertex tv : possibleTerms) {
+            tv.setIsFromDictionary(isFromDiec);
+            terms.add(tv);
+            if (depth > 1) {
+                List<TermVertex> hyper = tv.getBroader();
+                if (hyper != null) {
+                    for (TermVertex h : hyper) {
+                        if (h != null) {
 //                            System.err.println("lemma: " + h.getLemma() + " id: " + h.getUID());
-                                getTermVertices(h.getLemma(), h.getUID(), --depth, false, bbn, indexPath, termDictionaryPath, terms);
-                            }
+                            getTermVertices(h.getLemma(), h.getUID(), --depth, false, bbn, indexPath, termDictionaryPath, terms);
                         }
                     }
                 }
             }
-
         }
 
         return terms;
@@ -1092,6 +1097,5 @@ public class App {
     private static void buildSKOSMappings(String skosFile1, String skosFile2) throws SKOSCreationException {
 //        SKOSDataset dataset1 = SkosUtils.getSKOSManager().loadDatasetFromPhysicalURI(new File(skosFile1).toURI());
 //        SKOSDataset dataset2 = SkosUtils.getSKOSManager().loadDatasetFromPhysicalURI(new File(skosFile2).toURI());
-        
     }
 }
