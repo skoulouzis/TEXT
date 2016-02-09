@@ -70,13 +70,6 @@ import org.semanticweb.skos.SKOSObjectRelationAssertion;
 import org.semanticweb.skos.SKOSStorageException;
 import org.semanticweb.skosapibinding.SKOSFormatExt;
 
-//import weka.clusterers.HierarchicalClusterer;
-//import weka.core.Attribute;
-//import weka.core.EuclideanDistance;
-//import weka.core.FastVector;
-//import weka.core.Instance;
-//import weka.core.Instances;
-//import weka.gui.hierarchyvisualizer.HierarchyVisualizer;
 public class App {
 
     private static Map<String, Integer> keywordsDictionaray;
@@ -1004,8 +997,8 @@ public class App {
 //            if (nuids == null || nuids.isEmpty()) {
             String value = SkosUtils.getPrefLabelValue(dataset, concept, language).toLowerCase();
             TermVertex term = new TermVertex(value);
-//                String uid = SkosUtils.getUID(concept, taxonomyFile);
-//                term.setUID(uid);
+            String uid = SkosUtils.getUID(concept, taxonomyFile);
+            term.setForeignKey(uid);
             List<String> altLables = SkosUtils.getAltLabelValues(dataset, concept, language);
             term.setAlternativeLables(altLables);
 //                List<String> buids = SkosUtils.getBroaderUIDs(dataset, concept);
@@ -1149,17 +1142,14 @@ public class App {
 
                             Set<SKOSDataRelationAssertion> sdAss = targetConcept.getDataRelationAssertions(targetDataset);
                             for (SKOSDataRelationAssertion a : sdAss) {
-                                System.err.println("SKOSDataRelationAssertion " + a.getSKOSProperty().getURI());
                                 change.add(new AddAssertion(sourceDataset, a));
                             }
                             Set<SKOSObjectRelationAssertion> soAss = targetConcept.getObjectRelationAssertions(targetDataset);
                             for (SKOSObjectRelationAssertion a : soAss) {
-                                System.err.println("SKOSObjectRelationAssertion " + a.getSKOSProperty().getURI());
                                 change.add(new AddAssertion(sourceDataset, a));
                             }
                             Set<SKOSAnnotation> ann = targetConcept.getSKOSAnnotations(targetDataset);
                             for (SKOSAnnotation a : ann) {
-                                System.err.println("SKOSAnnotation " + a.getURI());
                                 change.add(new AddAssertion(sourceDataset, getSKOSDataFactory().getSKOSAnnotationAssertion(targetConcept, a)));
                             }
                         }

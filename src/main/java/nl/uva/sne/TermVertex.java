@@ -23,6 +23,7 @@ public class TermVertex {
     private List<String> glosses;
     private List<String> buids;
     private List<String> nuids;
+    private String fKey;
 
     public TermVertex(String lemma) {
         this.lemma = lemma;
@@ -119,5 +120,13 @@ public class TermVertex {
 
     List<String> getBroaderUIDS() {
         return this.buids;
+    }
+
+    void setForeignKey(String fKey) {
+        this.fKey = fKey;
+    }
+
+    String getForeignKey() {
+        return this.fKey;
     }
 }
