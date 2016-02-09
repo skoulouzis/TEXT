@@ -27,7 +27,6 @@ import java.util.logging.Logger;
 import net.didion.jwnl.JWNLException;
 import net.didion.jwnl.data.POS;
 import static nl.uva.sne.SkosUtils.getSKOSDataFactory;
-import static nl.uva.sne.SkosUtils.getSKOSDataset;
 import org._3pq.jgrapht.Edge;
 import org._3pq.jgrapht.edge.DirectedWeightedEdge;
 import org._3pq.jgrapht.graph.DefaultDirectedWeightedGraph;
@@ -47,10 +46,6 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.TopScoreDocCollector;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.json.simple.JSONObject;
@@ -197,8 +192,11 @@ public class App {
                     + "Downloads" + File.separator + "database_taxonomy.rdf";
 
             if (doMappings) {
-//                buildSKOSMappings(skosFile1, skosFile2);
-                mergeTaxonomies(skosFile1, skosFile2);
+                //                String taxonomy2Graph = buildSKOSMappings(skosFile1, skosFile2);
+                //                String outputFile = mergeTaxonomies(skosFile1, skosFile2);
+                DefaultDirectedWeightedGraph g = taxonomy2Graph(System.getProperty("user.home") + File.separator
+                        + "Downloads" + File.separator + "nosql_taxonomy.rdfmerged_withdatabase_taxonomy.rdf", "en");
+                export2DOT(g, graphFile);
             }
 
         } catch (Exception ex) {
@@ -894,12 +892,11 @@ public class App {
 //            return qp.parse(QueryParser.escape(searchString));
 //        }
 //    }
-    private static ScoreDoc[] getDocs(Query q, IndexSearcher indexSearcher, int maxDoxs) throws IOException {
-        TopScoreDocCollector collector = TopScoreDocCollector.create(maxDoxs, true);
-        indexSearcher.search(q, collector);
-        return collector.topDocs().scoreDocs;
-    }
-
+//    private static ScoreDoc[] getDocs(Query q, IndexSearcher indexSearcher, int maxDoxs) throws IOException {
+//        TopScoreDocCollector collector = TopScoreDocCollector.create(maxDoxs, true);
+//        indexSearcher.search(q, collector);
+//        return collector.topDocs().scoreDocs;
+//    }
     private static DefaultDirectedWeightedGraph pruneGraph(DefaultDirectedWeightedGraph g, int depth) throws ParseException, IOException, SKOSCreationException, SKOSChangeException, SKOSStorageException {
         Set<TermVertex> vs = g.vertexSet();
         List<TermVertex> toRemove = new ArrayList<>();
@@ -950,22 +947,41 @@ public class App {
         SKOSDataset dataset = SkosUtils.getSKOSManager().loadDatasetFromPhysicalURI(new File(taxonomyFile).toURI());
         DefaultDirectedWeightedGraph g = new DefaultDirectedWeightedGraph();
         Map<String, TermVertex> idMap = new HashMap<>();
-
-
-
-        for (SKOSConcept concept : dataset.getSKOSConcepts()) {
-            String value = SkosUtils.getPrefLabelValue(dataset, concept, language);
-            TermVertex term = new TermVertex(value);
-            String uid = SkosUtils.getUID(concept, new File(taxonomyFile));
-            term.setUID(uid);
-            List<String> altLables = SkosUtils.getAltLabelValues(dataset, concept, language);
-            term.setAlternativeLables(altLables);
-            List<String> buids = SkosUtils.getBroaderUIDs(dataset, concept);
-            term.setBroaderUIDS(buids);
-            List<String> nuids = SkosUtils.getNarrowerUIDs(dataset, concept);
-            term.setNarrowerUIDS(nuids);
-            idMap.put(uid, term);
+        Set<SKOSConcept> concepts = dataset.getSKOSConcepts();
+        if (concepts == null || concepts.isEmpty()) {
+            for (SKOSConceptScheme scheme : dataset.getSKOSConceptSchemes()) {
+                for (SKOSConcept concept : dataset.getConceptsInScheme(scheme)) {
+                    String value = SkosUtils.getPrefLabelValue(dataset, concept, language);
+                    TermVertex term = new TermVertex(value);
+                    String uid = SkosUtils.getUID(concept, new File(taxonomyFile));
+                    term.setUID(uid);
+                    List<String> altLables = SkosUtils.getAltLabelValues(dataset, concept, language);
+                    term.setAlternativeLables(altLables);
+                    List<String> buids = SkosUtils.getBroaderUIDs(dataset, concept);
+                    term.setBroaderUIDS(buids);
+                    List<String> nuids = SkosUtils.getNarrowerUIDs(dataset, concept);
+                    term.setNarrowerUIDS(nuids);
+                    idMap.put(uid, term);
+                }
+            }
+        } else {
+            for (SKOSConcept concept : dataset.getSKOSConcepts()) {
+                String value = SkosUtils.getPrefLabelValue(dataset, concept, language);
+                TermVertex term = new TermVertex(value);
+                String uid = SkosUtils.getUID(concept, new File(taxonomyFile));
+                term.setUID(uid);
+                List<String> altLables = SkosUtils.getAltLabelValues(dataset, concept, language);
+                term.setAlternativeLables(altLables);
+                List<String> buids = SkosUtils.getBroaderUIDs(dataset, concept);
+                term.setBroaderUIDS(buids);
+                List<String> nuids = SkosUtils.getNarrowerUIDs(dataset, concept);
+                term.setNarrowerUIDS(nuids);
+                idMap.put(uid, term);
+            }
         }
+
+
+
         Collection<TermVertex> vs = idMap.values();
         for (TermVertex tv : vs) {
             if (!g.containsVertex(tv)) {
@@ -1090,7 +1106,7 @@ public class App {
         }
     }
 
-    private static void buildSKOSMappings(String skosFile1, String skosFile2) throws SKOSCreationException, SKOSChangeException, SKOSStorageException, IOException {
+    private static String buildSKOSMappings(String skosFile1, String skosFile2) throws SKOSCreationException, SKOSChangeException, SKOSStorageException, IOException {
         SKOSDataset dataset1 = SkosUtils.getSKOSManager().loadDatasetFromPhysicalURI(new File(skosFile1).toURI());
         SKOSDataset dataset2 = SkosUtils.getSKOSManager().loadDatasetFromPhysicalURI(new File(skosFile2).toURI());
         String language = "en";
@@ -1117,11 +1133,14 @@ public class App {
         }
         if (!change.isEmpty()) {
             SkosUtils.getSKOSManager().applyChanges(change);
-            SkosUtils.getSKOSManager().save(dataset1, SKOSFormatExt.RDFXML, new File(skosFile1 + "mapped.rdf").toURI());
+            File file = new File(skosFile1 + "mapped.rdf");
+            SkosUtils.getSKOSManager().save(dataset1, SKOSFormatExt.RDFXML, file.toURI());
+            return file.getAbsolutePath();
         }
+        return null;
     }
 
-    private static void mergeTaxonomies(String sourceSKOS, String targetSKOS) throws SKOSCreationException, SKOSChangeException, SKOSStorageException, IOException {
+    private static String mergeTaxonomies(String sourceSKOS, String targetSKOS) throws SKOSCreationException, SKOSChangeException, SKOSStorageException, IOException {
         SKOSDataset sourceDataset = SkosUtils.getSKOSManager().loadDatasetFromPhysicalURI(new File(sourceSKOS).toURI());
         SKOSDataset targetDataset = SkosUtils.getSKOSManager().loadDatasetFromPhysicalURI(new File(targetSKOS).toURI());
         String language = "en";
@@ -1159,7 +1178,10 @@ public class App {
         }
         if (!change.isEmpty()) {
             SkosUtils.getSKOSManager().applyChanges(change);
-            SkosUtils.getSKOSManager().save(sourceDataset, SKOSFormatExt.RDFXML, new File(sourceSKOS + "merged_with" + new File(targetSKOS).getName()).toURI());
+            File file = new File(sourceSKOS + "merged_with" + new File(targetSKOS).getName());
+            SkosUtils.getSKOSManager().save(sourceDataset, SKOSFormatExt.RDFXML, file.toURI());
+            return file.getAbsolutePath();
         }
+        return null;
     }
 }
