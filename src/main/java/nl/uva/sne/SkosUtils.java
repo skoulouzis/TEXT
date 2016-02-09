@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -39,6 +40,7 @@ class SkosUtils {
     private static SKOSDataFactory skosDF;
     private static SKOSDataset dataset;
     private static SKOSManager manager;
+    private static String schme;
 
     public static SKOSDataFactory getSKOSDataFactory() throws SKOSCreationException {
         if (skosDF == null) {
@@ -54,9 +56,14 @@ class SkosUtils {
         return manager;
     }
 
-    public static SKOSDataset getSKOSDataset() throws SKOSCreationException {
+    public static SKOSDataset getSKOSDataset() throws SKOSCreationException, IOException {
         if (dataset == null) {
-            dataset = getSKOSManager().createSKOSDataset(URI.create(SKOS_URI));
+            schme = Utils.getScheme();
+            if (!schme.endsWith("/")) {
+                schme += "/";
+            }
+
+            dataset = getSKOSManager().createSKOSDataset(URI.create(SKOS_URI + schme));
         }
         return dataset;
     }
@@ -66,12 +73,13 @@ class SkosUtils {
         TermVertex target = (TermVertex) edge.getTarget();
         TermVertex source = (TermVertex) edge.getSource();
 
+
         List<SKOSChange> addAssertions = new ArrayList<>();
-        SKOSConceptScheme scheme = getSKOSDataFactory().getSKOSConceptScheme(URI.create(SKOS_URI + Utils.getScheme()));
+        SKOSConceptScheme scheme = getSKOSDataFactory().getSKOSConceptScheme(URI.create(SKOS_URI + schme));
         SKOSEntityAssertion schemaAss = getSKOSDataFactory().getSKOSEntityAssertion(scheme);
         addAssertions.add(new AddAssertion(getSKOSDataset(), schemaAss));
 
-        SKOSConcept targetConcept = getSKOSDataFactory().getSKOSConcept(URI.create(SKOS_URI + "#" + target.getUID()));
+        SKOSConcept targetConcept = getSKOSDataFactory().getSKOSConcept(URI.create(SKOS_URI + schme + "#" + target.getUID()));
 
         addAssertions.add(new AddAssertion(getSKOSDataset(), getPrefAssertion(targetConcept, target.getLemma(), lang)));
         addAssertions.add(new AddAssertion(getSKOSDataset(), getInSchemeAssertion(targetConcept, scheme)));
@@ -99,7 +107,7 @@ class SkosUtils {
         }
 
 
-        SKOSConcept sourceConcept = getSKOSDataFactory().getSKOSConcept(URI.create(SKOS_URI + "#" + source.getUID()));
+        SKOSConcept sourceConcept = getSKOSDataFactory().getSKOSConcept(URI.create(SKOS_URI + schme + "#" + source.getUID()));
         addAssertions.add(new AddAssertion(getSKOSDataset(), getPrefAssertion(sourceConcept, source.getLemma(), lang)));
         addAssertions.add(new AddAssertion(getSKOSDataset(), getInSchemeAssertion(sourceConcept, scheme)));
 
@@ -155,17 +163,26 @@ class SkosUtils {
         return getSKOSDataFactory().getSKOSAnnotationAssertion(concept, altLabel);
     }
 
-    private static SKOSAssertion getInSchemeAssertion(SKOSConcept concept, SKOSConceptScheme scheme) throws SKOSCreationException {
+    public static SKOSAssertion getInSchemeAssertion(SKOSConcept concept, SKOSConceptScheme scheme) throws SKOSCreationException {
         return getSKOSDataFactory().getSKOSObjectRelationAssertion(concept, getSKOSDataFactory().getSKOSInSchemeProperty(), scheme);
     }
 
-    private static SKOSAssertion getPrefAssertion(SKOSConcept concept, String lemma, String lang) throws SKOSCreationException {
+    public static SKOSAssertion getPrefAssertion(SKOSConcept concept, String lemma, String lang) throws SKOSCreationException {
         SKOSAnnotation prefLabel = getSKOSDataFactory().getSKOSAnnotation(getSKOSDataFactory().getSKOSPrefLabelProperty().getURI(), lemma, lang);
         return getSKOSDataFactory().getSKOSAnnotationAssertion(concept, prefLabel);
     }
 
-    static String getPrefLabelValue(SKOSDataset dataset, SKOSConcept concept, String language) throws SKOSCreationException {
+    static SKOSAssertion addExactMatchMapping(SKOSConcept sourceConcept, SKOSConcept targetConcept) throws SKOSCreationException {
+        return getSKOSDataFactory().
+                getSKOSObjectRelationAssertion(sourceConcept, getSKOSDataFactory().getSKOSExactMatchProperty(), targetConcept);
+    }
 
+    static SKOSAssertion addCloseMatchMapping(SKOSConcept sourceConcept, SKOSConcept targetConcept) throws SKOSCreationException {
+        return getSKOSDataFactory().
+                getSKOSObjectRelationAssertion(sourceConcept, getSKOSDataFactory().getSKOSCloseMatchProperty(), targetConcept);
+    }
+
+    static String getPrefLabelValue(SKOSDataset dataset, SKOSConcept concept, String language) throws SKOSCreationException {
         Set<SKOSAnnotation> prefLabel = dataset.getSKOSAnnotationsByURI(concept, getSKOSDataFactory().getSKOSPrefLabelProperty().getURI());
         SKOSAnnotation ann = prefLabel.iterator().next();
         // if the annotation is a literal annotation?
@@ -187,14 +204,14 @@ class SkosUtils {
             SKOSEntity entity = ann.getAnnotationValue();
             value = entity.getURI().getFragment();
         }
-        if (lang != null && lang.equals(language)) {
-            return value;
-        }
-        return null;
+//        if (lang != null) {
+        return value;
+//        }
+//        return null;
     }
 
     static String getUID(SKOSConcept concept, File taxonomyFile) {
-        return concept.getURI().toString().replace(taxonomyFile.toURI().toString() + "#", "");
+        return concept.getURI().toString().substring(concept.getURI().toString().indexOf("#"));
     }
 
     static List<String> getAltLabelValues(SKOSDataset dataset, SKOSConcept concept, String language) throws SKOSCreationException {
@@ -267,7 +284,11 @@ class SkosUtils {
                 value = entity.getURI().getFragment();
             }
             narrowerUIDs.add(value);
+            narrowerUIDs.add(value);
+
         }
         return narrowerUIDs;
     }
+
+   
 }

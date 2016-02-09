@@ -26,6 +26,8 @@ import java.util.logging.Logger;
 
 import net.didion.jwnl.JWNLException;
 import net.didion.jwnl.data.POS;
+import static nl.uva.sne.SkosUtils.getSKOSDataFactory;
+import static nl.uva.sne.SkosUtils.getSKOSDataset;
 import org._3pq.jgrapht.Edge;
 import org._3pq.jgrapht.edge.DirectedWeightedEdge;
 import org._3pq.jgrapht.graph.DefaultDirectedWeightedGraph;
@@ -55,13 +57,16 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.semanticweb.skos.AddAssertion;
+import org.semanticweb.skos.SKOSAnnotation;
 import org.semanticweb.skos.SKOSChange;
 import org.semanticweb.skos.SKOSChangeException;
 import org.semanticweb.skos.SKOSConcept;
 import org.semanticweb.skos.SKOSConceptScheme;
 import org.semanticweb.skos.SKOSCreationException;
+import org.semanticweb.skos.SKOSDataRelationAssertion;
 import org.semanticweb.skos.SKOSDataset;
 import org.semanticweb.skos.SKOSEntityAssertion;
+import org.semanticweb.skos.SKOSObjectRelationAssertion;
 import org.semanticweb.skos.SKOSStorageException;
 import org.semanticweb.skosapibinding.SKOSFormatExt;
 
@@ -194,11 +199,13 @@ public class App {
             }
 
             String skosFile1 = System.getProperty("user.home") + File.separator
-                    + "Downloads" + File.separator + "database_taxonomy.rdf";
-            String skosFile2 = System.getProperty("user.home") + File.separator
                     + "Downloads" + File.separator + "nosql_taxonomy.rdf";
+            String skosFile2 = System.getProperty("user.home") + File.separator
+                    + "Downloads" + File.separator + "database_taxonomy.rdf";
+
             if (doMappings) {
-                buildSKOSMappings(skosFile1, skosFile2);
+//                buildSKOSMappings(skosFile1, skosFile2);
+                mergeTaxonomies(skosFile1, skosFile2);
             }
 
         } catch (Exception ex) {
@@ -739,7 +746,10 @@ public class App {
     private static List<TermVertex> getTermVertices(String lemma, String id, int depth, boolean isFromDiec, BabelNet bbn, String indexPath, String termDictionaryPath, List<TermVertex> terms) throws IOException, MalformedURLException, ParseException, Exception {
         if (Utils.getUseNouns()) {
             POS[] pos = BabelNet.getPOS(lemma);
-            if (pos.length > 1 || !pos[0].equals(POS.NOUN)) {
+            if (pos.length > 1) {
+                return null;
+            }
+            if (pos.length == 1 && !pos[0].equals(POS.NOUN)) {
                 return null;
             }
         }
@@ -929,7 +939,7 @@ public class App {
 
     private static void export2SKOS(DefaultDirectedWeightedGraph g, String skosFile) throws ParseException, SKOSCreationException, SKOSChangeException, SKOSStorageException, IOException {
 
-        SKOSConceptScheme scheme = SkosUtils.getSKOSDataFactory().getSKOSConceptScheme(URI.create(SkosUtils.SKOS_URI + "DS-BoK"));
+        SKOSConceptScheme scheme = SkosUtils.getSKOSDataFactory().getSKOSConceptScheme(URI.create(SkosUtils.SKOS_URI + Utils.getScheme()));
 
         List<SKOSChange> change = new ArrayList<>();
         SKOSEntityAssertion schemaAss = SkosUtils.getSKOSDataFactory().getSKOSEntityAssertion(scheme);
@@ -951,7 +961,6 @@ public class App {
 
 
         for (SKOSConcept concept : dataset.getSKOSConcepts()) {
-
             String value = SkosUtils.getPrefLabelValue(dataset, concept, language);
             TermVertex term = new TermVertex(value);
             String uid = SkosUtils.getUID(concept, new File(taxonomyFile));
@@ -1088,8 +1097,79 @@ public class App {
         }
     }
 
-    private static void buildSKOSMappings(String skosFile1, String skosFile2) throws SKOSCreationException {
-//        SKOSDataset dataset1 = SkosUtils.getSKOSManager().loadDatasetFromPhysicalURI(new File(skosFile1).toURI());
-//        SKOSDataset dataset2 = SkosUtils.getSKOSManager().loadDatasetFromPhysicalURI(new File(skosFile2).toURI());
+    private static void buildSKOSMappings(String skosFile1, String skosFile2) throws SKOSCreationException, SKOSChangeException, SKOSStorageException, IOException {
+        SKOSDataset dataset1 = SkosUtils.getSKOSManager().loadDatasetFromPhysicalURI(new File(skosFile1).toURI());
+        SKOSDataset dataset2 = SkosUtils.getSKOSManager().loadDatasetFromPhysicalURI(new File(skosFile2).toURI());
+        String language = "en";
+        List<SKOSChange> change = new ArrayList<>();
+
+        for (SKOSConceptScheme scheme : dataset1.getSKOSConceptSchemes()) {
+            for (SKOSConcept sourceConcepts : dataset1.getConceptsInScheme(scheme)) {
+                String sourceUid = SkosUtils.getUID(sourceConcepts, new File(skosFile1));
+                String sourcePref = SkosUtils.getPrefLabelValue(dataset1, sourceConcepts, language);
+                for (SKOSConceptScheme scheme2 : dataset2.getSKOSConceptSchemes()) {
+                    for (SKOSConcept targetConcepts : dataset2.getConceptsInScheme(scheme2)) {
+                        String targetUid = SkosUtils.getUID(targetConcepts, new File(skosFile2));
+                        String targetPref = SkosUtils.getPrefLabelValue(dataset2, targetConcepts, language);
+                        if (sourceUid.equals(targetUid)) {
+//                            System.err.println("sourceUid: " + sourceUid + " targetUid: " + targetUid);
+                            change.add(new AddAssertion(dataset1, SkosUtils.addExactMatchMapping(sourceConcepts, targetConcepts)));
+                            break;
+                        } else if (sourcePref.equals(targetPref)) {
+                            change.add(new AddAssertion(dataset1, SkosUtils.addCloseMatchMapping(sourceConcepts, targetConcepts)));
+                        }
+                    }
+                }
+            }
+        }
+        if (!change.isEmpty()) {
+            SkosUtils.getSKOSManager().applyChanges(change);
+            SkosUtils.getSKOSManager().save(dataset1, SKOSFormatExt.RDFXML, new File(skosFile1 + "mapped.rdf").toURI());
+        }
+    }
+
+    private static void mergeTaxonomies(String sourceSKOS, String targetSKOS) throws SKOSCreationException, SKOSChangeException, SKOSStorageException, IOException {
+        SKOSDataset sourceDataset = SkosUtils.getSKOSManager().loadDatasetFromPhysicalURI(new File(sourceSKOS).toURI());
+        SKOSDataset targetDataset = SkosUtils.getSKOSManager().loadDatasetFromPhysicalURI(new File(targetSKOS).toURI());
+        String language = "en";
+        List<SKOSChange> change = new ArrayList<>();
+
+        for (SKOSConceptScheme scheme : sourceDataset.getSKOSConceptSchemes()) {
+            for (SKOSConcept sourceConcepts : sourceDataset.getConceptsInScheme(scheme)) {
+                String sourceUid = SkosUtils.getUID(sourceConcepts, new File(sourceSKOS));
+                for (SKOSConceptScheme scheme2 : targetDataset.getSKOSConceptSchemes()) {
+                    for (SKOSConcept targetConcept : targetDataset.getConceptsInScheme(scheme2)) {
+                        String targetUid = SkosUtils.getUID(targetConcept, new File(targetSKOS));
+                        if (sourceUid.equals(targetUid)) {
+//                            List<String> altLables1 = SkosUtils.getAltLabelValues(sourceDataset, sourceConcepts, language);
+//                            List<String> altLables2 = SkosUtils.getAltLabelValues(targetDataset, targetConcept, language);
+//                            altLables1.removeAll(altLables2) 
+                            break;
+                        } else {
+
+                            Set<SKOSDataRelationAssertion> sdAss = targetConcept.getDataRelationAssertions(targetDataset);
+                            for (SKOSDataRelationAssertion a : sdAss) {
+                                System.err.println("SKOSDataRelationAssertion " + a.getSKOSProperty().getURI());
+                                change.add(new AddAssertion(sourceDataset, a));
+                            }
+                            Set<SKOSObjectRelationAssertion> soAss = targetConcept.getObjectRelationAssertions(targetDataset);
+                            for (SKOSObjectRelationAssertion a : soAss) {
+                                System.err.println("SKOSObjectRelationAssertion " + a.getSKOSProperty().getURI());
+                                change.add(new AddAssertion(sourceDataset, a));
+                            }
+                            Set<SKOSAnnotation> ann = targetConcept.getSKOSAnnotations(targetDataset);
+                            for (SKOSAnnotation a : ann) {
+                                System.err.println("SKOSAnnotation " + a.getURI());
+                                change.add(new AddAssertion(sourceDataset, getSKOSDataFactory().getSKOSAnnotationAssertion(targetConcept, a)));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (!change.isEmpty()) {
+            SkosUtils.getSKOSManager().applyChanges(change);
+            SkosUtils.getSKOSManager().save(sourceDataset, SKOSFormatExt.RDFXML, new File(sourceSKOS + "merged_with" + new File(targetSKOS).getName()).toURI());
+        }
     }
 }
