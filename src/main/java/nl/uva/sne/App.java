@@ -105,7 +105,7 @@ public class App {
             termLimit = Utils.getTermLimit();
             depth = Utils.getTreeDepth();
             maxNGrams = Utils.getMaxNGrams();
-            boolean json2text = false, createIndex = false, creatDict = false, buildTree = false;
+            boolean json2text = false, createIndex = false, creatDict = false, buildTree = false, doMappings = false;
             if (args != null) {
                 for (int i = 0; i < args.length; i++) {
                     //-json2text $HOME/Downloads/jsondocs/ $HOME/Downloads/textdocs/ 
@@ -170,6 +170,10 @@ public class App {
                         }
                         break;
                     }
+                    if (args[i].equals("-m")) {
+                        doMappings = true;
+                        break;
+                    }
                 }
             }
             bbn = new BabelNet();
@@ -189,9 +193,13 @@ public class App {
                 buildHyperymTree(leaves, indexPath, keywordsDictionarayFile);
             }
 
-            String skosFile1 = "file";
-            String skosFile2 = "file";
-//            buildSKOSMappings(skosFile1,skosFile2);
+            String skosFile1 = System.getProperty("user.home") + File.separator
+                    + "Downloads" + File.separator + "database_taxonomy.rdf";
+            String skosFile2 = System.getProperty("user.home") + File.separator
+                    + "Downloads" + File.separator + "nosql_taxonomy.rdf";
+            if (doMappings) {
+                buildSKOSMappings(skosFile1, skosFile2);
+            }
 
         } catch (Exception ex) {
             Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
@@ -1082,8 +1090,8 @@ public class App {
     }
 
     private static void buildSKOSMappings(String skosFile1, String skosFile2) throws SKOSCreationException {
-        SKOSDataset dataset = SkosUtils.getSKOSManager().loadDatasetFromPhysicalURI(new File(skosFile1).toURI());
-
-
+//        SKOSDataset dataset1 = SkosUtils.getSKOSManager().loadDatasetFromPhysicalURI(new File(skosFile1).toURI());
+//        SKOSDataset dataset2 = SkosUtils.getSKOSManager().loadDatasetFromPhysicalURI(new File(skosFile2).toURI());
+        
     }
 }
