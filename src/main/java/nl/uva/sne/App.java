@@ -176,7 +176,7 @@ public class App {
                     }
                 }
             }
-            bbn = new BabelNet();
+
             if (json2text) {
                 jobDescription2TextFile(jsonDocsPath, textDocsPath);
             }
@@ -751,6 +751,9 @@ public class App {
         }
         TermVertex termVertex = null;
         List<TermVertex> possibleTerms = null;
+        if (bbn == null) {
+            bbn = new BabelNet();
+        }
         if (isFromDiec) {
             possibleTerms = bbn.getTermNodeByLemma(lemma, isFromDiec);
         } else {
@@ -1043,19 +1046,11 @@ public class App {
             for (String token : parts) {
 
                 if (token.length() > 1) {
-//                    contextDoc.addAll(tokenize(token, false, bbn));
                     contextDoc.add(token);
                 }
             }
         }
-//        System.err.println(contextDoc);
         docs.put("context", new ArrayList<>(contextDoc));
-        //        List<String> contextDocs = getDocuments(lemma, 100, 10, indexPath);
-        //        for (String s : contextDocs) {
-        //            List<String> doc = tokenize(s, false, bbn);
-        //            allDocs.add(doc);
-        //            docs.put("context", doc);
-        //        }
         Map<String, Map<String, Double>> featureVectors = new HashMap<>();
         for (String k : docs.keySet()) {
             List<String> doc = docs.get(k);
@@ -1066,7 +1061,6 @@ public class App {
                     featureVector.put(term, score);
                 }
             }
-//            System.err.println(featureVector);
             featureVectors.put(k, featureVector);
         }
 
