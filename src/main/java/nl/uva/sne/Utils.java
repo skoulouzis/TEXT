@@ -1012,4 +1012,8 @@ class Utils {
     static String getScheme() throws IOException {
         return (getProperties().getProperty("scheme.name", ""));
     }
+
+    static boolean getUseNouns() throws IOException {
+        return Boolean.valueOf(getProperties().getProperty("use.nouns", "false"));
+    }
 }

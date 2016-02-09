@@ -31,6 +31,7 @@ import net.didion.jwnl.JWNL;
 import net.didion.jwnl.JWNLException;
 import net.didion.jwnl.data.IndexWord;
 import net.didion.jwnl.data.IndexWordSet;
+import net.didion.jwnl.data.POS;
 import net.didion.jwnl.dictionary.Dictionary;
 import org.apache.commons.io.IOUtils;
 import org.json.simple.JSONArray;
@@ -158,30 +159,30 @@ public class BabelNet {
         return nodes;
     }
 
-//    public static POS[] getPOS(String s) throws JWNLException {
-//        // Look up all IndexWords (an IndexWord can only be one POS)
-//        wordNetdictionary = getWordNetDictionary();
-//        IndexWordSet set = wordNetdictionary.lookupAllIndexWords(s);
-//        // Turn it into an array of IndexWords
-//        IndexWord[] words = set.getIndexWordArray();
-//        // Make the array of POS
-//        POS[] pos = new POS[words.length];
-//        for (int i = 0; i < words.length; i++) {
-//            pos[i] = words[i].getPOS();
-//        }
-//        return pos;
-//    }
-//
-//    private boolean hasPOS(POS[] keywordPOS, POS[] targetPOS) {
-//        for (POS p : keywordPOS) {
-//            for (POS t : targetPOS) {
-//                if (p.equals(t)) {
-//                    return true;
-//                }
-//            }
-//        }
-//        return false;
-//    }
+    public static POS[] getPOS(String s) throws JWNLException {
+        // Look up all IndexWords (an IndexWord can only be one POS)
+        wordNetdictionary = getWordNetDictionary();
+        IndexWordSet set = wordNetdictionary.lookupAllIndexWords(s);
+        // Turn it into an array of IndexWords
+        IndexWord[] words = set.getIndexWordArray();
+        // Make the array of POS
+        POS[] pos = new POS[words.length];
+        for (int i = 0; i < words.length; i++) {
+            pos[i] = words[i].getPOS();
+        }
+        return pos;
+    }
+
+    public boolean hasPOS(POS[] keywordPOS, POS[] targetPOS) {
+        for (POS p : keywordPOS) {
+            for (POS t : targetPOS) {
+                if (p.equals(t)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 //
 //    private boolean canCompareKeyword(String line) throws JWNLException {
 //        String[] parts = line.split(",");
@@ -231,6 +232,7 @@ public class BabelNet {
 //        }
 //        return relatedTree;
 //    }
+
     private List<String> getcandidateWordIDs(String language, String word, String key) throws MalformedURLException, IOException, ParseException, Exception {
         if (db == null || db.isClosed()) {
             loadCache();

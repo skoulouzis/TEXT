@@ -25,6 +25,7 @@ import java.util.logging.Logger;
 
 
 import net.didion.jwnl.JWNLException;
+import net.didion.jwnl.data.POS;
 import org._3pq.jgrapht.Edge;
 import org._3pq.jgrapht.edge.DirectedWeightedEdge;
 import org._3pq.jgrapht.graph.DefaultDirectedWeightedGraph;
@@ -187,9 +188,9 @@ public class App {
                 List<TermVertex> leaves = getTermsFromTaxonomy(taxonomyFile, "en");
                 buildHyperymTree(leaves, indexPath, keywordsDictionarayFile);
             }
-            
-            String skosFile1 ="file";
-            String skosFile2 ="file";
+
+            String skosFile1 = "file";
+            String skosFile2 = "file";
 //            buildSKOSMappings(skosFile1,skosFile2);
 
         } catch (Exception ex) {
@@ -728,47 +729,51 @@ public class App {
     }
 
     private static List<TermVertex> getTermVertices(String lemma, String id, int depth, boolean isFromDiec, BabelNet bbn, String indexPath, String termDictionaryPath, List<TermVertex> terms) throws IOException, MalformedURLException, ParseException, Exception {
-        if (terms == null) {
-            terms = new ArrayList<>();
-        }
-        TermVertex termVertex = null;
-        List<TermVertex> possibleTerms = null;
-        if (isFromDiec) {
-            possibleTerms = bbn.getTermNodeByLemma(lemma, isFromDiec);
-        } else {
-            termVertex = bbn.getTermNodeByID(lemma, id, isFromDiec);
-        }
-        if (possibleTerms != null && possibleTerms.size() > 1 && termVertex == null) {
-            List<String> ngarms = getNGrams(lemma, termDictionaryPath);
-            possibleTerms = resolveTerms(possibleTerms, lemma, ngarms);
-            if (possibleTerms == null || possibleTerms.isEmpty()) {
+        POS[] pos = BabelNet.getPOS(lemma);
+        if (Utils.getUseNouns() && pos.length == 1 && pos[0].equals(POS.NOUN)) {
+            if (terms == null) {
+                terms = new ArrayList<>();
+            }
+            TermVertex termVertex = null;
+            List<TermVertex> possibleTerms = null;
+            if (isFromDiec) {
+                possibleTerms = bbn.getTermNodeByLemma(lemma, isFromDiec);
+            } else {
+                termVertex = bbn.getTermNodeByID(lemma, id, isFromDiec);
+            }
+            if (possibleTerms != null && possibleTerms.size() > 1 && termVertex == null) {
+                List<String> ngarms = getNGrams(lemma, termDictionaryPath);
+                possibleTerms = resolveTerms(possibleTerms, lemma, ngarms);
+                if (possibleTerms == null || possibleTerms.isEmpty()) {
 //                String scentense = getScentsens(lemma, numOfWords, indexPath);
 //                ngarms.add(scentense);
-                possibleTerms = bbn.disambiguate("EN", lemma, ngarms);
+                    possibleTerms = bbn.disambiguate("EN", lemma, ngarms);
+                }
+
+            }
+            if (possibleTerms == null) {
+                possibleTerms = new ArrayList<>();
+            }
+            if (termVertex != null) {
+                possibleTerms.add(termVertex);
             }
 
-        }
-        if (possibleTerms == null) {
-            possibleTerms = new ArrayList<>();
-        }
-        if (termVertex != null) {
-            possibleTerms.add(termVertex);
-        }
-
-        for (TermVertex tv : possibleTerms) {
-            tv.setIsFromDictionary(isFromDiec);
-            terms.add(tv);
-            if (depth > 1) {
-                List<TermVertex> hyper = tv.getBroader();
-                if (hyper != null) {
-                    for (TermVertex h : hyper) {
-                        if (h != null) {
+            for (TermVertex tv : possibleTerms) {
+                tv.setIsFromDictionary(isFromDiec);
+                terms.add(tv);
+                if (depth > 1) {
+                    List<TermVertex> hyper = tv.getBroader();
+                    if (hyper != null) {
+                        for (TermVertex h : hyper) {
+                            if (h != null) {
 //                            System.err.println("lemma: " + h.getLemma() + " id: " + h.getUID());
-                            getTermVertices(h.getLemma(), h.getUID(), --depth, false, bbn, indexPath, termDictionaryPath, terms);
+                                getTermVertices(h.getLemma(), h.getUID(), --depth, false, bbn, indexPath, termDictionaryPath, terms);
+                            }
                         }
                     }
                 }
             }
+
         }
 
         return terms;
@@ -913,7 +918,7 @@ public class App {
         List<SKOSChange> change = new ArrayList<>();
         SKOSEntityAssertion schemaAss = SkosUtils.getSKOSDataFactory().getSKOSEntityAssertion(scheme);
         change.add(new AddAssertion(SkosUtils.getSKOSDataset(), schemaAss));
-        
+
         Set<DirectedWeightedEdge> edges = g.edgeSet();
         for (DirectedWeightedEdge e : edges) {
             change.addAll(SkosUtils.create(e, "EN"));
@@ -1077,8 +1082,8 @@ public class App {
     }
 
     private static void buildSKOSMappings(String skosFile1, String skosFile2) throws SKOSCreationException {
-         SKOSDataset dataset = SkosUtils.getSKOSManager().loadDatasetFromPhysicalURI(new File(skosFile1).toURI());
-        
-        
+        SKOSDataset dataset = SkosUtils.getSKOSManager().loadDatasetFromPhysicalURI(new File(skosFile1).toURI());
+
+
     }
 }
