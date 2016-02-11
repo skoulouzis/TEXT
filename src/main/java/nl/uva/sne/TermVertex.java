@@ -129,4 +129,9 @@ public class TermVertex {
     String getForeignKey() {
         return this.fKey;
     }
+
+    @Override
+    public String toString() {
+        return this.lemma + "-" + uid;
+    }
 }

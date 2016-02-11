@@ -68,6 +68,7 @@ import org.semanticweb.skosapibinding.SKOSFormatExt;
 public class App {
 
     private static Map<String, Integer> keywordsDictionaray;
+    private static String keywordsDictionarayFile;
     private static int maxNGrams = 2;
 //    private static UberLanguageDetector inst;
     private static Map<String, List<String>> nGramsMap;
@@ -79,7 +80,7 @@ public class App {
             + File.separator + "workspace" + File.separator + "TEXT" + File.separator + "etc" + File.separator + "taxonomy");
     private static boolean generateNgrams = true;
     private static int depth = 3;
-    private static int termLimit = 2;
+    private static int termLimit;
     private static BabelNet bbn;
 
     public static void main(String[] args) {
@@ -88,7 +89,7 @@ public class App {
             String jsonDocsPath = System.getProperty("user.home") + File.separator + "Downloads" + File.separator + "jsondocs";
             String textDocsPath = System.getProperty("user.home") + File.separator + "Downloads" + File.separator + "textdocs";
             String indexPath = System.getProperty("user.home") + File.separator + "Downloads" + File.separator + "index";
-            String keywordsDictionarayFile = System.getProperty("user.home") + File.separator
+            keywordsDictionarayFile = System.getProperty("user.home") + File.separator
                     + "Downloads" + File.separator + "textdocs" + File.separator + "dictionary.csv";
             File taxonomyFile = new File(System.getProperty("user.home")
                     + File.separator + "workspace" + File.separator + "TEXT"
@@ -476,7 +477,7 @@ public class App {
         if (bbn == null) {
             bbn = new BabelNet();
         }
-        Logger.getLogger(App.class.getName()).log(Level.INFO, "Building tree from ", termDictionaryPath);
+        Logger.getLogger(App.class.getName()).log(Level.INFO, "Building tree from {0}", termDictionaryPath);
         List<TermVertex> allTerms = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(termDictionaryPath))) {
             String line;
@@ -505,6 +506,8 @@ public class App {
             bbn.saveCache();
             DefaultDirectedWeightedGraph g = buildGraph(allTerms);
             int prunDepth = 4;
+            export2SKOS(g, skosFile + prunDepth + ".rdf");
+            export2DOT(g, graphFile + prunDepth + ".dot");
             DefaultDirectedWeightedGraph pg = pruneGraph(g, prunDepth);
             export2SKOS(pg, skosFile + ".rdf");
             export2DOT(pg, graphFile + ".dot");
@@ -553,6 +556,8 @@ public class App {
             bbn.saveCache();
             DefaultDirectedWeightedGraph g = buildGraph(allTerms);
             int pruneDepth = 4;
+            export2SKOS(g, skosFile + pruneDepth + ".rdf");
+            export2DOT(g, graphFile + pruneDepth + ".dot");
             DefaultDirectedWeightedGraph pg = pruneGraph(g, pruneDepth);
             export2SKOS(pg, skosFile + ".rdf");
             export2DOT(pg, graphFile + ".dot");
@@ -745,8 +750,6 @@ public class App {
             }
         }
 
-
-
         if (terms == null) {
             terms = new ArrayList<>();
         }
@@ -762,7 +765,7 @@ public class App {
         }
         if (possibleTerms != null && possibleTerms.size() > 1 && termVertex == null) {
             List<String> ngarms = getNGrams(lemma, termDictionaryPath);
-            possibleTerms = resolveTerms(possibleTerms, lemma, ngarms);
+            possibleTerms = resolveTerms(possibleTerms, ngarms);
             if (possibleTerms == null || possibleTerms.isEmpty()) {
 //                String scentense = getScentsens(lemma, numOfWords, indexPath);
 //                ngarms.add(scentense);
@@ -785,8 +788,11 @@ public class App {
                 if (hyper != null) {
                     for (TermVertex h : hyper) {
                         if (h != null) {
+                            if (isRelated(h)) {
+                                getTermVertices(h.getLemma(), h.getUID(), --depth, false, bbn, indexPath, termDictionaryPath, terms);
+                            }
 //                            System.err.println("lemma: " + h.getLemma() + " id: " + h.getUID());
-                            getTermVertices(h.getLemma(), h.getUID(), --depth, false, bbn, indexPath, termDictionaryPath, terms);
+
                         }
                     }
                 }
@@ -826,9 +832,11 @@ public class App {
                 nl.uva.sne.TermVertex sVertex = (nl.uva.sne.TermVertex) e.getSource();
                 String s = sVertex.getLemma().replaceAll("-", "_");
                 s = s.replaceAll("[()]", "");
+                s += "-" + sVertex.getUID();
                 nl.uva.sne.TermVertex tVertex = (nl.uva.sne.TermVertex) e.getTarget();
                 String t = tVertex.getLemma().replaceAll("-", "_");
                 t = t.replaceAll("[()]", "");
+                t += "-" + tVertex.getUID();
 //                System.err.println("\"" + s + "\" -- \"" + t + "\"");
 //                System.err.println("outDegreeOf: " + t + " = " + g.outDegreeOf(sVertex));
 //                System.err.println("outDegreeOf: " + s + " = " + g.outDegreeOf(sVertex));
@@ -854,6 +862,7 @@ public class App {
                     String v = tv.getLemma().replaceAll("-", "_");
                     bw.write("\"" + v + "\"");
                     bw.newLine();
+                    v += "-" + tv.getUID();
                     if (tv.getIsFromDictionary()) {
                         bw.write(v + " [shape=rectangle]");
                         bw.newLine();
@@ -867,6 +876,7 @@ public class App {
                     if (!tv.getLemma().equals(sVertex.getLemma()) && !tv.getLemma().equals(tVertex.getLemma())) {
                         String v = tv.getLemma().replaceAll("-", "_");
                         v = v.replaceAll("[()]", "");
+                        v += "-" + tv.getUID();
                         bw.write("\"" + v + "\"");
                         bw.newLine();
                         if (tv.getIsFromDictionary()) {
@@ -899,25 +909,54 @@ public class App {
 //    }
     private static DefaultDirectedWeightedGraph pruneGraph(DefaultDirectedWeightedGraph g, int depth) throws ParseException, IOException, SKOSCreationException, SKOSChangeException, SKOSStorageException {
         Set<TermVertex> vs = g.vertexSet();
-        List<TermVertex> toRemove = new ArrayList<>();
+        List<TermVertex> vertexToRemove = new ArrayList<>();
+        List<Edge> edgeToRemove = new ArrayList<>();
         for (TermVertex tv : vs) {
             if (!tv.getIsFromDictionary()) {
                 List<DirectedWeightedEdge> outEdges = g.outgoingEdgesOf(tv);
                 List<DirectedWeightedEdge> inEdges = g.incomingEdgesOf(tv);
-                if (outEdges.size() <= 0 && inEdges.size() <= 0) {
-                    toRemove.add(tv);
-                }
-                if (outEdges.size() == 1) {
-                    DirectedWeightedEdge out = outEdges.get(0);
+                for (DirectedWeightedEdge out : outEdges) {
                     TermVertex target = (TermVertex) out.getTarget();
-//                    TermVertex source = (TermVertex) out.getSource();
-                    if (!target.getIsFromDictionary()) {
-                        toRemove.add(tv);
+
+                    for (DirectedWeightedEdge in : inEdges) {
+                        TermVertex source = (TermVertex) in.getSource();
+                        if (target.getUID().endsWith(source.getUID())) {
+                            edgeToRemove.add(in);
+                        }
                     }
+                }
+                boolean remove = false;
+                if (inEdges.size() <= 0 && outEdges.size() <= 1) {
+                    for (DirectedWeightedEdge out : outEdges) {
+                        TermVertex target = (TermVertex) out.getTarget();
+                        remove = false;
+                        if (!target.getIsFromDictionary()) {
+                            remove = true;
+                        }
+                    }
+                }
+                if (remove) {
+                    vertexToRemove.add(tv);
+                }
+                if (outEdges.size() <= 0) {
+                    vertexToRemove.add(tv);
                 }
             }
         }
-        g.removeAllVertices(toRemove);
+
+//        Set<DirectedWeightedEdge> edges = g.edgeSet();
+//        for (DirectedWeightedEdge e : edges) {
+//            TermVertex source = (TermVertex) e.getSource();
+//            TermVertex target = (TermVertex) e.getTarget();
+//            if (!source.getIsFromDictionary() && !target.getIsFromDictionary()) {
+//                if (g.outgoingEdgesOf(source).size() <= 1) {
+//                    vertexToRemove.add(source);
+//                    System.err.println("Source: " + source.toString());
+//                }
+//            }
+//        }
+        g.removeAllVertices(vertexToRemove);
+        g.removeAllEdges(edgeToRemove);
         depth--;
         export2SKOS(g, skosFile + depth + ".rdf");
         export2DOT(g, graphFile + depth + ".dot");
@@ -929,7 +968,7 @@ public class App {
 
     private static void export2SKOS(DefaultDirectedWeightedGraph g, String skosFile) throws ParseException, SKOSCreationException, SKOSChangeException, SKOSStorageException, IOException {
 
-        SKOSConceptScheme scheme = SkosUtils.getSKOSDataFactory().getSKOSConceptScheme(URI.create(SkosUtils.SKOS_URI + Utils.getScheme()));
+        SKOSConceptScheme scheme = SkosUtils.getSKOSDataFactory().getSKOSConceptScheme(URI.create(SkosUtils.SKOS_URI));
 
         List<SKOSChange> change = new ArrayList<>();
         SKOSEntityAssertion schemaAss = SkosUtils.getSKOSDataFactory().getSKOSEntityAssertion(scheme);
@@ -937,7 +976,16 @@ public class App {
 
         Set<DirectedWeightedEdge> edges = g.edgeSet();
         for (DirectedWeightedEdge e : edges) {
-            change.addAll(SkosUtils.create(e, "EN"));
+            TermVertex s = (TermVertex) e.getSource();
+
+//                List<DirectedWeightedEdge> outEdges = g.outgoingEdgesOf((TermVertex) e.getSource());
+            List<DirectedWeightedEdge> inEdges = g.incomingEdgesOf(s);
+
+            if (inEdges == null || inEdges.size() <= 0) {
+                change.addAll(SkosUtils.create(e, "EN", true));
+            } else {
+                change.addAll(SkosUtils.create(e, "EN", false));
+            }
         }
         SkosUtils.getSKOSManager().applyChanges(change);
         SkosUtils.getSKOSManager().save(SkosUtils.getSKOSDataset(), SKOSFormatExt.RDFXML, new File(skosFile).toURI());
@@ -946,6 +994,7 @@ public class App {
     private static DefaultDirectedWeightedGraph taxonomy2Graph(String taxonomyFile, String language) throws SKOSCreationException {
         SKOSDataset dataset = SkosUtils.getSKOSManager().loadDatasetFromPhysicalURI(new File(taxonomyFile).toURI());
         DefaultDirectedWeightedGraph g = new DefaultDirectedWeightedGraph();
+
         Map<String, TermVertex> idMap = new HashMap<>();
         Set<SKOSConcept> concepts = dataset.getSKOSConcepts();
         if (concepts == null || concepts.isEmpty()) {
@@ -1027,7 +1076,7 @@ public class App {
 
     }
 
-    private static List<TermVertex> resolveTerms(List<TermVertex> possibleTerms, String lemma, List<String> nGrams) throws IOException, JWNLException, FileNotFoundException, MalformedURLException, ParseException, Exception {
+    private static List<TermVertex> resolveTerms(List<TermVertex> possibleTerms, List<String> nGrams) throws IOException, JWNLException, FileNotFoundException, MalformedURLException, ParseException, Exception {
 
         List<List<String>> allDocs = new ArrayList<>();
         Map<String, List<String>> docs = new HashMap<>();
@@ -1183,5 +1232,85 @@ public class App {
             return file.getAbsolutePath();
         }
         return null;
+    }
+
+    private static boolean isRelated(TermVertex h) throws IOException, JWNLException, FileNotFoundException, MalformedURLException, ParseException, Exception {
+//        List<List<String>> allDocs = new ArrayList<>();
+//        Map<String, List<String>> docs = new HashMap<>();
+//
+//        Set<String> hDoc = new HashSet<>();
+//        List<String> g = h.getGlosses();
+//        if (g != null) {
+//            for (String s : g) {
+//                hDoc.addAll(tokenize(s, false));
+//            }
+//        }
+//        List<String> al = h.getAlternativeLables();
+//        if (al != null) {
+//            for (String s : al) {
+//                hDoc.addAll(tokenize(s, false));
+//            }
+//        }
+//        List<String> cat = h.getCategories();
+//        if (cat != null) {
+//            for (String s : cat) {
+//                hDoc.addAll(tokenize(s, false));
+//            }
+//        }
+////            doc.addAll(doc);
+//        allDocs.add(new ArrayList<>(hDoc));
+////            System.err.println(doc);
+//        docs.put(h.getUID(), new ArrayList<>(hDoc));
+//
+//
+//        Set<String> contextDoc = new HashSet<>();
+//
+//
+//        try (BufferedReader br = new BufferedReader(new FileReader(keywordsDictionarayFile))) {
+//            String line;
+//            while ((line = br.readLine()) != null) {
+//                String[] kv = line.split(",");
+//                String key = kv[0];
+//                Integer value = Integer.valueOf(kv[1]);
+//                if (value >= 10) {
+//                    if (key.contains("_")) {
+//                        String[] parts = key.split("_");
+//                        for (String token : parts) {
+//                            if (token.length() > 1) {
+//                                contextDoc.add(token);
+//                            }
+//                        }
+//                    } else {
+//                        contextDoc.add(key);
+//                    }
+//                } else {
+//                    break;
+//                }
+//
+//            }
+//        }
+//
+//        docs.put("context", new ArrayList<>(contextDoc));
+//        Map<String, Map<String, Double>> featureVectors = new HashMap<>();
+//        for (String k : docs.keySet()) {
+//            List<String> doc = docs.get(k);
+//            Map<String, Double> featureVector = new TreeMap<>();
+//            for (String term : doc) {
+//                if (!featureVector.containsKey(term)) {
+//                    double score = tfIdf(doc, allDocs, term);
+//                    featureVector.put(term, score);
+//                }
+//            }
+//            featureVectors.put(k, featureVector);
+//        }
+//
+//        String winner = null;
+//        Map<String, Double> contextVector = featureVectors.remove("context");
+//        for (String key : featureVectors.keySet()) {
+//            Double similarity = Utils.cosineSimilarity(contextVector, featureVectors.get(key));
+//            System.err.println("Hyper: " +  h.getLemma() + " similarity: " + similarity);
+//        }
+
+        return true;
     }
 }

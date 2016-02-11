@@ -1,0 +1,2994 @@
+digraph G {
+"database-bn:00025333n" -> "nosql-bn:01727553n"
+"nosql-bn:01727553n" [shape=rectangle]
+"relational_database_management_system-bn:00067000n" -> "nosql-bn:01727553n"
+"nosql-bn:01727553n" [shape=rectangle]
+"query_language-bn:17302791n" -> "nosql-bn:01727553n"
+"nosql-bn:01727553n" [shape=rectangle]
+"information-bn:00046698n" -> "database-bn:00025333n"
+"group-bn:00041942n" -> "collection-bn:00000777n"
+"structure-bn:03830506n" -> "collection-bn:00000777n"
+"cognition-bn:00020452n" -> "information-bn:00046705n"
+"time_period-bn:00061605n" -> "month-bn:00014710n"
+"month-bn:00014710n" [shape=rectangle]
+"time_unit-bn:00077301n" -> "month-bn:00014710n"
+"month-bn:00014710n" [shape=rectangle]
+"security-bn:00064839n" -> "insurance-bn:00046996n"
+"insurance-bn:00046996n" [shape=rectangle]
+"principle-bn:00064428n" -> "insurance-bn:00046996n"
+"insurance-bn:00046996n" [shape=rectangle]
+"risk_management-bn:01996781n" -> "insurance-bn:00046996n"
+"insurance-bn:00046996n" [shape=rectangle]
+"structure-bn:03830506n" -> "principle-bn:00064428n"
+"concept-bn:00021547n" -> "principle-bn:00064428n"
+"store-bn:00036840n" -> "infrastructure-bn:00008794n"
+"infrastructure-bn:00008794n" [shape=rectangle]
+"merchandise-bn:00054416n" -> "infrastructure-bn:00008794n"
+"infrastructure-bn:00008794n" [shape=rectangle]
+"service-bn:00070651n" -> "infrastructure-bn:00008794n"
+"infrastructure-bn:00008794n" [shape=rectangle]
+"skillfulness-bn:00071968n" -> "proficiency-bn:00064626n"
+"proficiency-bn:00064626n" [shape=rectangle]
+"academic_degree-bn:00000554n" -> "ms-bn:00053731n"
+"ms-bn:00053731n" [shape=rectangle]
+"master's_degree-bn:00053719n" -> "ms-bn:00053731n"
+"ms-bn:00053731n" [shape=rectangle]
+"academic_degree-bn:00000554n" -> "master's_degree-bn:00053719n"
+"integrated_development_environment-bn:00748100n" -> "framework-bn:01860447n"
+"framework-bn:01860447n" [shape=rectangle]
+"programming-bn:00021493n" -> "framework-bn:01860447n"
+"framework-bn:01860447n" [shape=rectangle]
+"application_programming_interface-bn:02130401n" -> "framework-bn:01860447n"
+"framework-bn:01860447n" [shape=rectangle]
+"leader-bn:00050371n" -> "employer-bn:00030624n"
+"employer-bn:00030624n" [shape=rectangle]
+"person-bn:00046516n" -> "leader-bn:00050371n"
+"organism-bn:00009677n" -> "person-bn:00046516n"
+"system-bn:15125301n" -> "organism-bn:00009677n"
+"structure-bn:03830506n" -> "system-bn:15125301n"
+"entity-bn:00031027n" -> "system-bn:15125301n"
+"ability-bn:00000318n" -> "leadership-bn:00050375n"
+"leadership-bn:00050375n" [shape=rectangle]
+"cognition-bn:00020452n" -> "ability-bn:00000318n"
+"concept-bn:00021547n" -> "cognition-bn:00020452n"
+"social_group-bn:00072536n" -> "sector-bn:00070206n"
+"sector-bn:00070206n" [shape=rectangle]
+"economy-bn:00029678n" -> "sector-bn:00070206n"
+"sector-bn:00070206n" [shape=rectangle]
+"system-bn:00069580n" -> "economy-bn:00029678n"
+"group-bn:00041942n" -> "system-bn:00069580n"
+"people-bn:00061450n" -> "audience-bn:00063584n"
+"audience-bn:00063584n" [shape=rectangle]
+"person-bn:00046516n" -> "audience-bn:00063584n"
+"audience-bn:00063584n" [shape=rectangle]
+"multivariate_analysis-bn:00056311n" -> "regression-bn:00066913n"
+"regression-bn:00066913n" [shape=rectangle]
+"proficiency-bn:00064626n" -> "regression-bn:00066913n"
+"regression-bn:00066913n" [shape=rectangle]
+"profession-bn:00064607n" -> "leader-bn:02347758n"
+"leader-bn:02347758n" [shape=rectangle]
+"corporate_executive-bn:00014158n" -> "leader-bn:02347758n"
+"leader-bn:02347758n" [shape=rectangle]
+"management-bn:00053116n" -> "leader-bn:02347758n"
+"leader-bn:02347758n" [shape=rectangle]
+"occupation-bn:11198518n" -> "profession-bn:00064607n"
+"concept-bn:00021547n" -> "occupation-bn:11198518n"
+"relational_database_management_system-bn:00067000n"
+"query_language-bn:17302791n"
+"information-bn:00046698n"
+"collection-bn:00000777n"
+"group-bn:00041942n"
+"structure-bn:03830506n"
+"cognition-bn:00020452n"
+"month-bn:00014710n"
+"month-bn:00014710n" [shape=rectangle]
+"time_period-bn:00061605n"
+"time_unit-bn:00077301n"
+"insurance-bn:00046996n"
+"insurance-bn:00046996n" [shape=rectangle]
+"security-bn:00064839n"
+"principle-bn:00064428n"
+"risk_management-bn:01996781n"
+"concept-bn:00021547n"
+"entity-bn:00031027n"
+"infrastructure-bn:00008794n"
+"infrastructure-bn:00008794n" [shape=rectangle]
+"store-bn:00036840n"
+"merchandise-bn:00054416n"
+"service-bn:00070651n"
+"proficiency-bn:00064626n"
+"proficiency-bn:00064626n" [shape=rectangle]
+"skillfulness-bn:00071968n"
+"ms-bn:00053731n"
+"ms-bn:00053731n" [shape=rectangle]
+"academic_degree-bn:00000554n"
+"master's_degree-bn:00053719n"
+"framework-bn:01860447n"
+"framework-bn:01860447n" [shape=rectangle]
+"integrated_development_environment-bn:00748100n"
+"programming-bn:00021493n"
+"application_programming_interface-bn:02130401n"
+"natural_person-bn:02965949n"
+"labor-bn:00049570n"
+"music_industry-bn:01217265n"
+"employer-bn:00030624n"
+"employer-bn:00030624n" [shape=rectangle]
+"leader-bn:00050371n"
+"person-bn:00046516n"
+"organism-bn:00009677n"
+"system-bn:15125301n"
+"leadership-bn:00050375n"
+"leadership-bn:00050375n" [shape=rectangle]
+"ability-bn:00000318n"
+"sector-bn:00070206n"
+"sector-bn:00070206n" [shape=rectangle]
+"social_group-bn:00072536n"
+"economy-bn:00029678n"
+"audience-bn:00063584n"
+"audience-bn:00063584n" [shape=rectangle]
+"people-bn:00061450n"
+"regression-bn:00066913n"
+"regression-bn:00066913n" [shape=rectangle]
+"multivariate_analysis-bn:00056311n"
+"vision-bn:02425046n"
+"vision-bn:02425046n" [shape=rectangle]
+"profession-bn:00064607n"
+"corporate_executive-bn:00014158n"
+"management-bn:00053116n"
+"occupation-bn:11198518n"
+"database-bn:00025333n"
+"query_language-bn:17302791n"
+"information-bn:00046698n"
+"collection-bn:00000777n"
+"group-bn:00041942n"
+"structure-bn:03830506n"
+"cognition-bn:00020452n"
+"month-bn:00014710n"
+"month-bn:00014710n" [shape=rectangle]
+"time_period-bn:00061605n"
+"time_unit-bn:00077301n"
+"insurance-bn:00046996n"
+"insurance-bn:00046996n" [shape=rectangle]
+"security-bn:00064839n"
+"principle-bn:00064428n"
+"risk_management-bn:01996781n"
+"concept-bn:00021547n"
+"entity-bn:00031027n"
+"infrastructure-bn:00008794n"
+"infrastructure-bn:00008794n" [shape=rectangle]
+"store-bn:00036840n"
+"merchandise-bn:00054416n"
+"service-bn:00070651n"
+"proficiency-bn:00064626n"
+"proficiency-bn:00064626n" [shape=rectangle]
+"skillfulness-bn:00071968n"
+"ms-bn:00053731n"
+"ms-bn:00053731n" [shape=rectangle]
+"academic_degree-bn:00000554n"
+"master's_degree-bn:00053719n"
+"framework-bn:01860447n"
+"framework-bn:01860447n" [shape=rectangle]
+"integrated_development_environment-bn:00748100n"
+"programming-bn:00021493n"
+"application_programming_interface-bn:02130401n"
+"natural_person-bn:02965949n"
+"labor-bn:00049570n"
+"music_industry-bn:01217265n"
+"employer-bn:00030624n"
+"employer-bn:00030624n" [shape=rectangle]
+"leader-bn:00050371n"
+"person-bn:00046516n"
+"organism-bn:00009677n"
+"system-bn:15125301n"
+"leadership-bn:00050375n"
+"leadership-bn:00050375n" [shape=rectangle]
+"ability-bn:00000318n"
+"sector-bn:00070206n"
+"sector-bn:00070206n" [shape=rectangle]
+"social_group-bn:00072536n"
+"economy-bn:00029678n"
+"audience-bn:00063584n"
+"audience-bn:00063584n" [shape=rectangle]
+"people-bn:00061450n"
+"regression-bn:00066913n"
+"regression-bn:00066913n" [shape=rectangle]
+"multivariate_analysis-bn:00056311n"
+"vision-bn:02425046n"
+"vision-bn:02425046n" [shape=rectangle]
+"profession-bn:00064607n"
+"corporate_executive-bn:00014158n"
+"management-bn:00053116n"
+"occupation-bn:11198518n"
+"database-bn:00025333n"
+"relational_database_management_system-bn:00067000n"
+"information-bn:00046698n"
+"collection-bn:00000777n"
+"group-bn:00041942n"
+"structure-bn:03830506n"
+"cognition-bn:00020452n"
+"month-bn:00014710n"
+"month-bn:00014710n" [shape=rectangle]
+"time_period-bn:00061605n"
+"time_unit-bn:00077301n"
+"insurance-bn:00046996n"
+"insurance-bn:00046996n" [shape=rectangle]
+"security-bn:00064839n"
+"principle-bn:00064428n"
+"risk_management-bn:01996781n"
+"concept-bn:00021547n"
+"entity-bn:00031027n"
+"infrastructure-bn:00008794n"
+"infrastructure-bn:00008794n" [shape=rectangle]
+"store-bn:00036840n"
+"merchandise-bn:00054416n"
+"service-bn:00070651n"
+"proficiency-bn:00064626n"
+"proficiency-bn:00064626n" [shape=rectangle]
+"skillfulness-bn:00071968n"
+"ms-bn:00053731n"
+"ms-bn:00053731n" [shape=rectangle]
+"academic_degree-bn:00000554n"
+"master's_degree-bn:00053719n"
+"framework-bn:01860447n"
+"framework-bn:01860447n" [shape=rectangle]
+"integrated_development_environment-bn:00748100n"
+"programming-bn:00021493n"
+"application_programming_interface-bn:02130401n"
+"natural_person-bn:02965949n"
+"labor-bn:00049570n"
+"music_industry-bn:01217265n"
+"employer-bn:00030624n"
+"employer-bn:00030624n" [shape=rectangle]
+"leader-bn:00050371n"
+"person-bn:00046516n"
+"organism-bn:00009677n"
+"system-bn:15125301n"
+"leadership-bn:00050375n"
+"leadership-bn:00050375n" [shape=rectangle]
+"ability-bn:00000318n"
+"sector-bn:00070206n"
+"sector-bn:00070206n" [shape=rectangle]
+"social_group-bn:00072536n"
+"economy-bn:00029678n"
+"audience-bn:00063584n"
+"audience-bn:00063584n" [shape=rectangle]
+"people-bn:00061450n"
+"regression-bn:00066913n"
+"regression-bn:00066913n" [shape=rectangle]
+"multivariate_analysis-bn:00056311n"
+"vision-bn:02425046n"
+"vision-bn:02425046n" [shape=rectangle]
+"profession-bn:00064607n"
+"corporate_executive-bn:00014158n"
+"management-bn:00053116n"
+"occupation-bn:11198518n"
+"nosql-bn:01727553n"
+"nosql-bn:01727553n" [shape=rectangle]
+"relational_database_management_system-bn:00067000n"
+"query_language-bn:17302791n"
+"collection-bn:00000777n"
+"group-bn:00041942n"
+"structure-bn:03830506n"
+"cognition-bn:00020452n"
+"month-bn:00014710n"
+"month-bn:00014710n" [shape=rectangle]
+"time_period-bn:00061605n"
+"time_unit-bn:00077301n"
+"insurance-bn:00046996n"
+"insurance-bn:00046996n" [shape=rectangle]
+"security-bn:00064839n"
+"principle-bn:00064428n"
+"risk_management-bn:01996781n"
+"concept-bn:00021547n"
+"entity-bn:00031027n"
+"infrastructure-bn:00008794n"
+"infrastructure-bn:00008794n" [shape=rectangle]
+"store-bn:00036840n"
+"merchandise-bn:00054416n"
+"service-bn:00070651n"
+"proficiency-bn:00064626n"
+"proficiency-bn:00064626n" [shape=rectangle]
+"skillfulness-bn:00071968n"
+"ms-bn:00053731n"
+"ms-bn:00053731n" [shape=rectangle]
+"academic_degree-bn:00000554n"
+"master's_degree-bn:00053719n"
+"framework-bn:01860447n"
+"framework-bn:01860447n" [shape=rectangle]
+"integrated_development_environment-bn:00748100n"
+"programming-bn:00021493n"
+"application_programming_interface-bn:02130401n"
+"natural_person-bn:02965949n"
+"labor-bn:00049570n"
+"music_industry-bn:01217265n"
+"employer-bn:00030624n"
+"employer-bn:00030624n" [shape=rectangle]
+"leader-bn:00050371n"
+"person-bn:00046516n"
+"organism-bn:00009677n"
+"system-bn:15125301n"
+"leadership-bn:00050375n"
+"leadership-bn:00050375n" [shape=rectangle]
+"ability-bn:00000318n"
+"sector-bn:00070206n"
+"sector-bn:00070206n" [shape=rectangle]
+"social_group-bn:00072536n"
+"economy-bn:00029678n"
+"audience-bn:00063584n"
+"audience-bn:00063584n" [shape=rectangle]
+"people-bn:00061450n"
+"regression-bn:00066913n"
+"regression-bn:00066913n" [shape=rectangle]
+"multivariate_analysis-bn:00056311n"
+"vision-bn:02425046n"
+"vision-bn:02425046n" [shape=rectangle]
+"profession-bn:00064607n"
+"corporate_executive-bn:00014158n"
+"management-bn:00053116n"
+"occupation-bn:11198518n"
+"nosql-bn:01727553n"
+"nosql-bn:01727553n" [shape=rectangle]
+"database-bn:00025333n"
+"relational_database_management_system-bn:00067000n"
+"query_language-bn:17302791n"
+"information-bn:00046698n"
+"structure-bn:03830506n"
+"cognition-bn:00020452n"
+"month-bn:00014710n"
+"month-bn:00014710n" [shape=rectangle]
+"time_period-bn:00061605n"
+"time_unit-bn:00077301n"
+"insurance-bn:00046996n"
+"insurance-bn:00046996n" [shape=rectangle]
+"security-bn:00064839n"
+"principle-bn:00064428n"
+"risk_management-bn:01996781n"
+"concept-bn:00021547n"
+"entity-bn:00031027n"
+"infrastructure-bn:00008794n"
+"infrastructure-bn:00008794n" [shape=rectangle]
+"store-bn:00036840n"
+"merchandise-bn:00054416n"
+"service-bn:00070651n"
+"proficiency-bn:00064626n"
+"proficiency-bn:00064626n" [shape=rectangle]
+"skillfulness-bn:00071968n"
+"ms-bn:00053731n"
+"ms-bn:00053731n" [shape=rectangle]
+"academic_degree-bn:00000554n"
+"master's_degree-bn:00053719n"
+"framework-bn:01860447n"
+"framework-bn:01860447n" [shape=rectangle]
+"integrated_development_environment-bn:00748100n"
+"programming-bn:00021493n"
+"application_programming_interface-bn:02130401n"
+"natural_person-bn:02965949n"
+"labor-bn:00049570n"
+"music_industry-bn:01217265n"
+"employer-bn:00030624n"
+"employer-bn:00030624n" [shape=rectangle]
+"leader-bn:00050371n"
+"person-bn:00046516n"
+"organism-bn:00009677n"
+"system-bn:15125301n"
+"leadership-bn:00050375n"
+"leadership-bn:00050375n" [shape=rectangle]
+"ability-bn:00000318n"
+"sector-bn:00070206n"
+"sector-bn:00070206n" [shape=rectangle]
+"social_group-bn:00072536n"
+"economy-bn:00029678n"
+"audience-bn:00063584n"
+"audience-bn:00063584n" [shape=rectangle]
+"people-bn:00061450n"
+"regression-bn:00066913n"
+"regression-bn:00066913n" [shape=rectangle]
+"multivariate_analysis-bn:00056311n"
+"vision-bn:02425046n"
+"vision-bn:02425046n" [shape=rectangle]
+"profession-bn:00064607n"
+"corporate_executive-bn:00014158n"
+"management-bn:00053116n"
+"occupation-bn:11198518n"
+"nosql-bn:01727553n"
+"nosql-bn:01727553n" [shape=rectangle]
+"database-bn:00025333n"
+"relational_database_management_system-bn:00067000n"
+"query_language-bn:17302791n"
+"information-bn:00046698n"
+"group-bn:00041942n"
+"cognition-bn:00020452n"
+"month-bn:00014710n"
+"month-bn:00014710n" [shape=rectangle]
+"time_period-bn:00061605n"
+"time_unit-bn:00077301n"
+"insurance-bn:00046996n"
+"insurance-bn:00046996n" [shape=rectangle]
+"security-bn:00064839n"
+"principle-bn:00064428n"
+"risk_management-bn:01996781n"
+"concept-bn:00021547n"
+"entity-bn:00031027n"
+"infrastructure-bn:00008794n"
+"infrastructure-bn:00008794n" [shape=rectangle]
+"store-bn:00036840n"
+"merchandise-bn:00054416n"
+"service-bn:00070651n"
+"proficiency-bn:00064626n"
+"proficiency-bn:00064626n" [shape=rectangle]
+"skillfulness-bn:00071968n"
+"ms-bn:00053731n"
+"ms-bn:00053731n" [shape=rectangle]
+"academic_degree-bn:00000554n"
+"master's_degree-bn:00053719n"
+"framework-bn:01860447n"
+"framework-bn:01860447n" [shape=rectangle]
+"integrated_development_environment-bn:00748100n"
+"programming-bn:00021493n"
+"application_programming_interface-bn:02130401n"
+"natural_person-bn:02965949n"
+"labor-bn:00049570n"
+"music_industry-bn:01217265n"
+"employer-bn:00030624n"
+"employer-bn:00030624n" [shape=rectangle]
+"leader-bn:00050371n"
+"person-bn:00046516n"
+"organism-bn:00009677n"
+"system-bn:15125301n"
+"leadership-bn:00050375n"
+"leadership-bn:00050375n" [shape=rectangle]
+"ability-bn:00000318n"
+"sector-bn:00070206n"
+"sector-bn:00070206n" [shape=rectangle]
+"social_group-bn:00072536n"
+"economy-bn:00029678n"
+"audience-bn:00063584n"
+"audience-bn:00063584n" [shape=rectangle]
+"people-bn:00061450n"
+"regression-bn:00066913n"
+"regression-bn:00066913n" [shape=rectangle]
+"multivariate_analysis-bn:00056311n"
+"vision-bn:02425046n"
+"vision-bn:02425046n" [shape=rectangle]
+"profession-bn:00064607n"
+"corporate_executive-bn:00014158n"
+"management-bn:00053116n"
+"occupation-bn:11198518n"
+"nosql-bn:01727553n"
+"nosql-bn:01727553n" [shape=rectangle]
+"database-bn:00025333n"
+"relational_database_management_system-bn:00067000n"
+"query_language-bn:17302791n"
+"collection-bn:00000777n"
+"group-bn:00041942n"
+"structure-bn:03830506n"
+"month-bn:00014710n"
+"month-bn:00014710n" [shape=rectangle]
+"time_period-bn:00061605n"
+"time_unit-bn:00077301n"
+"insurance-bn:00046996n"
+"insurance-bn:00046996n" [shape=rectangle]
+"security-bn:00064839n"
+"principle-bn:00064428n"
+"risk_management-bn:01996781n"
+"concept-bn:00021547n"
+"entity-bn:00031027n"
+"infrastructure-bn:00008794n"
+"infrastructure-bn:00008794n" [shape=rectangle]
+"store-bn:00036840n"
+"merchandise-bn:00054416n"
+"service-bn:00070651n"
+"proficiency-bn:00064626n"
+"proficiency-bn:00064626n" [shape=rectangle]
+"skillfulness-bn:00071968n"
+"ms-bn:00053731n"
+"ms-bn:00053731n" [shape=rectangle]
+"academic_degree-bn:00000554n"
+"master's_degree-bn:00053719n"
+"framework-bn:01860447n"
+"framework-bn:01860447n" [shape=rectangle]
+"integrated_development_environment-bn:00748100n"
+"programming-bn:00021493n"
+"application_programming_interface-bn:02130401n"
+"natural_person-bn:02965949n"
+"labor-bn:00049570n"
+"music_industry-bn:01217265n"
+"employer-bn:00030624n"
+"employer-bn:00030624n" [shape=rectangle]
+"leader-bn:00050371n"
+"person-bn:00046516n"
+"organism-bn:00009677n"
+"system-bn:15125301n"
+"leadership-bn:00050375n"
+"leadership-bn:00050375n" [shape=rectangle]
+"ability-bn:00000318n"
+"sector-bn:00070206n"
+"sector-bn:00070206n" [shape=rectangle]
+"social_group-bn:00072536n"
+"economy-bn:00029678n"
+"audience-bn:00063584n"
+"audience-bn:00063584n" [shape=rectangle]
+"people-bn:00061450n"
+"regression-bn:00066913n"
+"regression-bn:00066913n" [shape=rectangle]
+"multivariate_analysis-bn:00056311n"
+"vision-bn:02425046n"
+"vision-bn:02425046n" [shape=rectangle]
+"profession-bn:00064607n"
+"corporate_executive-bn:00014158n"
+"management-bn:00053116n"
+"occupation-bn:11198518n"
+"nosql-bn:01727553n"
+"nosql-bn:01727553n" [shape=rectangle]
+"database-bn:00025333n"
+"relational_database_management_system-bn:00067000n"
+"query_language-bn:17302791n"
+"information-bn:00046698n"
+"collection-bn:00000777n"
+"group-bn:00041942n"
+"structure-bn:03830506n"
+"cognition-bn:00020452n"
+"time_unit-bn:00077301n"
+"insurance-bn:00046996n"
+"insurance-bn:00046996n" [shape=rectangle]
+"security-bn:00064839n"
+"principle-bn:00064428n"
+"risk_management-bn:01996781n"
+"concept-bn:00021547n"
+"entity-bn:00031027n"
+"infrastructure-bn:00008794n"
+"infrastructure-bn:00008794n" [shape=rectangle]
+"store-bn:00036840n"
+"merchandise-bn:00054416n"
+"service-bn:00070651n"
+"proficiency-bn:00064626n"
+"proficiency-bn:00064626n" [shape=rectangle]
+"skillfulness-bn:00071968n"
+"ms-bn:00053731n"
+"ms-bn:00053731n" [shape=rectangle]
+"academic_degree-bn:00000554n"
+"master's_degree-bn:00053719n"
+"framework-bn:01860447n"
+"framework-bn:01860447n" [shape=rectangle]
+"integrated_development_environment-bn:00748100n"
+"programming-bn:00021493n"
+"application_programming_interface-bn:02130401n"
+"natural_person-bn:02965949n"
+"labor-bn:00049570n"
+"music_industry-bn:01217265n"
+"employer-bn:00030624n"
+"employer-bn:00030624n" [shape=rectangle]
+"leader-bn:00050371n"
+"person-bn:00046516n"
+"organism-bn:00009677n"
+"system-bn:15125301n"
+"leadership-bn:00050375n"
+"leadership-bn:00050375n" [shape=rectangle]
+"ability-bn:00000318n"
+"sector-bn:00070206n"
+"sector-bn:00070206n" [shape=rectangle]
+"social_group-bn:00072536n"
+"economy-bn:00029678n"
+"audience-bn:00063584n"
+"audience-bn:00063584n" [shape=rectangle]
+"people-bn:00061450n"
+"regression-bn:00066913n"
+"regression-bn:00066913n" [shape=rectangle]
+"multivariate_analysis-bn:00056311n"
+"vision-bn:02425046n"
+"vision-bn:02425046n" [shape=rectangle]
+"profession-bn:00064607n"
+"corporate_executive-bn:00014158n"
+"management-bn:00053116n"
+"occupation-bn:11198518n"
+"nosql-bn:01727553n"
+"nosql-bn:01727553n" [shape=rectangle]
+"database-bn:00025333n"
+"relational_database_management_system-bn:00067000n"
+"query_language-bn:17302791n"
+"information-bn:00046698n"
+"collection-bn:00000777n"
+"group-bn:00041942n"
+"structure-bn:03830506n"
+"cognition-bn:00020452n"
+"time_period-bn:00061605n"
+"insurance-bn:00046996n"
+"insurance-bn:00046996n" [shape=rectangle]
+"security-bn:00064839n"
+"principle-bn:00064428n"
+"risk_management-bn:01996781n"
+"concept-bn:00021547n"
+"entity-bn:00031027n"
+"infrastructure-bn:00008794n"
+"infrastructure-bn:00008794n" [shape=rectangle]
+"store-bn:00036840n"
+"merchandise-bn:00054416n"
+"service-bn:00070651n"
+"proficiency-bn:00064626n"
+"proficiency-bn:00064626n" [shape=rectangle]
+"skillfulness-bn:00071968n"
+"ms-bn:00053731n"
+"ms-bn:00053731n" [shape=rectangle]
+"academic_degree-bn:00000554n"
+"master's_degree-bn:00053719n"
+"framework-bn:01860447n"
+"framework-bn:01860447n" [shape=rectangle]
+"integrated_development_environment-bn:00748100n"
+"programming-bn:00021493n"
+"application_programming_interface-bn:02130401n"
+"natural_person-bn:02965949n"
+"labor-bn:00049570n"
+"music_industry-bn:01217265n"
+"employer-bn:00030624n"
+"employer-bn:00030624n" [shape=rectangle]
+"leader-bn:00050371n"
+"person-bn:00046516n"
+"organism-bn:00009677n"
+"system-bn:15125301n"
+"leadership-bn:00050375n"
+"leadership-bn:00050375n" [shape=rectangle]
+"ability-bn:00000318n"
+"sector-bn:00070206n"
+"sector-bn:00070206n" [shape=rectangle]
+"social_group-bn:00072536n"
+"economy-bn:00029678n"
+"audience-bn:00063584n"
+"audience-bn:00063584n" [shape=rectangle]
+"people-bn:00061450n"
+"regression-bn:00066913n"
+"regression-bn:00066913n" [shape=rectangle]
+"multivariate_analysis-bn:00056311n"
+"vision-bn:02425046n"
+"vision-bn:02425046n" [shape=rectangle]
+"profession-bn:00064607n"
+"corporate_executive-bn:00014158n"
+"management-bn:00053116n"
+"occupation-bn:11198518n"
+"nosql-bn:01727553n"
+"nosql-bn:01727553n" [shape=rectangle]
+"database-bn:00025333n"
+"relational_database_management_system-bn:00067000n"
+"query_language-bn:17302791n"
+"information-bn:00046698n"
+"collection-bn:00000777n"
+"group-bn:00041942n"
+"structure-bn:03830506n"
+"cognition-bn:00020452n"
+"month-bn:00014710n"
+"month-bn:00014710n" [shape=rectangle]
+"time_period-bn:00061605n"
+"time_unit-bn:00077301n"
+"principle-bn:00064428n"
+"risk_management-bn:01996781n"
+"concept-bn:00021547n"
+"entity-bn:00031027n"
+"infrastructure-bn:00008794n"
+"infrastructure-bn:00008794n" [shape=rectangle]
+"store-bn:00036840n"
+"merchandise-bn:00054416n"
+"service-bn:00070651n"
+"proficiency-bn:00064626n"
+"proficiency-bn:00064626n" [shape=rectangle]
+"skillfulness-bn:00071968n"
+"ms-bn:00053731n"
+"ms-bn:00053731n" [shape=rectangle]
+"academic_degree-bn:00000554n"
+"master's_degree-bn:00053719n"
+"framework-bn:01860447n"
+"framework-bn:01860447n" [shape=rectangle]
+"integrated_development_environment-bn:00748100n"
+"programming-bn:00021493n"
+"application_programming_interface-bn:02130401n"
+"natural_person-bn:02965949n"
+"labor-bn:00049570n"
+"music_industry-bn:01217265n"
+"employer-bn:00030624n"
+"employer-bn:00030624n" [shape=rectangle]
+"leader-bn:00050371n"
+"person-bn:00046516n"
+"organism-bn:00009677n"
+"system-bn:15125301n"
+"leadership-bn:00050375n"
+"leadership-bn:00050375n" [shape=rectangle]
+"ability-bn:00000318n"
+"sector-bn:00070206n"
+"sector-bn:00070206n" [shape=rectangle]
+"social_group-bn:00072536n"
+"economy-bn:00029678n"
+"audience-bn:00063584n"
+"audience-bn:00063584n" [shape=rectangle]
+"people-bn:00061450n"
+"regression-bn:00066913n"
+"regression-bn:00066913n" [shape=rectangle]
+"multivariate_analysis-bn:00056311n"
+"vision-bn:02425046n"
+"vision-bn:02425046n" [shape=rectangle]
+"profession-bn:00064607n"
+"corporate_executive-bn:00014158n"
+"management-bn:00053116n"
+"occupation-bn:11198518n"
+"nosql-bn:01727553n"
+"nosql-bn:01727553n" [shape=rectangle]
+"database-bn:00025333n"
+"relational_database_management_system-bn:00067000n"
+"query_language-bn:17302791n"
+"information-bn:00046698n"
+"collection-bn:00000777n"
+"group-bn:00041942n"
+"structure-bn:03830506n"
+"cognition-bn:00020452n"
+"month-bn:00014710n"
+"month-bn:00014710n" [shape=rectangle]
+"time_period-bn:00061605n"
+"time_unit-bn:00077301n"
+"security-bn:00064839n"
+"risk_management-bn:01996781n"
+"concept-bn:00021547n"
+"entity-bn:00031027n"
+"infrastructure-bn:00008794n"
+"infrastructure-bn:00008794n" [shape=rectangle]
+"store-bn:00036840n"
+"merchandise-bn:00054416n"
+"service-bn:00070651n"
+"proficiency-bn:00064626n"
+"proficiency-bn:00064626n" [shape=rectangle]
+"skillfulness-bn:00071968n"
+"ms-bn:00053731n"
+"ms-bn:00053731n" [shape=rectangle]
+"academic_degree-bn:00000554n"
+"master's_degree-bn:00053719n"
+"framework-bn:01860447n"
+"framework-bn:01860447n" [shape=rectangle]
+"integrated_development_environment-bn:00748100n"
+"programming-bn:00021493n"
+"application_programming_interface-bn:02130401n"
+"natural_person-bn:02965949n"
+"labor-bn:00049570n"
+"music_industry-bn:01217265n"
+"employer-bn:00030624n"
+"employer-bn:00030624n" [shape=rectangle]
+"leader-bn:00050371n"
+"person-bn:00046516n"
+"organism-bn:00009677n"
+"system-bn:15125301n"
+"leadership-bn:00050375n"
+"leadership-bn:00050375n" [shape=rectangle]
+"ability-bn:00000318n"
+"sector-bn:00070206n"
+"sector-bn:00070206n" [shape=rectangle]
+"social_group-bn:00072536n"
+"economy-bn:00029678n"
+"audience-bn:00063584n"
+"audience-bn:00063584n" [shape=rectangle]
+"people-bn:00061450n"
+"regression-bn:00066913n"
+"regression-bn:00066913n" [shape=rectangle]
+"multivariate_analysis-bn:00056311n"
+"vision-bn:02425046n"
+"vision-bn:02425046n" [shape=rectangle]
+"profession-bn:00064607n"
+"corporate_executive-bn:00014158n"
+"management-bn:00053116n"
+"occupation-bn:11198518n"
+"nosql-bn:01727553n"
+"nosql-bn:01727553n" [shape=rectangle]
+"database-bn:00025333n"
+"relational_database_management_system-bn:00067000n"
+"query_language-bn:17302791n"
+"information-bn:00046698n"
+"collection-bn:00000777n"
+"group-bn:00041942n"
+"structure-bn:03830506n"
+"cognition-bn:00020452n"
+"month-bn:00014710n"
+"month-bn:00014710n" [shape=rectangle]
+"time_period-bn:00061605n"
+"time_unit-bn:00077301n"
+"security-bn:00064839n"
+"principle-bn:00064428n"
+"concept-bn:00021547n"
+"entity-bn:00031027n"
+"infrastructure-bn:00008794n"
+"infrastructure-bn:00008794n" [shape=rectangle]
+"store-bn:00036840n"
+"merchandise-bn:00054416n"
+"service-bn:00070651n"
+"proficiency-bn:00064626n"
+"proficiency-bn:00064626n" [shape=rectangle]
+"skillfulness-bn:00071968n"
+"ms-bn:00053731n"
+"ms-bn:00053731n" [shape=rectangle]
+"academic_degree-bn:00000554n"
+"master's_degree-bn:00053719n"
+"framework-bn:01860447n"
+"framework-bn:01860447n" [shape=rectangle]
+"integrated_development_environment-bn:00748100n"
+"programming-bn:00021493n"
+"application_programming_interface-bn:02130401n"
+"natural_person-bn:02965949n"
+"labor-bn:00049570n"
+"music_industry-bn:01217265n"
+"employer-bn:00030624n"
+"employer-bn:00030624n" [shape=rectangle]
+"leader-bn:00050371n"
+"person-bn:00046516n"
+"organism-bn:00009677n"
+"system-bn:15125301n"
+"leadership-bn:00050375n"
+"leadership-bn:00050375n" [shape=rectangle]
+"ability-bn:00000318n"
+"sector-bn:00070206n"
+"sector-bn:00070206n" [shape=rectangle]
+"social_group-bn:00072536n"
+"economy-bn:00029678n"
+"audience-bn:00063584n"
+"audience-bn:00063584n" [shape=rectangle]
+"people-bn:00061450n"
+"regression-bn:00066913n"
+"regression-bn:00066913n" [shape=rectangle]
+"multivariate_analysis-bn:00056311n"
+"vision-bn:02425046n"
+"vision-bn:02425046n" [shape=rectangle]
+"profession-bn:00064607n"
+"corporate_executive-bn:00014158n"
+"management-bn:00053116n"
+"occupation-bn:11198518n"
+"nosql-bn:01727553n"
+"nosql-bn:01727553n" [shape=rectangle]
+"database-bn:00025333n"
+"relational_database_management_system-bn:00067000n"
+"query_language-bn:17302791n"
+"information-bn:00046698n"
+"collection-bn:00000777n"
+"group-bn:00041942n"
+"cognition-bn:00020452n"
+"month-bn:00014710n"
+"month-bn:00014710n" [shape=rectangle]
+"time_period-bn:00061605n"
+"time_unit-bn:00077301n"
+"insurance-bn:00046996n"
+"insurance-bn:00046996n" [shape=rectangle]
+"security-bn:00064839n"
+"risk_management-bn:01996781n"
+"concept-bn:00021547n"
+"entity-bn:00031027n"
+"infrastructure-bn:00008794n"
+"infrastructure-bn:00008794n" [shape=rectangle]
+"store-bn:00036840n"
+"merchandise-bn:00054416n"
+"service-bn:00070651n"
+"proficiency-bn:00064626n"
+"proficiency-bn:00064626n" [shape=rectangle]
+"skillfulness-bn:00071968n"
+"ms-bn:00053731n"
+"ms-bn:00053731n" [shape=rectangle]
+"academic_degree-bn:00000554n"
+"master's_degree-bn:00053719n"
+"framework-bn:01860447n"
+"framework-bn:01860447n" [shape=rectangle]
+"integrated_development_environment-bn:00748100n"
+"programming-bn:00021493n"
+"application_programming_interface-bn:02130401n"
+"natural_person-bn:02965949n"
+"labor-bn:00049570n"
+"music_industry-bn:01217265n"
+"employer-bn:00030624n"
+"employer-bn:00030624n" [shape=rectangle]
+"leader-bn:00050371n"
+"person-bn:00046516n"
+"organism-bn:00009677n"
+"system-bn:15125301n"
+"leadership-bn:00050375n"
+"leadership-bn:00050375n" [shape=rectangle]
+"ability-bn:00000318n"
+"sector-bn:00070206n"
+"sector-bn:00070206n" [shape=rectangle]
+"social_group-bn:00072536n"
+"economy-bn:00029678n"
+"audience-bn:00063584n"
+"audience-bn:00063584n" [shape=rectangle]
+"people-bn:00061450n"
+"regression-bn:00066913n"
+"regression-bn:00066913n" [shape=rectangle]
+"multivariate_analysis-bn:00056311n"
+"vision-bn:02425046n"
+"vision-bn:02425046n" [shape=rectangle]
+"profession-bn:00064607n"
+"corporate_executive-bn:00014158n"
+"management-bn:00053116n"
+"occupation-bn:11198518n"
+"nosql-bn:01727553n"
+"nosql-bn:01727553n" [shape=rectangle]
+"database-bn:00025333n"
+"relational_database_management_system-bn:00067000n"
+"query_language-bn:17302791n"
+"information-bn:00046698n"
+"collection-bn:00000777n"
+"group-bn:00041942n"
+"structure-bn:03830506n"
+"cognition-bn:00020452n"
+"month-bn:00014710n"
+"month-bn:00014710n" [shape=rectangle]
+"time_period-bn:00061605n"
+"time_unit-bn:00077301n"
+"insurance-bn:00046996n"
+"insurance-bn:00046996n" [shape=rectangle]
+"security-bn:00064839n"
+"risk_management-bn:01996781n"
+"entity-bn:00031027n"
+"infrastructure-bn:00008794n"
+"infrastructure-bn:00008794n" [shape=rectangle]
+"store-bn:00036840n"
+"merchandise-bn:00054416n"
+"service-bn:00070651n"
+"proficiency-bn:00064626n"
+"proficiency-bn:00064626n" [shape=rectangle]
+"skillfulness-bn:00071968n"
+"ms-bn:00053731n"
+"ms-bn:00053731n" [shape=rectangle]
+"academic_degree-bn:00000554n"
+"master's_degree-bn:00053719n"
+"framework-bn:01860447n"
+"framework-bn:01860447n" [shape=rectangle]
+"integrated_development_environment-bn:00748100n"
+"programming-bn:00021493n"
+"application_programming_interface-bn:02130401n"
+"natural_person-bn:02965949n"
+"labor-bn:00049570n"
+"music_industry-bn:01217265n"
+"employer-bn:00030624n"
+"employer-bn:00030624n" [shape=rectangle]
+"leader-bn:00050371n"
+"person-bn:00046516n"
+"organism-bn:00009677n"
+"system-bn:15125301n"
+"leadership-bn:00050375n"
+"leadership-bn:00050375n" [shape=rectangle]
+"ability-bn:00000318n"
+"sector-bn:00070206n"
+"sector-bn:00070206n" [shape=rectangle]
+"social_group-bn:00072536n"
+"economy-bn:00029678n"
+"audience-bn:00063584n"
+"audience-bn:00063584n" [shape=rectangle]
+"people-bn:00061450n"
+"regression-bn:00066913n"
+"regression-bn:00066913n" [shape=rectangle]
+"multivariate_analysis-bn:00056311n"
+"vision-bn:02425046n"
+"vision-bn:02425046n" [shape=rectangle]
+"profession-bn:00064607n"
+"corporate_executive-bn:00014158n"
+"management-bn:00053116n"
+"occupation-bn:11198518n"
+"nosql-bn:01727553n"
+"nosql-bn:01727553n" [shape=rectangle]
+"database-bn:00025333n"
+"relational_database_management_system-bn:00067000n"
+"query_language-bn:17302791n"
+"information-bn:00046698n"
+"collection-bn:00000777n"
+"group-bn:00041942n"
+"structure-bn:03830506n"
+"cognition-bn:00020452n"
+"month-bn:00014710n"
+"month-bn:00014710n" [shape=rectangle]
+"time_period-bn:00061605n"
+"time_unit-bn:00077301n"
+"insurance-bn:00046996n"
+"insurance-bn:00046996n" [shape=rectangle]
+"security-bn:00064839n"
+"principle-bn:00064428n"
+"risk_management-bn:01996781n"
+"concept-bn:00021547n"
+"entity-bn:00031027n"
+"merchandise-bn:00054416n"
+"service-bn:00070651n"
+"proficiency-bn:00064626n"
+"proficiency-bn:00064626n" [shape=rectangle]
+"skillfulness-bn:00071968n"
+"ms-bn:00053731n"
+"ms-bn:00053731n" [shape=rectangle]
+"academic_degree-bn:00000554n"
+"master's_degree-bn:00053719n"
+"framework-bn:01860447n"
+"framework-bn:01860447n" [shape=rectangle]
+"integrated_development_environment-bn:00748100n"
+"programming-bn:00021493n"
+"application_programming_interface-bn:02130401n"
+"natural_person-bn:02965949n"
+"labor-bn:00049570n"
+"music_industry-bn:01217265n"
+"employer-bn:00030624n"
+"employer-bn:00030624n" [shape=rectangle]
+"leader-bn:00050371n"
+"person-bn:00046516n"
+"organism-bn:00009677n"
+"system-bn:15125301n"
+"leadership-bn:00050375n"
+"leadership-bn:00050375n" [shape=rectangle]
+"ability-bn:00000318n"
+"sector-bn:00070206n"
+"sector-bn:00070206n" [shape=rectangle]
+"social_group-bn:00072536n"
+"economy-bn:00029678n"
+"audience-bn:00063584n"
+"audience-bn:00063584n" [shape=rectangle]
+"people-bn:00061450n"
+"regression-bn:00066913n"
+"regression-bn:00066913n" [shape=rectangle]
+"multivariate_analysis-bn:00056311n"
+"vision-bn:02425046n"
+"vision-bn:02425046n" [shape=rectangle]
+"profession-bn:00064607n"
+"corporate_executive-bn:00014158n"
+"management-bn:00053116n"
+"occupation-bn:11198518n"
+"nosql-bn:01727553n"
+"nosql-bn:01727553n" [shape=rectangle]
+"database-bn:00025333n"
+"relational_database_management_system-bn:00067000n"
+"query_language-bn:17302791n"
+"information-bn:00046698n"
+"collection-bn:00000777n"
+"group-bn:00041942n"
+"structure-bn:03830506n"
+"cognition-bn:00020452n"
+"month-bn:00014710n"
+"month-bn:00014710n" [shape=rectangle]
+"time_period-bn:00061605n"
+"time_unit-bn:00077301n"
+"insurance-bn:00046996n"
+"insurance-bn:00046996n" [shape=rectangle]
+"security-bn:00064839n"
+"principle-bn:00064428n"
+"risk_management-bn:01996781n"
+"concept-bn:00021547n"
+"entity-bn:00031027n"
+"store-bn:00036840n"
+"service-bn:00070651n"
+"proficiency-bn:00064626n"
+"proficiency-bn:00064626n" [shape=rectangle]
+"skillfulness-bn:00071968n"
+"ms-bn:00053731n"
+"ms-bn:00053731n" [shape=rectangle]
+"academic_degree-bn:00000554n"
+"master's_degree-bn:00053719n"
+"framework-bn:01860447n"
+"framework-bn:01860447n" [shape=rectangle]
+"integrated_development_environment-bn:00748100n"
+"programming-bn:00021493n"
+"application_programming_interface-bn:02130401n"
+"natural_person-bn:02965949n"
+"labor-bn:00049570n"
+"music_industry-bn:01217265n"
+"employer-bn:00030624n"
+"employer-bn:00030624n" [shape=rectangle]
+"leader-bn:00050371n"
+"person-bn:00046516n"
+"organism-bn:00009677n"
+"system-bn:15125301n"
+"leadership-bn:00050375n"
+"leadership-bn:00050375n" [shape=rectangle]
+"ability-bn:00000318n"
+"sector-bn:00070206n"
+"sector-bn:00070206n" [shape=rectangle]
+"social_group-bn:00072536n"
+"economy-bn:00029678n"
+"audience-bn:00063584n"
+"audience-bn:00063584n" [shape=rectangle]
+"people-bn:00061450n"
+"regression-bn:00066913n"
+"regression-bn:00066913n" [shape=rectangle]
+"multivariate_analysis-bn:00056311n"
+"vision-bn:02425046n"
+"vision-bn:02425046n" [shape=rectangle]
+"profession-bn:00064607n"
+"corporate_executive-bn:00014158n"
+"management-bn:00053116n"
+"occupation-bn:11198518n"
+"nosql-bn:01727553n"
+"nosql-bn:01727553n" [shape=rectangle]
+"database-bn:00025333n"
+"relational_database_management_system-bn:00067000n"
+"query_language-bn:17302791n"
+"information-bn:00046698n"
+"collection-bn:00000777n"
+"group-bn:00041942n"
+"structure-bn:03830506n"
+"cognition-bn:00020452n"
+"month-bn:00014710n"
+"month-bn:00014710n" [shape=rectangle]
+"time_period-bn:00061605n"
+"time_unit-bn:00077301n"
+"insurance-bn:00046996n"
+"insurance-bn:00046996n" [shape=rectangle]
+"security-bn:00064839n"
+"principle-bn:00064428n"
+"risk_management-bn:01996781n"
+"concept-bn:00021547n"
+"entity-bn:00031027n"
+"store-bn:00036840n"
+"merchandise-bn:00054416n"
+"proficiency-bn:00064626n"
+"proficiency-bn:00064626n" [shape=rectangle]
+"skillfulness-bn:00071968n"
+"ms-bn:00053731n"
+"ms-bn:00053731n" [shape=rectangle]
+"academic_degree-bn:00000554n"
+"master's_degree-bn:00053719n"
+"framework-bn:01860447n"
+"framework-bn:01860447n" [shape=rectangle]
+"integrated_development_environment-bn:00748100n"
+"programming-bn:00021493n"
+"application_programming_interface-bn:02130401n"
+"natural_person-bn:02965949n"
+"labor-bn:00049570n"
+"music_industry-bn:01217265n"
+"employer-bn:00030624n"
+"employer-bn:00030624n" [shape=rectangle]
+"leader-bn:00050371n"
+"person-bn:00046516n"
+"organism-bn:00009677n"
+"system-bn:15125301n"
+"leadership-bn:00050375n"
+"leadership-bn:00050375n" [shape=rectangle]
+"ability-bn:00000318n"
+"sector-bn:00070206n"
+"sector-bn:00070206n" [shape=rectangle]
+"social_group-bn:00072536n"
+"economy-bn:00029678n"
+"audience-bn:00063584n"
+"audience-bn:00063584n" [shape=rectangle]
+"people-bn:00061450n"
+"regression-bn:00066913n"
+"regression-bn:00066913n" [shape=rectangle]
+"multivariate_analysis-bn:00056311n"
+"vision-bn:02425046n"
+"vision-bn:02425046n" [shape=rectangle]
+"profession-bn:00064607n"
+"corporate_executive-bn:00014158n"
+"management-bn:00053116n"
+"occupation-bn:11198518n"
+"nosql-bn:01727553n"
+"nosql-bn:01727553n" [shape=rectangle]
+"database-bn:00025333n"
+"relational_database_management_system-bn:00067000n"
+"query_language-bn:17302791n"
+"information-bn:00046698n"
+"collection-bn:00000777n"
+"group-bn:00041942n"
+"structure-bn:03830506n"
+"cognition-bn:00020452n"
+"month-bn:00014710n"
+"month-bn:00014710n" [shape=rectangle]
+"time_period-bn:00061605n"
+"time_unit-bn:00077301n"
+"insurance-bn:00046996n"
+"insurance-bn:00046996n" [shape=rectangle]
+"security-bn:00064839n"
+"principle-bn:00064428n"
+"risk_management-bn:01996781n"
+"concept-bn:00021547n"
+"entity-bn:00031027n"
+"infrastructure-bn:00008794n"
+"infrastructure-bn:00008794n" [shape=rectangle]
+"store-bn:00036840n"
+"merchandise-bn:00054416n"
+"service-bn:00070651n"
+"ms-bn:00053731n"
+"ms-bn:00053731n" [shape=rectangle]
+"academic_degree-bn:00000554n"
+"master's_degree-bn:00053719n"
+"framework-bn:01860447n"
+"framework-bn:01860447n" [shape=rectangle]
+"integrated_development_environment-bn:00748100n"
+"programming-bn:00021493n"
+"application_programming_interface-bn:02130401n"
+"natural_person-bn:02965949n"
+"labor-bn:00049570n"
+"music_industry-bn:01217265n"
+"employer-bn:00030624n"
+"employer-bn:00030624n" [shape=rectangle]
+"leader-bn:00050371n"
+"person-bn:00046516n"
+"organism-bn:00009677n"
+"system-bn:15125301n"
+"leadership-bn:00050375n"
+"leadership-bn:00050375n" [shape=rectangle]
+"ability-bn:00000318n"
+"sector-bn:00070206n"
+"sector-bn:00070206n" [shape=rectangle]
+"social_group-bn:00072536n"
+"economy-bn:00029678n"
+"audience-bn:00063584n"
+"audience-bn:00063584n" [shape=rectangle]
+"people-bn:00061450n"
+"regression-bn:00066913n"
+"regression-bn:00066913n" [shape=rectangle]
+"multivariate_analysis-bn:00056311n"
+"vision-bn:02425046n"
+"vision-bn:02425046n" [shape=rectangle]
+"profession-bn:00064607n"
+"corporate_executive-bn:00014158n"
+"management-bn:00053116n"
+"occupation-bn:11198518n"
+"nosql-bn:01727553n"
+"nosql-bn:01727553n" [shape=rectangle]
+"database-bn:00025333n"
+"relational_database_management_system-bn:00067000n"
+"query_language-bn:17302791n"
+"information-bn:00046698n"
+"collection-bn:00000777n"
+"group-bn:00041942n"
+"structure-bn:03830506n"
+"cognition-bn:00020452n"
+"month-bn:00014710n"
+"month-bn:00014710n" [shape=rectangle]
+"time_period-bn:00061605n"
+"time_unit-bn:00077301n"
+"insurance-bn:00046996n"
+"insurance-bn:00046996n" [shape=rectangle]
+"security-bn:00064839n"
+"principle-bn:00064428n"
+"risk_management-bn:01996781n"
+"concept-bn:00021547n"
+"entity-bn:00031027n"
+"infrastructure-bn:00008794n"
+"infrastructure-bn:00008794n" [shape=rectangle]
+"store-bn:00036840n"
+"merchandise-bn:00054416n"
+"service-bn:00070651n"
+"proficiency-bn:00064626n"
+"proficiency-bn:00064626n" [shape=rectangle]
+"skillfulness-bn:00071968n"
+"master's_degree-bn:00053719n"
+"framework-bn:01860447n"
+"framework-bn:01860447n" [shape=rectangle]
+"integrated_development_environment-bn:00748100n"
+"programming-bn:00021493n"
+"application_programming_interface-bn:02130401n"
+"natural_person-bn:02965949n"
+"labor-bn:00049570n"
+"music_industry-bn:01217265n"
+"employer-bn:00030624n"
+"employer-bn:00030624n" [shape=rectangle]
+"leader-bn:00050371n"
+"person-bn:00046516n"
+"organism-bn:00009677n"
+"system-bn:15125301n"
+"leadership-bn:00050375n"
+"leadership-bn:00050375n" [shape=rectangle]
+"ability-bn:00000318n"
+"sector-bn:00070206n"
+"sector-bn:00070206n" [shape=rectangle]
+"social_group-bn:00072536n"
+"economy-bn:00029678n"
+"audience-bn:00063584n"
+"audience-bn:00063584n" [shape=rectangle]
+"people-bn:00061450n"
+"regression-bn:00066913n"
+"regression-bn:00066913n" [shape=rectangle]
+"multivariate_analysis-bn:00056311n"
+"vision-bn:02425046n"
+"vision-bn:02425046n" [shape=rectangle]
+"profession-bn:00064607n"
+"corporate_executive-bn:00014158n"
+"management-bn:00053116n"
+"occupation-bn:11198518n"
+"nosql-bn:01727553n"
+"nosql-bn:01727553n" [shape=rectangle]
+"database-bn:00025333n"
+"relational_database_management_system-bn:00067000n"
+"query_language-bn:17302791n"
+"information-bn:00046698n"
+"collection-bn:00000777n"
+"group-bn:00041942n"
+"structure-bn:03830506n"
+"cognition-bn:00020452n"
+"month-bn:00014710n"
+"month-bn:00014710n" [shape=rectangle]
+"time_period-bn:00061605n"
+"time_unit-bn:00077301n"
+"insurance-bn:00046996n"
+"insurance-bn:00046996n" [shape=rectangle]
+"security-bn:00064839n"
+"principle-bn:00064428n"
+"risk_management-bn:01996781n"
+"concept-bn:00021547n"
+"entity-bn:00031027n"
+"infrastructure-bn:00008794n"
+"infrastructure-bn:00008794n" [shape=rectangle]
+"store-bn:00036840n"
+"merchandise-bn:00054416n"
+"service-bn:00070651n"
+"proficiency-bn:00064626n"
+"proficiency-bn:00064626n" [shape=rectangle]
+"skillfulness-bn:00071968n"
+"academic_degree-bn:00000554n"
+"framework-bn:01860447n"
+"framework-bn:01860447n" [shape=rectangle]
+"integrated_development_environment-bn:00748100n"
+"programming-bn:00021493n"
+"application_programming_interface-bn:02130401n"
+"natural_person-bn:02965949n"
+"labor-bn:00049570n"
+"music_industry-bn:01217265n"
+"employer-bn:00030624n"
+"employer-bn:00030624n" [shape=rectangle]
+"leader-bn:00050371n"
+"person-bn:00046516n"
+"organism-bn:00009677n"
+"system-bn:15125301n"
+"leadership-bn:00050375n"
+"leadership-bn:00050375n" [shape=rectangle]
+"ability-bn:00000318n"
+"sector-bn:00070206n"
+"sector-bn:00070206n" [shape=rectangle]
+"social_group-bn:00072536n"
+"economy-bn:00029678n"
+"audience-bn:00063584n"
+"audience-bn:00063584n" [shape=rectangle]
+"people-bn:00061450n"
+"regression-bn:00066913n"
+"regression-bn:00066913n" [shape=rectangle]
+"multivariate_analysis-bn:00056311n"
+"vision-bn:02425046n"
+"vision-bn:02425046n" [shape=rectangle]
+"profession-bn:00064607n"
+"corporate_executive-bn:00014158n"
+"management-bn:00053116n"
+"occupation-bn:11198518n"
+"nosql-bn:01727553n"
+"nosql-bn:01727553n" [shape=rectangle]
+"database-bn:00025333n"
+"relational_database_management_system-bn:00067000n"
+"query_language-bn:17302791n"
+"information-bn:00046698n"
+"collection-bn:00000777n"
+"group-bn:00041942n"
+"structure-bn:03830506n"
+"cognition-bn:00020452n"
+"month-bn:00014710n"
+"month-bn:00014710n" [shape=rectangle]
+"time_period-bn:00061605n"
+"time_unit-bn:00077301n"
+"insurance-bn:00046996n"
+"insurance-bn:00046996n" [shape=rectangle]
+"security-bn:00064839n"
+"principle-bn:00064428n"
+"risk_management-bn:01996781n"
+"concept-bn:00021547n"
+"entity-bn:00031027n"
+"infrastructure-bn:00008794n"
+"infrastructure-bn:00008794n" [shape=rectangle]
+"store-bn:00036840n"
+"merchandise-bn:00054416n"
+"service-bn:00070651n"
+"proficiency-bn:00064626n"
+"proficiency-bn:00064626n" [shape=rectangle]
+"skillfulness-bn:00071968n"
+"ms-bn:00053731n"
+"ms-bn:00053731n" [shape=rectangle]
+"framework-bn:01860447n"
+"framework-bn:01860447n" [shape=rectangle]
+"integrated_development_environment-bn:00748100n"
+"programming-bn:00021493n"
+"application_programming_interface-bn:02130401n"
+"natural_person-bn:02965949n"
+"labor-bn:00049570n"
+"music_industry-bn:01217265n"
+"employer-bn:00030624n"
+"employer-bn:00030624n" [shape=rectangle]
+"leader-bn:00050371n"
+"person-bn:00046516n"
+"organism-bn:00009677n"
+"system-bn:15125301n"
+"leadership-bn:00050375n"
+"leadership-bn:00050375n" [shape=rectangle]
+"ability-bn:00000318n"
+"sector-bn:00070206n"
+"sector-bn:00070206n" [shape=rectangle]
+"social_group-bn:00072536n"
+"economy-bn:00029678n"
+"audience-bn:00063584n"
+"audience-bn:00063584n" [shape=rectangle]
+"people-bn:00061450n"
+"regression-bn:00066913n"
+"regression-bn:00066913n" [shape=rectangle]
+"multivariate_analysis-bn:00056311n"
+"vision-bn:02425046n"
+"vision-bn:02425046n" [shape=rectangle]
+"profession-bn:00064607n"
+"corporate_executive-bn:00014158n"
+"management-bn:00053116n"
+"occupation-bn:11198518n"
+"nosql-bn:01727553n"
+"nosql-bn:01727553n" [shape=rectangle]
+"database-bn:00025333n"
+"relational_database_management_system-bn:00067000n"
+"query_language-bn:17302791n"
+"information-bn:00046698n"
+"collection-bn:00000777n"
+"group-bn:00041942n"
+"structure-bn:03830506n"
+"cognition-bn:00020452n"
+"month-bn:00014710n"
+"month-bn:00014710n" [shape=rectangle]
+"time_period-bn:00061605n"
+"time_unit-bn:00077301n"
+"insurance-bn:00046996n"
+"insurance-bn:00046996n" [shape=rectangle]
+"security-bn:00064839n"
+"principle-bn:00064428n"
+"risk_management-bn:01996781n"
+"concept-bn:00021547n"
+"entity-bn:00031027n"
+"infrastructure-bn:00008794n"
+"infrastructure-bn:00008794n" [shape=rectangle]
+"store-bn:00036840n"
+"merchandise-bn:00054416n"
+"service-bn:00070651n"
+"proficiency-bn:00064626n"
+"proficiency-bn:00064626n" [shape=rectangle]
+"skillfulness-bn:00071968n"
+"ms-bn:00053731n"
+"ms-bn:00053731n" [shape=rectangle]
+"academic_degree-bn:00000554n"
+"master's_degree-bn:00053719n"
+"programming-bn:00021493n"
+"application_programming_interface-bn:02130401n"
+"natural_person-bn:02965949n"
+"labor-bn:00049570n"
+"music_industry-bn:01217265n"
+"employer-bn:00030624n"
+"employer-bn:00030624n" [shape=rectangle]
+"leader-bn:00050371n"
+"person-bn:00046516n"
+"organism-bn:00009677n"
+"system-bn:15125301n"
+"leadership-bn:00050375n"
+"leadership-bn:00050375n" [shape=rectangle]
+"ability-bn:00000318n"
+"sector-bn:00070206n"
+"sector-bn:00070206n" [shape=rectangle]
+"social_group-bn:00072536n"
+"economy-bn:00029678n"
+"audience-bn:00063584n"
+"audience-bn:00063584n" [shape=rectangle]
+"people-bn:00061450n"
+"regression-bn:00066913n"
+"regression-bn:00066913n" [shape=rectangle]
+"multivariate_analysis-bn:00056311n"
+"vision-bn:02425046n"
+"vision-bn:02425046n" [shape=rectangle]
+"profession-bn:00064607n"
+"corporate_executive-bn:00014158n"
+"management-bn:00053116n"
+"occupation-bn:11198518n"
+"nosql-bn:01727553n"
+"nosql-bn:01727553n" [shape=rectangle]
+"database-bn:00025333n"
+"relational_database_management_system-bn:00067000n"
+"query_language-bn:17302791n"
+"information-bn:00046698n"
+"collection-bn:00000777n"
+"group-bn:00041942n"
+"structure-bn:03830506n"
+"cognition-bn:00020452n"
+"month-bn:00014710n"
+"month-bn:00014710n" [shape=rectangle]
+"time_period-bn:00061605n"
+"time_unit-bn:00077301n"
+"insurance-bn:00046996n"
+"insurance-bn:00046996n" [shape=rectangle]
+"security-bn:00064839n"
+"principle-bn:00064428n"
+"risk_management-bn:01996781n"
+"concept-bn:00021547n"
+"entity-bn:00031027n"
+"infrastructure-bn:00008794n"
+"infrastructure-bn:00008794n" [shape=rectangle]
+"store-bn:00036840n"
+"merchandise-bn:00054416n"
+"service-bn:00070651n"
+"proficiency-bn:00064626n"
+"proficiency-bn:00064626n" [shape=rectangle]
+"skillfulness-bn:00071968n"
+"ms-bn:00053731n"
+"ms-bn:00053731n" [shape=rectangle]
+"academic_degree-bn:00000554n"
+"master's_degree-bn:00053719n"
+"integrated_development_environment-bn:00748100n"
+"application_programming_interface-bn:02130401n"
+"natural_person-bn:02965949n"
+"labor-bn:00049570n"
+"music_industry-bn:01217265n"
+"employer-bn:00030624n"
+"employer-bn:00030624n" [shape=rectangle]
+"leader-bn:00050371n"
+"person-bn:00046516n"
+"organism-bn:00009677n"
+"system-bn:15125301n"
+"leadership-bn:00050375n"
+"leadership-bn:00050375n" [shape=rectangle]
+"ability-bn:00000318n"
+"sector-bn:00070206n"
+"sector-bn:00070206n" [shape=rectangle]
+"social_group-bn:00072536n"
+"economy-bn:00029678n"
+"audience-bn:00063584n"
+"audience-bn:00063584n" [shape=rectangle]
+"people-bn:00061450n"
+"regression-bn:00066913n"
+"regression-bn:00066913n" [shape=rectangle]
+"multivariate_analysis-bn:00056311n"
+"vision-bn:02425046n"
+"vision-bn:02425046n" [shape=rectangle]
+"profession-bn:00064607n"
+"corporate_executive-bn:00014158n"
+"management-bn:00053116n"
+"occupation-bn:11198518n"
+"nosql-bn:01727553n"
+"nosql-bn:01727553n" [shape=rectangle]
+"database-bn:00025333n"
+"relational_database_management_system-bn:00067000n"
+"query_language-bn:17302791n"
+"information-bn:00046698n"
+"collection-bn:00000777n"
+"group-bn:00041942n"
+"structure-bn:03830506n"
+"cognition-bn:00020452n"
+"month-bn:00014710n"
+"month-bn:00014710n" [shape=rectangle]
+"time_period-bn:00061605n"
+"time_unit-bn:00077301n"
+"insurance-bn:00046996n"
+"insurance-bn:00046996n" [shape=rectangle]
+"security-bn:00064839n"
+"principle-bn:00064428n"
+"risk_management-bn:01996781n"
+"concept-bn:00021547n"
+"entity-bn:00031027n"
+"infrastructure-bn:00008794n"
+"infrastructure-bn:00008794n" [shape=rectangle]
+"store-bn:00036840n"
+"merchandise-bn:00054416n"
+"service-bn:00070651n"
+"proficiency-bn:00064626n"
+"proficiency-bn:00064626n" [shape=rectangle]
+"skillfulness-bn:00071968n"
+"ms-bn:00053731n"
+"ms-bn:00053731n" [shape=rectangle]
+"academic_degree-bn:00000554n"
+"master's_degree-bn:00053719n"
+"integrated_development_environment-bn:00748100n"
+"programming-bn:00021493n"
+"natural_person-bn:02965949n"
+"labor-bn:00049570n"
+"music_industry-bn:01217265n"
+"employer-bn:00030624n"
+"employer-bn:00030624n" [shape=rectangle]
+"leader-bn:00050371n"
+"person-bn:00046516n"
+"organism-bn:00009677n"
+"system-bn:15125301n"
+"leadership-bn:00050375n"
+"leadership-bn:00050375n" [shape=rectangle]
+"ability-bn:00000318n"
+"sector-bn:00070206n"
+"sector-bn:00070206n" [shape=rectangle]
+"social_group-bn:00072536n"
+"economy-bn:00029678n"
+"audience-bn:00063584n"
+"audience-bn:00063584n" [shape=rectangle]
+"people-bn:00061450n"
+"regression-bn:00066913n"
+"regression-bn:00066913n" [shape=rectangle]
+"multivariate_analysis-bn:00056311n"
+"vision-bn:02425046n"
+"vision-bn:02425046n" [shape=rectangle]
+"profession-bn:00064607n"
+"corporate_executive-bn:00014158n"
+"management-bn:00053116n"
+"occupation-bn:11198518n"
+"nosql-bn:01727553n"
+"nosql-bn:01727553n" [shape=rectangle]
+"database-bn:00025333n"
+"relational_database_management_system-bn:00067000n"
+"query_language-bn:17302791n"
+"information-bn:00046698n"
+"collection-bn:00000777n"
+"group-bn:00041942n"
+"structure-bn:03830506n"
+"cognition-bn:00020452n"
+"month-bn:00014710n"
+"month-bn:00014710n" [shape=rectangle]
+"time_period-bn:00061605n"
+"time_unit-bn:00077301n"
+"insurance-bn:00046996n"
+"insurance-bn:00046996n" [shape=rectangle]
+"security-bn:00064839n"
+"principle-bn:00064428n"
+"risk_management-bn:01996781n"
+"concept-bn:00021547n"
+"entity-bn:00031027n"
+"infrastructure-bn:00008794n"
+"infrastructure-bn:00008794n" [shape=rectangle]
+"store-bn:00036840n"
+"merchandise-bn:00054416n"
+"service-bn:00070651n"
+"proficiency-bn:00064626n"
+"proficiency-bn:00064626n" [shape=rectangle]
+"skillfulness-bn:00071968n"
+"ms-bn:00053731n"
+"ms-bn:00053731n" [shape=rectangle]
+"academic_degree-bn:00000554n"
+"master's_degree-bn:00053719n"
+"framework-bn:01860447n"
+"framework-bn:01860447n" [shape=rectangle]
+"integrated_development_environment-bn:00748100n"
+"programming-bn:00021493n"
+"application_programming_interface-bn:02130401n"
+"natural_person-bn:02965949n"
+"labor-bn:00049570n"
+"music_industry-bn:01217265n"
+"person-bn:00046516n"
+"organism-bn:00009677n"
+"system-bn:15125301n"
+"leadership-bn:00050375n"
+"leadership-bn:00050375n" [shape=rectangle]
+"ability-bn:00000318n"
+"sector-bn:00070206n"
+"sector-bn:00070206n" [shape=rectangle]
+"social_group-bn:00072536n"
+"economy-bn:00029678n"
+"audience-bn:00063584n"
+"audience-bn:00063584n" [shape=rectangle]
+"people-bn:00061450n"
+"regression-bn:00066913n"
+"regression-bn:00066913n" [shape=rectangle]
+"multivariate_analysis-bn:00056311n"
+"vision-bn:02425046n"
+"vision-bn:02425046n" [shape=rectangle]
+"profession-bn:00064607n"
+"corporate_executive-bn:00014158n"
+"management-bn:00053116n"
+"occupation-bn:11198518n"
+"nosql-bn:01727553n"
+"nosql-bn:01727553n" [shape=rectangle]
+"database-bn:00025333n"
+"relational_database_management_system-bn:00067000n"
+"query_language-bn:17302791n"
+"information-bn:00046698n"
+"collection-bn:00000777n"
+"group-bn:00041942n"
+"structure-bn:03830506n"
+"cognition-bn:00020452n"
+"month-bn:00014710n"
+"month-bn:00014710n" [shape=rectangle]
+"time_period-bn:00061605n"
+"time_unit-bn:00077301n"
+"insurance-bn:00046996n"
+"insurance-bn:00046996n" [shape=rectangle]
+"security-bn:00064839n"
+"principle-bn:00064428n"
+"risk_management-bn:01996781n"
+"concept-bn:00021547n"
+"entity-bn:00031027n"
+"infrastructure-bn:00008794n"
+"infrastructure-bn:00008794n" [shape=rectangle]
+"store-bn:00036840n"
+"merchandise-bn:00054416n"
+"service-bn:00070651n"
+"proficiency-bn:00064626n"
+"proficiency-bn:00064626n" [shape=rectangle]
+"skillfulness-bn:00071968n"
+"ms-bn:00053731n"
+"ms-bn:00053731n" [shape=rectangle]
+"academic_degree-bn:00000554n"
+"master's_degree-bn:00053719n"
+"framework-bn:01860447n"
+"framework-bn:01860447n" [shape=rectangle]
+"integrated_development_environment-bn:00748100n"
+"programming-bn:00021493n"
+"application_programming_interface-bn:02130401n"
+"natural_person-bn:02965949n"
+"labor-bn:00049570n"
+"music_industry-bn:01217265n"
+"employer-bn:00030624n"
+"employer-bn:00030624n" [shape=rectangle]
+"organism-bn:00009677n"
+"system-bn:15125301n"
+"leadership-bn:00050375n"
+"leadership-bn:00050375n" [shape=rectangle]
+"ability-bn:00000318n"
+"sector-bn:00070206n"
+"sector-bn:00070206n" [shape=rectangle]
+"social_group-bn:00072536n"
+"economy-bn:00029678n"
+"audience-bn:00063584n"
+"audience-bn:00063584n" [shape=rectangle]
+"people-bn:00061450n"
+"regression-bn:00066913n"
+"regression-bn:00066913n" [shape=rectangle]
+"multivariate_analysis-bn:00056311n"
+"vision-bn:02425046n"
+"vision-bn:02425046n" [shape=rectangle]
+"profession-bn:00064607n"
+"corporate_executive-bn:00014158n"
+"management-bn:00053116n"
+"occupation-bn:11198518n"
+"nosql-bn:01727553n"
+"nosql-bn:01727553n" [shape=rectangle]
+"database-bn:00025333n"
+"relational_database_management_system-bn:00067000n"
+"query_language-bn:17302791n"
+"information-bn:00046698n"
+"collection-bn:00000777n"
+"group-bn:00041942n"
+"structure-bn:03830506n"
+"cognition-bn:00020452n"
+"month-bn:00014710n"
+"month-bn:00014710n" [shape=rectangle]
+"time_period-bn:00061605n"
+"time_unit-bn:00077301n"
+"insurance-bn:00046996n"
+"insurance-bn:00046996n" [shape=rectangle]
+"security-bn:00064839n"
+"principle-bn:00064428n"
+"risk_management-bn:01996781n"
+"concept-bn:00021547n"
+"entity-bn:00031027n"
+"infrastructure-bn:00008794n"
+"infrastructure-bn:00008794n" [shape=rectangle]
+"store-bn:00036840n"
+"merchandise-bn:00054416n"
+"service-bn:00070651n"
+"proficiency-bn:00064626n"
+"proficiency-bn:00064626n" [shape=rectangle]
+"skillfulness-bn:00071968n"
+"ms-bn:00053731n"
+"ms-bn:00053731n" [shape=rectangle]
+"academic_degree-bn:00000554n"
+"master's_degree-bn:00053719n"
+"framework-bn:01860447n"
+"framework-bn:01860447n" [shape=rectangle]
+"integrated_development_environment-bn:00748100n"
+"programming-bn:00021493n"
+"application_programming_interface-bn:02130401n"
+"natural_person-bn:02965949n"
+"labor-bn:00049570n"
+"music_industry-bn:01217265n"
+"employer-bn:00030624n"
+"employer-bn:00030624n" [shape=rectangle]
+"leader-bn:00050371n"
+"system-bn:15125301n"
+"leadership-bn:00050375n"
+"leadership-bn:00050375n" [shape=rectangle]
+"ability-bn:00000318n"
+"sector-bn:00070206n"
+"sector-bn:00070206n" [shape=rectangle]
+"social_group-bn:00072536n"
+"economy-bn:00029678n"
+"audience-bn:00063584n"
+"audience-bn:00063584n" [shape=rectangle]
+"people-bn:00061450n"
+"regression-bn:00066913n"
+"regression-bn:00066913n" [shape=rectangle]
+"multivariate_analysis-bn:00056311n"
+"vision-bn:02425046n"
+"vision-bn:02425046n" [shape=rectangle]
+"profession-bn:00064607n"
+"corporate_executive-bn:00014158n"
+"management-bn:00053116n"
+"occupation-bn:11198518n"
+"nosql-bn:01727553n"
+"nosql-bn:01727553n" [shape=rectangle]
+"database-bn:00025333n"
+"relational_database_management_system-bn:00067000n"
+"query_language-bn:17302791n"
+"information-bn:00046698n"
+"collection-bn:00000777n"
+"group-bn:00041942n"
+"structure-bn:03830506n"
+"cognition-bn:00020452n"
+"month-bn:00014710n"
+"month-bn:00014710n" [shape=rectangle]
+"time_period-bn:00061605n"
+"time_unit-bn:00077301n"
+"insurance-bn:00046996n"
+"insurance-bn:00046996n" [shape=rectangle]
+"security-bn:00064839n"
+"principle-bn:00064428n"
+"risk_management-bn:01996781n"
+"concept-bn:00021547n"
+"entity-bn:00031027n"
+"infrastructure-bn:00008794n"
+"infrastructure-bn:00008794n" [shape=rectangle]
+"store-bn:00036840n"
+"merchandise-bn:00054416n"
+"service-bn:00070651n"
+"proficiency-bn:00064626n"
+"proficiency-bn:00064626n" [shape=rectangle]
+"skillfulness-bn:00071968n"
+"ms-bn:00053731n"
+"ms-bn:00053731n" [shape=rectangle]
+"academic_degree-bn:00000554n"
+"master's_degree-bn:00053719n"
+"framework-bn:01860447n"
+"framework-bn:01860447n" [shape=rectangle]
+"integrated_development_environment-bn:00748100n"
+"programming-bn:00021493n"
+"application_programming_interface-bn:02130401n"
+"natural_person-bn:02965949n"
+"labor-bn:00049570n"
+"music_industry-bn:01217265n"
+"employer-bn:00030624n"
+"employer-bn:00030624n" [shape=rectangle]
+"leader-bn:00050371n"
+"person-bn:00046516n"
+"leadership-bn:00050375n"
+"leadership-bn:00050375n" [shape=rectangle]
+"ability-bn:00000318n"
+"sector-bn:00070206n"
+"sector-bn:00070206n" [shape=rectangle]
+"social_group-bn:00072536n"
+"economy-bn:00029678n"
+"audience-bn:00063584n"
+"audience-bn:00063584n" [shape=rectangle]
+"people-bn:00061450n"
+"regression-bn:00066913n"
+"regression-bn:00066913n" [shape=rectangle]
+"multivariate_analysis-bn:00056311n"
+"vision-bn:02425046n"
+"vision-bn:02425046n" [shape=rectangle]
+"profession-bn:00064607n"
+"corporate_executive-bn:00014158n"
+"management-bn:00053116n"
+"occupation-bn:11198518n"
+"nosql-bn:01727553n"
+"nosql-bn:01727553n" [shape=rectangle]
+"database-bn:00025333n"
+"relational_database_management_system-bn:00067000n"
+"query_language-bn:17302791n"
+"information-bn:00046698n"
+"collection-bn:00000777n"
+"group-bn:00041942n"
+"cognition-bn:00020452n"
+"month-bn:00014710n"
+"month-bn:00014710n" [shape=rectangle]
+"time_period-bn:00061605n"
+"time_unit-bn:00077301n"
+"insurance-bn:00046996n"
+"insurance-bn:00046996n" [shape=rectangle]
+"security-bn:00064839n"
+"principle-bn:00064428n"
+"risk_management-bn:01996781n"
+"concept-bn:00021547n"
+"entity-bn:00031027n"
+"infrastructure-bn:00008794n"
+"infrastructure-bn:00008794n" [shape=rectangle]
+"store-bn:00036840n"
+"merchandise-bn:00054416n"
+"service-bn:00070651n"
+"proficiency-bn:00064626n"
+"proficiency-bn:00064626n" [shape=rectangle]
+"skillfulness-bn:00071968n"
+"ms-bn:00053731n"
+"ms-bn:00053731n" [shape=rectangle]
+"academic_degree-bn:00000554n"
+"master's_degree-bn:00053719n"
+"framework-bn:01860447n"
+"framework-bn:01860447n" [shape=rectangle]
+"integrated_development_environment-bn:00748100n"
+"programming-bn:00021493n"
+"application_programming_interface-bn:02130401n"
+"natural_person-bn:02965949n"
+"labor-bn:00049570n"
+"music_industry-bn:01217265n"
+"employer-bn:00030624n"
+"employer-bn:00030624n" [shape=rectangle]
+"leader-bn:00050371n"
+"person-bn:00046516n"
+"organism-bn:00009677n"
+"leadership-bn:00050375n"
+"leadership-bn:00050375n" [shape=rectangle]
+"ability-bn:00000318n"
+"sector-bn:00070206n"
+"sector-bn:00070206n" [shape=rectangle]
+"social_group-bn:00072536n"
+"economy-bn:00029678n"
+"audience-bn:00063584n"
+"audience-bn:00063584n" [shape=rectangle]
+"people-bn:00061450n"
+"regression-bn:00066913n"
+"regression-bn:00066913n" [shape=rectangle]
+"multivariate_analysis-bn:00056311n"
+"vision-bn:02425046n"
+"vision-bn:02425046n" [shape=rectangle]
+"profession-bn:00064607n"
+"corporate_executive-bn:00014158n"
+"management-bn:00053116n"
+"occupation-bn:11198518n"
+"nosql-bn:01727553n"
+"nosql-bn:01727553n" [shape=rectangle]
+"database-bn:00025333n"
+"relational_database_management_system-bn:00067000n"
+"query_language-bn:17302791n"
+"information-bn:00046698n"
+"collection-bn:00000777n"
+"group-bn:00041942n"
+"structure-bn:03830506n"
+"cognition-bn:00020452n"
+"month-bn:00014710n"
+"month-bn:00014710n" [shape=rectangle]
+"time_period-bn:00061605n"
+"time_unit-bn:00077301n"
+"insurance-bn:00046996n"
+"insurance-bn:00046996n" [shape=rectangle]
+"security-bn:00064839n"
+"principle-bn:00064428n"
+"risk_management-bn:01996781n"
+"concept-bn:00021547n"
+"infrastructure-bn:00008794n"
+"infrastructure-bn:00008794n" [shape=rectangle]
+"store-bn:00036840n"
+"merchandise-bn:00054416n"
+"service-bn:00070651n"
+"proficiency-bn:00064626n"
+"proficiency-bn:00064626n" [shape=rectangle]
+"skillfulness-bn:00071968n"
+"ms-bn:00053731n"
+"ms-bn:00053731n" [shape=rectangle]
+"academic_degree-bn:00000554n"
+"master's_degree-bn:00053719n"
+"framework-bn:01860447n"
+"framework-bn:01860447n" [shape=rectangle]
+"integrated_development_environment-bn:00748100n"
+"programming-bn:00021493n"
+"application_programming_interface-bn:02130401n"
+"natural_person-bn:02965949n"
+"labor-bn:00049570n"
+"music_industry-bn:01217265n"
+"employer-bn:00030624n"
+"employer-bn:00030624n" [shape=rectangle]
+"leader-bn:00050371n"
+"person-bn:00046516n"
+"organism-bn:00009677n"
+"leadership-bn:00050375n"
+"leadership-bn:00050375n" [shape=rectangle]
+"ability-bn:00000318n"
+"sector-bn:00070206n"
+"sector-bn:00070206n" [shape=rectangle]
+"social_group-bn:00072536n"
+"economy-bn:00029678n"
+"audience-bn:00063584n"
+"audience-bn:00063584n" [shape=rectangle]
+"people-bn:00061450n"
+"regression-bn:00066913n"
+"regression-bn:00066913n" [shape=rectangle]
+"multivariate_analysis-bn:00056311n"
+"vision-bn:02425046n"
+"vision-bn:02425046n" [shape=rectangle]
+"profession-bn:00064607n"
+"corporate_executive-bn:00014158n"
+"management-bn:00053116n"
+"occupation-bn:11198518n"
+"nosql-bn:01727553n"
+"nosql-bn:01727553n" [shape=rectangle]
+"database-bn:00025333n"
+"relational_database_management_system-bn:00067000n"
+"query_language-bn:17302791n"
+"information-bn:00046698n"
+"collection-bn:00000777n"
+"group-bn:00041942n"
+"structure-bn:03830506n"
+"cognition-bn:00020452n"
+"month-bn:00014710n"
+"month-bn:00014710n" [shape=rectangle]
+"time_period-bn:00061605n"
+"time_unit-bn:00077301n"
+"insurance-bn:00046996n"
+"insurance-bn:00046996n" [shape=rectangle]
+"security-bn:00064839n"
+"principle-bn:00064428n"
+"risk_management-bn:01996781n"
+"concept-bn:00021547n"
+"entity-bn:00031027n"
+"infrastructure-bn:00008794n"
+"infrastructure-bn:00008794n" [shape=rectangle]
+"store-bn:00036840n"
+"merchandise-bn:00054416n"
+"service-bn:00070651n"
+"proficiency-bn:00064626n"
+"proficiency-bn:00064626n" [shape=rectangle]
+"skillfulness-bn:00071968n"
+"ms-bn:00053731n"
+"ms-bn:00053731n" [shape=rectangle]
+"academic_degree-bn:00000554n"
+"master's_degree-bn:00053719n"
+"framework-bn:01860447n"
+"framework-bn:01860447n" [shape=rectangle]
+"integrated_development_environment-bn:00748100n"
+"programming-bn:00021493n"
+"application_programming_interface-bn:02130401n"
+"natural_person-bn:02965949n"
+"labor-bn:00049570n"
+"music_industry-bn:01217265n"
+"employer-bn:00030624n"
+"employer-bn:00030624n" [shape=rectangle]
+"leader-bn:00050371n"
+"person-bn:00046516n"
+"organism-bn:00009677n"
+"system-bn:15125301n"
+"sector-bn:00070206n"
+"sector-bn:00070206n" [shape=rectangle]
+"social_group-bn:00072536n"
+"economy-bn:00029678n"
+"audience-bn:00063584n"
+"audience-bn:00063584n" [shape=rectangle]
+"people-bn:00061450n"
+"regression-bn:00066913n"
+"regression-bn:00066913n" [shape=rectangle]
+"multivariate_analysis-bn:00056311n"
+"vision-bn:02425046n"
+"vision-bn:02425046n" [shape=rectangle]
+"profession-bn:00064607n"
+"corporate_executive-bn:00014158n"
+"management-bn:00053116n"
+"occupation-bn:11198518n"
+"nosql-bn:01727553n"
+"nosql-bn:01727553n" [shape=rectangle]
+"database-bn:00025333n"
+"relational_database_management_system-bn:00067000n"
+"query_language-bn:17302791n"
+"information-bn:00046698n"
+"collection-bn:00000777n"
+"group-bn:00041942n"
+"structure-bn:03830506n"
+"month-bn:00014710n"
+"month-bn:00014710n" [shape=rectangle]
+"time_period-bn:00061605n"
+"time_unit-bn:00077301n"
+"insurance-bn:00046996n"
+"insurance-bn:00046996n" [shape=rectangle]
+"security-bn:00064839n"
+"principle-bn:00064428n"
+"risk_management-bn:01996781n"
+"concept-bn:00021547n"
+"entity-bn:00031027n"
+"infrastructure-bn:00008794n"
+"infrastructure-bn:00008794n" [shape=rectangle]
+"store-bn:00036840n"
+"merchandise-bn:00054416n"
+"service-bn:00070651n"
+"proficiency-bn:00064626n"
+"proficiency-bn:00064626n" [shape=rectangle]
+"skillfulness-bn:00071968n"
+"ms-bn:00053731n"
+"ms-bn:00053731n" [shape=rectangle]
+"academic_degree-bn:00000554n"
+"master's_degree-bn:00053719n"
+"framework-bn:01860447n"
+"framework-bn:01860447n" [shape=rectangle]
+"integrated_development_environment-bn:00748100n"
+"programming-bn:00021493n"
+"application_programming_interface-bn:02130401n"
+"natural_person-bn:02965949n"
+"labor-bn:00049570n"
+"music_industry-bn:01217265n"
+"employer-bn:00030624n"
+"employer-bn:00030624n" [shape=rectangle]
+"leader-bn:00050371n"
+"person-bn:00046516n"
+"organism-bn:00009677n"
+"system-bn:15125301n"
+"leadership-bn:00050375n"
+"leadership-bn:00050375n" [shape=rectangle]
+"sector-bn:00070206n"
+"sector-bn:00070206n" [shape=rectangle]
+"social_group-bn:00072536n"
+"economy-bn:00029678n"
+"audience-bn:00063584n"
+"audience-bn:00063584n" [shape=rectangle]
+"people-bn:00061450n"
+"regression-bn:00066913n"
+"regression-bn:00066913n" [shape=rectangle]
+"multivariate_analysis-bn:00056311n"
+"vision-bn:02425046n"
+"vision-bn:02425046n" [shape=rectangle]
+"profession-bn:00064607n"
+"corporate_executive-bn:00014158n"
+"management-bn:00053116n"
+"occupation-bn:11198518n"
+"nosql-bn:01727553n"
+"nosql-bn:01727553n" [shape=rectangle]
+"database-bn:00025333n"
+"relational_database_management_system-bn:00067000n"
+"query_language-bn:17302791n"
+"information-bn:00046698n"
+"collection-bn:00000777n"
+"group-bn:00041942n"
+"structure-bn:03830506n"
+"month-bn:00014710n"
+"month-bn:00014710n" [shape=rectangle]
+"time_period-bn:00061605n"
+"time_unit-bn:00077301n"
+"insurance-bn:00046996n"
+"insurance-bn:00046996n" [shape=rectangle]
+"security-bn:00064839n"
+"principle-bn:00064428n"
+"risk_management-bn:01996781n"
+"entity-bn:00031027n"
+"infrastructure-bn:00008794n"
+"infrastructure-bn:00008794n" [shape=rectangle]
+"store-bn:00036840n"
+"merchandise-bn:00054416n"
+"service-bn:00070651n"
+"proficiency-bn:00064626n"
+"proficiency-bn:00064626n" [shape=rectangle]
+"skillfulness-bn:00071968n"
+"ms-bn:00053731n"
+"ms-bn:00053731n" [shape=rectangle]
+"academic_degree-bn:00000554n"
+"master's_degree-bn:00053719n"
+"framework-bn:01860447n"
+"framework-bn:01860447n" [shape=rectangle]
+"integrated_development_environment-bn:00748100n"
+"programming-bn:00021493n"
+"application_programming_interface-bn:02130401n"
+"natural_person-bn:02965949n"
+"labor-bn:00049570n"
+"music_industry-bn:01217265n"
+"employer-bn:00030624n"
+"employer-bn:00030624n" [shape=rectangle]
+"leader-bn:00050371n"
+"person-bn:00046516n"
+"organism-bn:00009677n"
+"system-bn:15125301n"
+"leadership-bn:00050375n"
+"leadership-bn:00050375n" [shape=rectangle]
+"ability-bn:00000318n"
+"sector-bn:00070206n"
+"sector-bn:00070206n" [shape=rectangle]
+"social_group-bn:00072536n"
+"economy-bn:00029678n"
+"audience-bn:00063584n"
+"audience-bn:00063584n" [shape=rectangle]
+"people-bn:00061450n"
+"regression-bn:00066913n"
+"regression-bn:00066913n" [shape=rectangle]
+"multivariate_analysis-bn:00056311n"
+"vision-bn:02425046n"
+"vision-bn:02425046n" [shape=rectangle]
+"profession-bn:00064607n"
+"corporate_executive-bn:00014158n"
+"management-bn:00053116n"
+"occupation-bn:11198518n"
+"nosql-bn:01727553n"
+"nosql-bn:01727553n" [shape=rectangle]
+"database-bn:00025333n"
+"relational_database_management_system-bn:00067000n"
+"query_language-bn:17302791n"
+"information-bn:00046698n"
+"collection-bn:00000777n"
+"group-bn:00041942n"
+"structure-bn:03830506n"
+"cognition-bn:00020452n"
+"month-bn:00014710n"
+"month-bn:00014710n" [shape=rectangle]
+"time_period-bn:00061605n"
+"time_unit-bn:00077301n"
+"insurance-bn:00046996n"
+"insurance-bn:00046996n" [shape=rectangle]
+"security-bn:00064839n"
+"principle-bn:00064428n"
+"risk_management-bn:01996781n"
+"concept-bn:00021547n"
+"entity-bn:00031027n"
+"infrastructure-bn:00008794n"
+"infrastructure-bn:00008794n" [shape=rectangle]
+"store-bn:00036840n"
+"merchandise-bn:00054416n"
+"service-bn:00070651n"
+"proficiency-bn:00064626n"
+"proficiency-bn:00064626n" [shape=rectangle]
+"skillfulness-bn:00071968n"
+"ms-bn:00053731n"
+"ms-bn:00053731n" [shape=rectangle]
+"academic_degree-bn:00000554n"
+"master's_degree-bn:00053719n"
+"framework-bn:01860447n"
+"framework-bn:01860447n" [shape=rectangle]
+"integrated_development_environment-bn:00748100n"
+"programming-bn:00021493n"
+"application_programming_interface-bn:02130401n"
+"natural_person-bn:02965949n"
+"labor-bn:00049570n"
+"music_industry-bn:01217265n"
+"employer-bn:00030624n"
+"employer-bn:00030624n" [shape=rectangle]
+"leader-bn:00050371n"
+"person-bn:00046516n"
+"organism-bn:00009677n"
+"system-bn:15125301n"
+"leadership-bn:00050375n"
+"leadership-bn:00050375n" [shape=rectangle]
+"ability-bn:00000318n"
+"economy-bn:00029678n"
+"audience-bn:00063584n"
+"audience-bn:00063584n" [shape=rectangle]
+"people-bn:00061450n"
+"regression-bn:00066913n"
+"regression-bn:00066913n" [shape=rectangle]
+"multivariate_analysis-bn:00056311n"
+"vision-bn:02425046n"
+"vision-bn:02425046n" [shape=rectangle]
+"profession-bn:00064607n"
+"corporate_executive-bn:00014158n"
+"management-bn:00053116n"
+"occupation-bn:11198518n"
+"nosql-bn:01727553n"
+"nosql-bn:01727553n" [shape=rectangle]
+"database-bn:00025333n"
+"relational_database_management_system-bn:00067000n"
+"query_language-bn:17302791n"
+"information-bn:00046698n"
+"collection-bn:00000777n"
+"group-bn:00041942n"
+"structure-bn:03830506n"
+"cognition-bn:00020452n"
+"month-bn:00014710n"
+"month-bn:00014710n" [shape=rectangle]
+"time_period-bn:00061605n"
+"time_unit-bn:00077301n"
+"insurance-bn:00046996n"
+"insurance-bn:00046996n" [shape=rectangle]
+"security-bn:00064839n"
+"principle-bn:00064428n"
+"risk_management-bn:01996781n"
+"concept-bn:00021547n"
+"entity-bn:00031027n"
+"infrastructure-bn:00008794n"
+"infrastructure-bn:00008794n" [shape=rectangle]
+"store-bn:00036840n"
+"merchandise-bn:00054416n"
+"service-bn:00070651n"
+"proficiency-bn:00064626n"
+"proficiency-bn:00064626n" [shape=rectangle]
+"skillfulness-bn:00071968n"
+"ms-bn:00053731n"
+"ms-bn:00053731n" [shape=rectangle]
+"academic_degree-bn:00000554n"
+"master's_degree-bn:00053719n"
+"framework-bn:01860447n"
+"framework-bn:01860447n" [shape=rectangle]
+"integrated_development_environment-bn:00748100n"
+"programming-bn:00021493n"
+"application_programming_interface-bn:02130401n"
+"natural_person-bn:02965949n"
+"labor-bn:00049570n"
+"music_industry-bn:01217265n"
+"employer-bn:00030624n"
+"employer-bn:00030624n" [shape=rectangle]
+"leader-bn:00050371n"
+"person-bn:00046516n"
+"organism-bn:00009677n"
+"system-bn:15125301n"
+"leadership-bn:00050375n"
+"leadership-bn:00050375n" [shape=rectangle]
+"ability-bn:00000318n"
+"social_group-bn:00072536n"
+"audience-bn:00063584n"
+"audience-bn:00063584n" [shape=rectangle]
+"people-bn:00061450n"
+"regression-bn:00066913n"
+"regression-bn:00066913n" [shape=rectangle]
+"multivariate_analysis-bn:00056311n"
+"vision-bn:02425046n"
+"vision-bn:02425046n" [shape=rectangle]
+"profession-bn:00064607n"
+"corporate_executive-bn:00014158n"
+"management-bn:00053116n"
+"occupation-bn:11198518n"
+"nosql-bn:01727553n"
+"nosql-bn:01727553n" [shape=rectangle]
+"database-bn:00025333n"
+"relational_database_management_system-bn:00067000n"
+"query_language-bn:17302791n"
+"information-bn:00046698n"
+"collection-bn:00000777n"
+"group-bn:00041942n"
+"structure-bn:03830506n"
+"cognition-bn:00020452n"
+"month-bn:00014710n"
+"month-bn:00014710n" [shape=rectangle]
+"time_period-bn:00061605n"
+"time_unit-bn:00077301n"
+"insurance-bn:00046996n"
+"insurance-bn:00046996n" [shape=rectangle]
+"security-bn:00064839n"
+"principle-bn:00064428n"
+"risk_management-bn:01996781n"
+"concept-bn:00021547n"
+"entity-bn:00031027n"
+"infrastructure-bn:00008794n"
+"infrastructure-bn:00008794n" [shape=rectangle]
+"store-bn:00036840n"
+"merchandise-bn:00054416n"
+"service-bn:00070651n"
+"proficiency-bn:00064626n"
+"proficiency-bn:00064626n" [shape=rectangle]
+"skillfulness-bn:00071968n"
+"ms-bn:00053731n"
+"ms-bn:00053731n" [shape=rectangle]
+"academic_degree-bn:00000554n"
+"master's_degree-bn:00053719n"
+"framework-bn:01860447n"
+"framework-bn:01860447n" [shape=rectangle]
+"integrated_development_environment-bn:00748100n"
+"programming-bn:00021493n"
+"application_programming_interface-bn:02130401n"
+"natural_person-bn:02965949n"
+"labor-bn:00049570n"
+"music_industry-bn:01217265n"
+"employer-bn:00030624n"
+"employer-bn:00030624n" [shape=rectangle]
+"leader-bn:00050371n"
+"person-bn:00046516n"
+"organism-bn:00009677n"
+"leadership-bn:00050375n"
+"leadership-bn:00050375n" [shape=rectangle]
+"ability-bn:00000318n"
+"sector-bn:00070206n"
+"sector-bn:00070206n" [shape=rectangle]
+"social_group-bn:00072536n"
+"audience-bn:00063584n"
+"audience-bn:00063584n" [shape=rectangle]
+"people-bn:00061450n"
+"regression-bn:00066913n"
+"regression-bn:00066913n" [shape=rectangle]
+"multivariate_analysis-bn:00056311n"
+"vision-bn:02425046n"
+"vision-bn:02425046n" [shape=rectangle]
+"profession-bn:00064607n"
+"corporate_executive-bn:00014158n"
+"management-bn:00053116n"
+"occupation-bn:11198518n"
+"nosql-bn:01727553n"
+"nosql-bn:01727553n" [shape=rectangle]
+"database-bn:00025333n"
+"relational_database_management_system-bn:00067000n"
+"query_language-bn:17302791n"
+"information-bn:00046698n"
+"collection-bn:00000777n"
+"structure-bn:03830506n"
+"cognition-bn:00020452n"
+"month-bn:00014710n"
+"month-bn:00014710n" [shape=rectangle]
+"time_period-bn:00061605n"
+"time_unit-bn:00077301n"
+"insurance-bn:00046996n"
+"insurance-bn:00046996n" [shape=rectangle]
+"security-bn:00064839n"
+"principle-bn:00064428n"
+"risk_management-bn:01996781n"
+"concept-bn:00021547n"
+"entity-bn:00031027n"
+"infrastructure-bn:00008794n"
+"infrastructure-bn:00008794n" [shape=rectangle]
+"store-bn:00036840n"
+"merchandise-bn:00054416n"
+"service-bn:00070651n"
+"proficiency-bn:00064626n"
+"proficiency-bn:00064626n" [shape=rectangle]
+"skillfulness-bn:00071968n"
+"ms-bn:00053731n"
+"ms-bn:00053731n" [shape=rectangle]
+"academic_degree-bn:00000554n"
+"master's_degree-bn:00053719n"
+"framework-bn:01860447n"
+"framework-bn:01860447n" [shape=rectangle]
+"integrated_development_environment-bn:00748100n"
+"programming-bn:00021493n"
+"application_programming_interface-bn:02130401n"
+"natural_person-bn:02965949n"
+"labor-bn:00049570n"
+"music_industry-bn:01217265n"
+"employer-bn:00030624n"
+"employer-bn:00030624n" [shape=rectangle]
+"leader-bn:00050371n"
+"person-bn:00046516n"
+"organism-bn:00009677n"
+"leadership-bn:00050375n"
+"leadership-bn:00050375n" [shape=rectangle]
+"ability-bn:00000318n"
+"sector-bn:00070206n"
+"sector-bn:00070206n" [shape=rectangle]
+"social_group-bn:00072536n"
+"economy-bn:00029678n"
+"audience-bn:00063584n"
+"audience-bn:00063584n" [shape=rectangle]
+"people-bn:00061450n"
+"regression-bn:00066913n"
+"regression-bn:00066913n" [shape=rectangle]
+"multivariate_analysis-bn:00056311n"
+"vision-bn:02425046n"
+"vision-bn:02425046n" [shape=rectangle]
+"profession-bn:00064607n"
+"corporate_executive-bn:00014158n"
+"management-bn:00053116n"
+"occupation-bn:11198518n"
+"nosql-bn:01727553n"
+"nosql-bn:01727553n" [shape=rectangle]
+"database-bn:00025333n"
+"relational_database_management_system-bn:00067000n"
+"query_language-bn:17302791n"
+"information-bn:00046698n"
+"collection-bn:00000777n"
+"group-bn:00041942n"
+"structure-bn:03830506n"
+"cognition-bn:00020452n"
+"month-bn:00014710n"
+"month-bn:00014710n" [shape=rectangle]
+"time_period-bn:00061605n"
+"time_unit-bn:00077301n"
+"insurance-bn:00046996n"
+"insurance-bn:00046996n" [shape=rectangle]
+"security-bn:00064839n"
+"principle-bn:00064428n"
+"risk_management-bn:01996781n"
+"concept-bn:00021547n"
+"entity-bn:00031027n"
+"infrastructure-bn:00008794n"
+"infrastructure-bn:00008794n" [shape=rectangle]
+"store-bn:00036840n"
+"merchandise-bn:00054416n"
+"service-bn:00070651n"
+"proficiency-bn:00064626n"
+"proficiency-bn:00064626n" [shape=rectangle]
+"skillfulness-bn:00071968n"
+"ms-bn:00053731n"
+"ms-bn:00053731n" [shape=rectangle]
+"academic_degree-bn:00000554n"
+"master's_degree-bn:00053719n"
+"framework-bn:01860447n"
+"framework-bn:01860447n" [shape=rectangle]
+"integrated_development_environment-bn:00748100n"
+"programming-bn:00021493n"
+"application_programming_interface-bn:02130401n"
+"natural_person-bn:02965949n"
+"labor-bn:00049570n"
+"music_industry-bn:01217265n"
+"employer-bn:00030624n"
+"employer-bn:00030624n" [shape=rectangle]
+"leader-bn:00050371n"
+"person-bn:00046516n"
+"organism-bn:00009677n"
+"system-bn:15125301n"
+"leadership-bn:00050375n"
+"leadership-bn:00050375n" [shape=rectangle]
+"ability-bn:00000318n"
+"sector-bn:00070206n"
+"sector-bn:00070206n" [shape=rectangle]
+"social_group-bn:00072536n"
+"economy-bn:00029678n"
+"regression-bn:00066913n"
+"regression-bn:00066913n" [shape=rectangle]
+"multivariate_analysis-bn:00056311n"
+"vision-bn:02425046n"
+"vision-bn:02425046n" [shape=rectangle]
+"profession-bn:00064607n"
+"corporate_executive-bn:00014158n"
+"management-bn:00053116n"
+"occupation-bn:11198518n"
+"nosql-bn:01727553n"
+"nosql-bn:01727553n" [shape=rectangle]
+"database-bn:00025333n"
+"relational_database_management_system-bn:00067000n"
+"query_language-bn:17302791n"
+"information-bn:00046698n"
+"collection-bn:00000777n"
+"group-bn:00041942n"
+"structure-bn:03830506n"
+"cognition-bn:00020452n"
+"month-bn:00014710n"
+"month-bn:00014710n" [shape=rectangle]
+"time_period-bn:00061605n"
+"time_unit-bn:00077301n"
+"insurance-bn:00046996n"
+"insurance-bn:00046996n" [shape=rectangle]
+"security-bn:00064839n"
+"principle-bn:00064428n"
+"risk_management-bn:01996781n"
+"concept-bn:00021547n"
+"entity-bn:00031027n"
+"infrastructure-bn:00008794n"
+"infrastructure-bn:00008794n" [shape=rectangle]
+"store-bn:00036840n"
+"merchandise-bn:00054416n"
+"service-bn:00070651n"
+"proficiency-bn:00064626n"
+"proficiency-bn:00064626n" [shape=rectangle]
+"skillfulness-bn:00071968n"
+"ms-bn:00053731n"
+"ms-bn:00053731n" [shape=rectangle]
+"academic_degree-bn:00000554n"
+"master's_degree-bn:00053719n"
+"framework-bn:01860447n"
+"framework-bn:01860447n" [shape=rectangle]
+"integrated_development_environment-bn:00748100n"
+"programming-bn:00021493n"
+"application_programming_interface-bn:02130401n"
+"natural_person-bn:02965949n"
+"labor-bn:00049570n"
+"music_industry-bn:01217265n"
+"employer-bn:00030624n"
+"employer-bn:00030624n" [shape=rectangle]
+"leader-bn:00050371n"
+"organism-bn:00009677n"
+"system-bn:15125301n"
+"leadership-bn:00050375n"
+"leadership-bn:00050375n" [shape=rectangle]
+"ability-bn:00000318n"
+"sector-bn:00070206n"
+"sector-bn:00070206n" [shape=rectangle]
+"social_group-bn:00072536n"
+"economy-bn:00029678n"
+"people-bn:00061450n"
+"regression-bn:00066913n"
+"regression-bn:00066913n" [shape=rectangle]
+"multivariate_analysis-bn:00056311n"
+"vision-bn:02425046n"
+"vision-bn:02425046n" [shape=rectangle]
+"profession-bn:00064607n"
+"corporate_executive-bn:00014158n"
+"management-bn:00053116n"
+"occupation-bn:11198518n"
+"nosql-bn:01727553n"
+"nosql-bn:01727553n" [shape=rectangle]
+"database-bn:00025333n"
+"relational_database_management_system-bn:00067000n"
+"query_language-bn:17302791n"
+"information-bn:00046698n"
+"collection-bn:00000777n"
+"group-bn:00041942n"
+"structure-bn:03830506n"
+"cognition-bn:00020452n"
+"month-bn:00014710n"
+"month-bn:00014710n" [shape=rectangle]
+"time_period-bn:00061605n"
+"time_unit-bn:00077301n"
+"insurance-bn:00046996n"
+"insurance-bn:00046996n" [shape=rectangle]
+"security-bn:00064839n"
+"principle-bn:00064428n"
+"risk_management-bn:01996781n"
+"concept-bn:00021547n"
+"entity-bn:00031027n"
+"infrastructure-bn:00008794n"
+"infrastructure-bn:00008794n" [shape=rectangle]
+"store-bn:00036840n"
+"merchandise-bn:00054416n"
+"service-bn:00070651n"
+"proficiency-bn:00064626n"
+"proficiency-bn:00064626n" [shape=rectangle]
+"skillfulness-bn:00071968n"
+"ms-bn:00053731n"
+"ms-bn:00053731n" [shape=rectangle]
+"academic_degree-bn:00000554n"
+"master's_degree-bn:00053719n"
+"framework-bn:01860447n"
+"framework-bn:01860447n" [shape=rectangle]
+"integrated_development_environment-bn:00748100n"
+"programming-bn:00021493n"
+"application_programming_interface-bn:02130401n"
+"natural_person-bn:02965949n"
+"labor-bn:00049570n"
+"music_industry-bn:01217265n"
+"employer-bn:00030624n"
+"employer-bn:00030624n" [shape=rectangle]
+"leader-bn:00050371n"
+"person-bn:00046516n"
+"organism-bn:00009677n"
+"system-bn:15125301n"
+"leadership-bn:00050375n"
+"leadership-bn:00050375n" [shape=rectangle]
+"ability-bn:00000318n"
+"sector-bn:00070206n"
+"sector-bn:00070206n" [shape=rectangle]
+"social_group-bn:00072536n"
+"economy-bn:00029678n"
+"audience-bn:00063584n"
+"audience-bn:00063584n" [shape=rectangle]
+"people-bn:00061450n"
+"vision-bn:02425046n"
+"vision-bn:02425046n" [shape=rectangle]
+"profession-bn:00064607n"
+"corporate_executive-bn:00014158n"
+"management-bn:00053116n"
+"occupation-bn:11198518n"
+"nosql-bn:01727553n"
+"nosql-bn:01727553n" [shape=rectangle]
+"database-bn:00025333n"
+"relational_database_management_system-bn:00067000n"
+"query_language-bn:17302791n"
+"information-bn:00046698n"
+"collection-bn:00000777n"
+"group-bn:00041942n"
+"structure-bn:03830506n"
+"cognition-bn:00020452n"
+"month-bn:00014710n"
+"month-bn:00014710n" [shape=rectangle]
+"time_period-bn:00061605n"
+"time_unit-bn:00077301n"
+"insurance-bn:00046996n"
+"insurance-bn:00046996n" [shape=rectangle]
+"security-bn:00064839n"
+"principle-bn:00064428n"
+"risk_management-bn:01996781n"
+"concept-bn:00021547n"
+"entity-bn:00031027n"
+"infrastructure-bn:00008794n"
+"infrastructure-bn:00008794n" [shape=rectangle]
+"store-bn:00036840n"
+"merchandise-bn:00054416n"
+"service-bn:00070651n"
+"skillfulness-bn:00071968n"
+"ms-bn:00053731n"
+"ms-bn:00053731n" [shape=rectangle]
+"academic_degree-bn:00000554n"
+"master's_degree-bn:00053719n"
+"framework-bn:01860447n"
+"framework-bn:01860447n" [shape=rectangle]
+"integrated_development_environment-bn:00748100n"
+"programming-bn:00021493n"
+"application_programming_interface-bn:02130401n"
+"natural_person-bn:02965949n"
+"labor-bn:00049570n"
+"music_industry-bn:01217265n"
+"employer-bn:00030624n"
+"employer-bn:00030624n" [shape=rectangle]
+"leader-bn:00050371n"
+"person-bn:00046516n"
+"organism-bn:00009677n"
+"system-bn:15125301n"
+"leadership-bn:00050375n"
+"leadership-bn:00050375n" [shape=rectangle]
+"ability-bn:00000318n"
+"sector-bn:00070206n"
+"sector-bn:00070206n" [shape=rectangle]
+"social_group-bn:00072536n"
+"economy-bn:00029678n"
+"audience-bn:00063584n"
+"audience-bn:00063584n" [shape=rectangle]
+"people-bn:00061450n"
+"multivariate_analysis-bn:00056311n"
+"vision-bn:02425046n"
+"vision-bn:02425046n" [shape=rectangle]
+"profession-bn:00064607n"
+"corporate_executive-bn:00014158n"
+"management-bn:00053116n"
+"occupation-bn:11198518n"
+"nosql-bn:01727553n"
+"nosql-bn:01727553n" [shape=rectangle]
+"database-bn:00025333n"
+"relational_database_management_system-bn:00067000n"
+"query_language-bn:17302791n"
+"information-bn:00046698n"
+"collection-bn:00000777n"
+"group-bn:00041942n"
+"structure-bn:03830506n"
+"cognition-bn:00020452n"
+"month-bn:00014710n"
+"month-bn:00014710n" [shape=rectangle]
+"time_period-bn:00061605n"
+"time_unit-bn:00077301n"
+"insurance-bn:00046996n"
+"insurance-bn:00046996n" [shape=rectangle]
+"security-bn:00064839n"
+"principle-bn:00064428n"
+"risk_management-bn:01996781n"
+"concept-bn:00021547n"
+"entity-bn:00031027n"
+"infrastructure-bn:00008794n"
+"infrastructure-bn:00008794n" [shape=rectangle]
+"store-bn:00036840n"
+"merchandise-bn:00054416n"
+"service-bn:00070651n"
+"proficiency-bn:00064626n"
+"proficiency-bn:00064626n" [shape=rectangle]
+"skillfulness-bn:00071968n"
+"ms-bn:00053731n"
+"ms-bn:00053731n" [shape=rectangle]
+"academic_degree-bn:00000554n"
+"master's_degree-bn:00053719n"
+"framework-bn:01860447n"
+"framework-bn:01860447n" [shape=rectangle]
+"integrated_development_environment-bn:00748100n"
+"programming-bn:00021493n"
+"application_programming_interface-bn:02130401n"
+"natural_person-bn:02965949n"
+"labor-bn:00049570n"
+"music_industry-bn:01217265n"
+"employer-bn:00030624n"
+"employer-bn:00030624n" [shape=rectangle]
+"person-bn:00046516n"
+"organism-bn:00009677n"
+"system-bn:15125301n"
+"leadership-bn:00050375n"
+"leadership-bn:00050375n" [shape=rectangle]
+"ability-bn:00000318n"
+"sector-bn:00070206n"
+"sector-bn:00070206n" [shape=rectangle]
+"social_group-bn:00072536n"
+"economy-bn:00029678n"
+"audience-bn:00063584n"
+"audience-bn:00063584n" [shape=rectangle]
+"people-bn:00061450n"
+"regression-bn:00066913n"
+"regression-bn:00066913n" [shape=rectangle]
+"multivariate_analysis-bn:00056311n"
+"vision-bn:02425046n"
+"vision-bn:02425046n" [shape=rectangle]
+"corporate_executive-bn:00014158n"
+"management-bn:00053116n"
+"occupation-bn:11198518n"
+"nosql-bn:01727553n"
+"nosql-bn:01727553n" [shape=rectangle]
+"database-bn:00025333n"
+"relational_database_management_system-bn:00067000n"
+"query_language-bn:17302791n"
+"information-bn:00046698n"
+"collection-bn:00000777n"
+"group-bn:00041942n"
+"structure-bn:03830506n"
+"cognition-bn:00020452n"
+"month-bn:00014710n"
+"month-bn:00014710n" [shape=rectangle]
+"time_period-bn:00061605n"
+"time_unit-bn:00077301n"
+"insurance-bn:00046996n"
+"insurance-bn:00046996n" [shape=rectangle]
+"security-bn:00064839n"
+"principle-bn:00064428n"
+"risk_management-bn:01996781n"
+"concept-bn:00021547n"
+"entity-bn:00031027n"
+"infrastructure-bn:00008794n"
+"infrastructure-bn:00008794n" [shape=rectangle]
+"store-bn:00036840n"
+"merchandise-bn:00054416n"
+"service-bn:00070651n"
+"proficiency-bn:00064626n"
+"proficiency-bn:00064626n" [shape=rectangle]
+"skillfulness-bn:00071968n"
+"ms-bn:00053731n"
+"ms-bn:00053731n" [shape=rectangle]
+"academic_degree-bn:00000554n"
+"master's_degree-bn:00053719n"
+"framework-bn:01860447n"
+"framework-bn:01860447n" [shape=rectangle]
+"integrated_development_environment-bn:00748100n"
+"programming-bn:00021493n"
+"application_programming_interface-bn:02130401n"
+"natural_person-bn:02965949n"
+"labor-bn:00049570n"
+"music_industry-bn:01217265n"
+"employer-bn:00030624n"
+"employer-bn:00030624n" [shape=rectangle]
+"person-bn:00046516n"
+"organism-bn:00009677n"
+"system-bn:15125301n"
+"leadership-bn:00050375n"
+"leadership-bn:00050375n" [shape=rectangle]
+"ability-bn:00000318n"
+"sector-bn:00070206n"
+"sector-bn:00070206n" [shape=rectangle]
+"social_group-bn:00072536n"
+"economy-bn:00029678n"
+"audience-bn:00063584n"
+"audience-bn:00063584n" [shape=rectangle]
+"people-bn:00061450n"
+"regression-bn:00066913n"
+"regression-bn:00066913n" [shape=rectangle]
+"multivariate_analysis-bn:00056311n"
+"vision-bn:02425046n"
+"vision-bn:02425046n" [shape=rectangle]
+"profession-bn:00064607n"
+"management-bn:00053116n"
+"occupation-bn:11198518n"
+"nosql-bn:01727553n"
+"nosql-bn:01727553n" [shape=rectangle]
+"database-bn:00025333n"
+"relational_database_management_system-bn:00067000n"
+"query_language-bn:17302791n"
+"information-bn:00046698n"
+"collection-bn:00000777n"
+"group-bn:00041942n"
+"structure-bn:03830506n"
+"cognition-bn:00020452n"
+"month-bn:00014710n"
+"month-bn:00014710n" [shape=rectangle]
+"time_period-bn:00061605n"
+"time_unit-bn:00077301n"
+"insurance-bn:00046996n"
+"insurance-bn:00046996n" [shape=rectangle]
+"security-bn:00064839n"
+"principle-bn:00064428n"
+"risk_management-bn:01996781n"
+"concept-bn:00021547n"
+"entity-bn:00031027n"
+"infrastructure-bn:00008794n"
+"infrastructure-bn:00008794n" [shape=rectangle]
+"store-bn:00036840n"
+"merchandise-bn:00054416n"
+"service-bn:00070651n"
+"proficiency-bn:00064626n"
+"proficiency-bn:00064626n" [shape=rectangle]
+"skillfulness-bn:00071968n"
+"ms-bn:00053731n"
+"ms-bn:00053731n" [shape=rectangle]
+"academic_degree-bn:00000554n"
+"master's_degree-bn:00053719n"
+"framework-bn:01860447n"
+"framework-bn:01860447n" [shape=rectangle]
+"integrated_development_environment-bn:00748100n"
+"programming-bn:00021493n"
+"application_programming_interface-bn:02130401n"
+"natural_person-bn:02965949n"
+"labor-bn:00049570n"
+"music_industry-bn:01217265n"
+"employer-bn:00030624n"
+"employer-bn:00030624n" [shape=rectangle]
+"person-bn:00046516n"
+"organism-bn:00009677n"
+"system-bn:15125301n"
+"leadership-bn:00050375n"
+"leadership-bn:00050375n" [shape=rectangle]
+"ability-bn:00000318n"
+"sector-bn:00070206n"
+"sector-bn:00070206n" [shape=rectangle]
+"social_group-bn:00072536n"
+"economy-bn:00029678n"
+"audience-bn:00063584n"
+"audience-bn:00063584n" [shape=rectangle]
+"people-bn:00061450n"
+"regression-bn:00066913n"
+"regression-bn:00066913n" [shape=rectangle]
+"multivariate_analysis-bn:00056311n"
+"vision-bn:02425046n"
+"vision-bn:02425046n" [shape=rectangle]
+"profession-bn:00064607n"
+"corporate_executive-bn:00014158n"
+"occupation-bn:11198518n"
+"nosql-bn:01727553n"
+"nosql-bn:01727553n" [shape=rectangle]
+"database-bn:00025333n"
+"relational_database_management_system-bn:00067000n"
+"query_language-bn:17302791n"
+"information-bn:00046698n"
+"collection-bn:00000777n"
+"group-bn:00041942n"
+"structure-bn:03830506n"
+"cognition-bn:00020452n"
+"month-bn:00014710n"
+"month-bn:00014710n" [shape=rectangle]
+"time_period-bn:00061605n"
+"time_unit-bn:00077301n"
+"insurance-bn:00046996n"
+"insurance-bn:00046996n" [shape=rectangle]
+"security-bn:00064839n"
+"principle-bn:00064428n"
+"risk_management-bn:01996781n"
+"concept-bn:00021547n"
+"entity-bn:00031027n"
+"infrastructure-bn:00008794n"
+"infrastructure-bn:00008794n" [shape=rectangle]
+"store-bn:00036840n"
+"merchandise-bn:00054416n"
+"service-bn:00070651n"
+"proficiency-bn:00064626n"
+"proficiency-bn:00064626n" [shape=rectangle]
+"skillfulness-bn:00071968n"
+"ms-bn:00053731n"
+"ms-bn:00053731n" [shape=rectangle]
+"academic_degree-bn:00000554n"
+"master's_degree-bn:00053719n"
+"framework-bn:01860447n"
+"framework-bn:01860447n" [shape=rectangle]
+"integrated_development_environment-bn:00748100n"
+"programming-bn:00021493n"
+"application_programming_interface-bn:02130401n"
+"natural_person-bn:02965949n"
+"labor-bn:00049570n"
+"music_industry-bn:01217265n"
+"employer-bn:00030624n"
+"employer-bn:00030624n" [shape=rectangle]
+"leader-bn:00050371n"
+"person-bn:00046516n"
+"organism-bn:00009677n"
+"system-bn:15125301n"
+"leadership-bn:00050375n"
+"leadership-bn:00050375n" [shape=rectangle]
+"ability-bn:00000318n"
+"sector-bn:00070206n"
+"sector-bn:00070206n" [shape=rectangle]
+"social_group-bn:00072536n"
+"economy-bn:00029678n"
+"audience-bn:00063584n"
+"audience-bn:00063584n" [shape=rectangle]
+"people-bn:00061450n"
+"regression-bn:00066913n"
+"regression-bn:00066913n" [shape=rectangle]
+"multivariate_analysis-bn:00056311n"
+"vision-bn:02425046n"
+"vision-bn:02425046n" [shape=rectangle]
+"corporate_executive-bn:00014158n"
+"management-bn:00053116n"
+"nosql-bn:01727553n"
+"nosql-bn:01727553n" [shape=rectangle]
+"database-bn:00025333n"
+"relational_database_management_system-bn:00067000n"
+"query_language-bn:17302791n"
+"information-bn:00046698n"
+"collection-bn:00000777n"
+"group-bn:00041942n"
+"structure-bn:03830506n"
+"cognition-bn:00020452n"
+"month-bn:00014710n"
+"month-bn:00014710n" [shape=rectangle]
+"time_period-bn:00061605n"
+"time_unit-bn:00077301n"
+"insurance-bn:00046996n"
+"insurance-bn:00046996n" [shape=rectangle]
+"security-bn:00064839n"
+"principle-bn:00064428n"
+"risk_management-bn:01996781n"
+"entity-bn:00031027n"
+"infrastructure-bn:00008794n"
+"infrastructure-bn:00008794n" [shape=rectangle]
+"store-bn:00036840n"
+"merchandise-bn:00054416n"
+"service-bn:00070651n"
+"proficiency-bn:00064626n"
+"proficiency-bn:00064626n" [shape=rectangle]
+"skillfulness-bn:00071968n"
+"ms-bn:00053731n"
+"ms-bn:00053731n" [shape=rectangle]
+"academic_degree-bn:00000554n"
+"master's_degree-bn:00053719n"
+"framework-bn:01860447n"
+"framework-bn:01860447n" [shape=rectangle]
+"integrated_development_environment-bn:00748100n"
+"programming-bn:00021493n"
+"application_programming_interface-bn:02130401n"
+"natural_person-bn:02965949n"
+"labor-bn:00049570n"
+"music_industry-bn:01217265n"
+"employer-bn:00030624n"
+"employer-bn:00030624n" [shape=rectangle]
+"leader-bn:00050371n"
+"person-bn:00046516n"
+"organism-bn:00009677n"
+"system-bn:15125301n"
+"leadership-bn:00050375n"
+"leadership-bn:00050375n" [shape=rectangle]
+"ability-bn:00000318n"
+"sector-bn:00070206n"
+"sector-bn:00070206n" [shape=rectangle]
+"social_group-bn:00072536n"
+"economy-bn:00029678n"
+"audience-bn:00063584n"
+"audience-bn:00063584n" [shape=rectangle]
+"people-bn:00061450n"
+"regression-bn:00066913n"
+"regression-bn:00066913n" [shape=rectangle]
+"multivariate_analysis-bn:00056311n"
+"vision-bn:02425046n"
+"vision-bn:02425046n" [shape=rectangle]
+"profession-bn:00064607n"
+"corporate_executive-bn:00014158n"
+"management-bn:00053116n"
+}

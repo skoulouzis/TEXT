@@ -36,11 +36,11 @@ import org.semanticweb.skosapibinding.SKOSManager;
  */
 class SkosUtils {
 
-    public static final String SKOS_URI = "http://uva.sne.nl/";
+    public static final String SKOS_URI = "http://www.edison-project.eu/ontologies/2016/DS-JOB-ADS";
     private static SKOSDataFactory skosDF;
     private static SKOSDataset dataset;
     private static SKOSManager manager;
-    private static String schme;
+//    private static String schme;
 
     public static SKOSDataFactory getSKOSDataFactory() throws SKOSCreationException {
         if (skosDF == null) {
@@ -58,28 +58,25 @@ class SkosUtils {
 
     public static SKOSDataset getSKOSDataset() throws SKOSCreationException, IOException {
         if (dataset == null) {
-            schme = Utils.getScheme();
-            if (!schme.endsWith("/")) {
-                schme += "/";
-            }
-
-            dataset = getSKOSManager().createSKOSDataset(URI.create(SKOS_URI + schme));
+            dataset = getSKOSManager().createSKOSDataset(URI.create(SKOS_URI));
         }
         return dataset;
     }
 
-    public static List<SKOSChange> create(DirectedWeightedEdge edge, String lang) throws ParseException, SKOSCreationException, IOException {
+    public static List<SKOSChange> create(DirectedWeightedEdge edge, String lang, boolean isTpConcept) throws ParseException, SKOSCreationException, IOException {
 
         TermVertex target = (TermVertex) edge.getTarget();
         TermVertex source = (TermVertex) edge.getSource();
 
-
         List<SKOSChange> addAssertions = new ArrayList<>();
-        SKOSConceptScheme scheme = getSKOSDataFactory().getSKOSConceptScheme(URI.create(SKOS_URI + schme));
+        SKOSConceptScheme scheme = getSKOSDataFactory().getSKOSConceptScheme(URI.create(SKOS_URI));
         SKOSEntityAssertion schemaAss = getSKOSDataFactory().getSKOSEntityAssertion(scheme);
         addAssertions.add(new AddAssertion(getSKOSDataset(), schemaAss));
 
-        SKOSConcept targetConcept = getSKOSDataFactory().getSKOSConcept(URI.create(SKOS_URI + schme + "#" + target.getUID()));
+        SKOSConcept targetConcept = getSKOSDataFactory().getSKOSConcept(URI.create(SKOS_URI + "#" + target.getUID()));
+
+
+
 
         addAssertions.add(new AddAssertion(getSKOSDataset(), getPrefAssertion(targetConcept, target.getLemma(), lang)));
         addAssertions.add(new AddAssertion(getSKOSDataset(), getInSchemeAssertion(targetConcept, scheme)));
@@ -107,9 +104,14 @@ class SkosUtils {
         }
 
 
-        SKOSConcept sourceConcept = getSKOSDataFactory().getSKOSConcept(URI.create(SKOS_URI + schme + "#" + source.getUID()));
+        SKOSConcept sourceConcept = getSKOSDataFactory().getSKOSConcept(URI.create(SKOS_URI + "#" + source.getUID()));
+//        SKOSConcept sourceConcept = getSKOSDataFactory().getSKOSConcept(URI.create(SKOS_URI + "#" + source.getLemma()));
         addAssertions.add(new AddAssertion(getSKOSDataset(), getPrefAssertion(sourceConcept, source.getLemma(), lang)));
         addAssertions.add(new AddAssertion(getSKOSDataset(), getInSchemeAssertion(sourceConcept, scheme)));
+        if (isTpConcept) {
+            SKOSObjectRelationAssertion topConcept = getSKOSDataFactory().getSKOSObjectRelationAssertion(scheme, getSKOSDataFactory().getSKOSHasTopConceptProperty(), sourceConcept);
+            addAssertions.add(new AddAssertion(getSKOSDataset(), topConcept));
+        }
 
         alt = source.getAlternativeLables();
         if (alt != null) {
@@ -289,6 +291,4 @@ class SkosUtils {
         }
         return narrowerUIDs;
     }
-
-   
 }
