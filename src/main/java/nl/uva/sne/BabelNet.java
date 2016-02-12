@@ -302,8 +302,9 @@ public class BabelNet {
     }
 
     private void loadCache() throws FileNotFoundException, IOException {
-        Logger.getLogger(BabelNet.class.getName()).log(Level.INFO, "Loading cache");
+
         File cacheDBFile = new File(Utils.getCachePath());
+        Logger.getLogger(BabelNet.class.getName()).log(Level.INFO, "Loading cache from: " + cacheDBFile.getAbsolutePath());
         db = DBMaker.newFileDB(cacheDBFile).make();
         synsetCache = db.getHashMap("synsetCacheDB");
         if (synsetCache == null) {
