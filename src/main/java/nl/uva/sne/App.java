@@ -82,6 +82,7 @@ public class App {
     private static int depth = 3;
     private static int termLimit;
     private static BabelNet bbn;
+    private static int prunDepth;
 
     public static void main(String[] args) {
         try {
@@ -99,6 +100,7 @@ public class App {
             termLimit = Utils.getTermLimit();
             depth = Utils.getTreeDepth();
             maxNGrams = Utils.getMaxNGrams();
+            prunDepth = Utils.getMaxPrunDepth();
             boolean json2text = false, createIndex = false, creatDict = false, buildTree = false, doMappings = false;
             if (args != null) {
                 for (int i = 0; i < args.length; i++) {
@@ -195,9 +197,7 @@ public class App {
             if (doMappings) {
                 //                String taxonomy2Graph = buildSKOSMappings(skosFile1, skosFile2);
                 //                String outputFile = mergeTaxonomies(skosFile1, skosFile2);
-                DefaultDirectedWeightedGraph g = taxonomy2Graph(System.getProperty("user.home") + File.separator
-                        + "Downloads" + File.separator + "nosql_taxonomy.rdfmerged_withdatabase_taxonomy.rdf", "en");
-                export2DOT(g, graphFile);
+//                export2DOT(g, graphFile);
             }
 
         } catch (Exception ex) {
@@ -505,12 +505,12 @@ public class App {
         } finally {
             bbn.saveCache();
             DefaultDirectedWeightedGraph g = buildGraph(allTerms);
-            int prunDepth = 4;
-            export2SKOS(g, skosFile + prunDepth + ".rdf");
-            export2DOT(g, graphFile + prunDepth + ".dot");
+
+//            export2SKOS(g, skosFile + prunDepth + ".rdf");
+//            export2DOT(g, graphFile + prunDepth + ".dot");
             DefaultDirectedWeightedGraph pg = pruneGraph(g, prunDepth);
             export2SKOS(pg, skosFile + ".rdf");
-            export2DOT(pg, graphFile + ".dot");
+//            export2DOT(pg, graphFile + ".dot");
 //            rapper -o dot ~/workspace/TEXT/etc/taxonomy.rdf | dot -Kfdp -Tsvg -o taxonomy.svg
         }
     }
@@ -555,12 +555,11 @@ public class App {
         } finally {
             bbn.saveCache();
             DefaultDirectedWeightedGraph g = buildGraph(allTerms);
-            int pruneDepth = 4;
-            export2SKOS(g, skosFile + pruneDepth + ".rdf");
-            export2DOT(g, graphFile + pruneDepth + ".dot");
-            DefaultDirectedWeightedGraph pg = pruneGraph(g, pruneDepth);
+            export2SKOS(g, skosFile + prunDepth + ".rdf");
+//            export2DOT(g, graphFile + prunDepth + ".dot");
+            DefaultDirectedWeightedGraph pg = pruneGraph(g, prunDepth);
             export2SKOS(pg, skosFile + ".rdf");
-            export2DOT(pg, graphFile + ".dot");
+//            export2DOT(pg, graphFile + ".dot");
         }
     }
 
@@ -788,9 +787,9 @@ public class App {
                 if (hyper != null) {
                     for (TermVertex h : hyper) {
                         if (h != null) {
-                            if (isRelated(h)) {
-                                getTermVertices(h.getLemma(), h.getUID(), --depth, false, bbn, indexPath, termDictionaryPath, terms);
-                            }
+
+                            getTermVertices(h.getLemma(), h.getUID(), --depth, false, bbn, indexPath, termDictionaryPath, terms);
+
 //                            System.err.println("lemma: " + h.getLemma() + " id: " + h.getUID());
 
                         }
@@ -814,7 +813,7 @@ public class App {
                     if (!g.containsVertex(h)) {
                         g.addVertex(h);
                     }
-                    if (!g.containsEdge(h, tv) && !h.getLemma().equals(tv.getLemma())) {
+                    if (!g.containsEdge(h, tv)) {
                         g.addEdge(h, tv);
                     }
                 }
@@ -823,75 +822,59 @@ public class App {
         return g;
     }
 
-    public static void export2DOT(DefaultDirectedWeightedGraph g, String graphFile) throws IOException {
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(graphFile, false))) {
-            Set<Edge> set = g.edgeSet();
-            bw.write("digraph G {");
-            bw.newLine();
-            for (Edge e : set) {
-                nl.uva.sne.TermVertex sVertex = (nl.uva.sne.TermVertex) e.getSource();
-                String s = sVertex.getLemma().replaceAll("-", "_");
-                s = s.replaceAll("[()]", "");
-                s += "-" + sVertex.getUID();
-                nl.uva.sne.TermVertex tVertex = (nl.uva.sne.TermVertex) e.getTarget();
-                String t = tVertex.getLemma().replaceAll("-", "_");
-                t = t.replaceAll("[()]", "");
-                t += "-" + tVertex.getUID();
-//                System.err.println("\"" + s + "\" -- \"" + t + "\"");
-//                System.err.println("outDegreeOf: " + t + " = " + g.outDegreeOf(sVertex));
-//                System.err.println("outDegreeOf: " + s + " = " + g.outDegreeOf(sVertex));
-//                System.err.println("inDegreeOf: " + t + " = " + g.inDegreeOf(tVertex));
-//                System.err.println("inDegreeOf: " + s + " = " + g.inDegreeOf(tVertex));
-//                System.err.println("incomingEdgesOf: " + s + " = " + g.incomingEdgesOf(tVertex).size());                
-
-
-                bw.write("\"" + s + "\" -> \"" + t + "\"");
-                bw.newLine();
-                if (sVertex.getIsFromDictionary()) {
-                    bw.write("\"" + s + "\"" + " [shape=rectangle]");
-                    bw.newLine();
-                }
-                if (tVertex.getIsFromDictionary()) {
-                    bw.write("\"" + t + "\"" + " [shape=rectangle]");
-                    bw.newLine();
-                }
-            }
-            Set<TermVertex> vSet = g.vertexSet();
-            if (set.isEmpty()) {
-                for (TermVertex tv : vSet) {
-                    String v = tv.getLemma().replaceAll("-", "_");
-                    bw.write("\"" + v + "\"");
-                    bw.newLine();
-                    v += "-" + tv.getUID();
-                    if (tv.getIsFromDictionary()) {
-                        bw.write(v + " [shape=rectangle]");
-                        bw.newLine();
-                    }
-                }
-            }
-            for (Edge e : set) {
-                nl.uva.sne.TermVertex sVertex = (nl.uva.sne.TermVertex) e.getSource();
-                nl.uva.sne.TermVertex tVertex = (nl.uva.sne.TermVertex) e.getTarget();
-                for (TermVertex tv : vSet) {
-                    if (!tv.getLemma().equals(sVertex.getLemma()) && !tv.getLemma().equals(tVertex.getLemma())) {
-                        String v = tv.getLemma().replaceAll("-", "_");
-                        v = v.replaceAll("[()]", "");
-                        v += "-" + tv.getUID();
-                        bw.write("\"" + v + "\"");
-                        bw.newLine();
-                        if (tv.getIsFromDictionary()) {
-                            bw.write("\"" + v + "\"" + " [shape=rectangle]");
-                            bw.newLine();
-                        }
-                    }
-                }
-            }
-            bw.write("}");
-            bw.newLine();
-            bw.flush();
-        }
-    }
-
+//    public static void export2DOT(DefaultDirectedWeightedGraph g, String graphFile) throws IOException {
+//        Set<Edge> set = g.edgeSet();
+//        List<String> lines = new ArrayList<>();
+//        lines.add("digraph G {");
+//        for (Edge e : set) {
+//            TermVertex sVertex = (TermVertex) e.getSource();
+////                System.err.println("\"" + sVertex.toString() + "\" -> \"" + tVertex.toString() + "\"");
+//            List<DirectedWeightedEdge> sourceOut = g.outgoingEdgesOf(sVertex);
+//            for (DirectedWeightedEdge out : sourceOut) {
+//                TermVertex tVertex = (TermVertex) out.getTarget();
+//                String l = "\"" + sVertex.toString() + "\" -> \"" + tVertex.toString() + "\"";
+//                if (!lines.contains(l)) {
+//                    lines.add(l);
+//                }
+//                if (tVertex.getIsFromDictionary()) {
+//                    l = "\"" + tVertex.toString() + "\"" + " [shape=rectangle]";
+//                    if (!lines.contains(l)) {
+//                        lines.add(l);
+//                    }
+//                }
+//            }
+//            if (sVertex.getIsFromDictionary()) {
+//                String l = "\"" + sVertex.toString() + "\"" + " [shape=rectangle]";
+//                if (!lines.contains(l)) {
+//                    lines.add(l);
+//                }
+//            }
+//            TermVertex tVertex = (TermVertex) e.getTarget();
+//            List<DirectedWeightedEdge> targetOut = g.outgoingEdgesOf(tVertex);
+//            for (DirectedWeightedEdge out : targetOut) {
+//                TermVertex ttVertex = (TermVertex) out.getTarget();
+//                String l = "\"" + tVertex.toString() + "\" -> \"" + ttVertex.toString() + "\"";
+//                if (!lines.contains(l)) {
+//                    lines.add(l);
+//                }
+//                if (ttVertex.getIsFromDictionary()) {
+//                    l = "\"" + ttVertex.toString() + "\"" + " [shape=rectangle]";
+//                    if (!lines.contains(l)) {
+//                        lines.add(l);
+//                    }
+//                }
+//            }
+//
+//        }
+//        lines.add("}");
+//        try (BufferedWriter bw = new BufferedWriter(new FileWriter(graphFile, false))) {
+//            for (String line : lines) {
+//                bw.write(line);
+//                bw.newLine();
+//            }
+//            bw.flush();
+//        }
+//    }
 //    private static Query buildQuery(String searchString, boolean useWildcard) throws org.apache.lucene.queryparser.classic.ParseException {
 //        StandardAnalyzer analyzer = new StandardAnalyzer(Version.LUCENE_42);
 //        QueryParser qp = new QueryParser(Version.LUCENE_42, "content", analyzer);
@@ -908,41 +891,61 @@ public class App {
 //        return collector.topDocs().scoreDocs;
 //    }
     private static DefaultDirectedWeightedGraph pruneGraph(DefaultDirectedWeightedGraph g, int depth) throws ParseException, IOException, SKOSCreationException, SKOSChangeException, SKOSStorageException {
-        Set<TermVertex> vs = g.vertexSet();
         List<TermVertex> vertexToRemove = new ArrayList<>();
         List<Edge> edgeToRemove = new ArrayList<>();
-        for (TermVertex tv : vs) {
-            if (!tv.getIsFromDictionary()) {
-                List<DirectedWeightedEdge> outEdges = g.outgoingEdgesOf(tv);
-                List<DirectedWeightedEdge> inEdges = g.incomingEdgesOf(tv);
-                for (DirectedWeightedEdge out : outEdges) {
-                    TermVertex target = (TermVertex) out.getTarget();
 
-                    for (DirectedWeightedEdge in : inEdges) {
-                        TermVertex source = (TermVertex) in.getSource();
-                        if (target.getUID().endsWith(source.getUID())) {
-                            edgeToRemove.add(in);
-                        }
-                    }
-                }
-                boolean remove = false;
-                if (inEdges.size() <= 0 && outEdges.size() <= 1) {
-                    for (DirectedWeightedEdge out : outEdges) {
-                        TermVertex target = (TermVertex) out.getTarget();
-                        remove = false;
-                        if (!target.getIsFromDictionary()) {
-                            remove = true;
-                        }
-                    }
-                }
-                if (remove) {
-                    vertexToRemove.add(tv);
-                }
-                if (outEdges.size() <= 0) {
-                    vertexToRemove.add(tv);
+        Set<DirectedWeightedEdge> edges = g.edgeSet();
+        for (DirectedWeightedEdge e : edges) {
+            TermVertex source = (TermVertex) e.getSource();
+            TermVertex target = (TermVertex) e.getTarget();
+            if (!source.getIsFromDictionary() && !target.getIsFromDictionary()) {
+                int inSourceSize = g.incomingEdgesOf(source).size();
+                int outSourceSize = g.outgoingEdgesOf(source).size();
+                if (inSourceSize <= 0 && outSourceSize <= 1) {
+                    vertexToRemove.add(source);
                 }
             }
+            int outTargetSize = g.outgoingEdgesOf(target).size();
+            if (!target.getIsFromDictionary() && outTargetSize <= 0) {
+                vertexToRemove.add(target);
+            }
         }
+
+
+        //        Set<TermVertex> vs = g.vertexSet();
+//        for (TermVertex tv : vs) {
+//            List<DirectedWeightedEdge> outEdges = g.outgoingEdgesOf(tv);
+//            List<DirectedWeightedEdge> inEdges = g.incomingEdgesOf(tv);
+//           
+//            if (!tv.getIsFromDictionary()) {
+////                List<DirectedWeightedEdge> outEdges = g.outgoingEdgesOf(tv);
+////                List<DirectedWeightedEdge> inEdges = g.incomingEdgesOf(tv);
+//                for (DirectedWeightedEdge out : outEdges) {
+//                    TermVertex target = (TermVertex) out.getTarget();
+//                    for (DirectedWeightedEdge in : inEdges) {
+//                        TermVertex source = (TermVertex) in.getSource();
+//                        if (target.getUID().endsWith(source.getUID())) {
+//                            edgeToRemove.add(in);
+//                        }
+//                    }
+//                }
+//
+//                if (inEdges.size() <= 0 && outEdges.size() <= 1) {
+//
+//                    for (DirectedWeightedEdge out : outEdges) {
+//                        TermVertex target = (TermVertex) out.getTarget();
+//                        if (!target.getIsFromDictionary()) {
+////                            System.err.println("Remove: " + tv.toString() + " out: " + outEdges.size() + " in: " + inEdges.size());
+//                            vertexToRemove.add(tv);
+//                        }
+//                    }
+//                }
+//                if (outEdges.size() <= 0) {
+////                    System.err.println("Remove: " + tv.toString() + " out: " + outEdges.size() + " in: " + inEdges.size());
+//                    vertexToRemove.add(tv);
+//                }
+//            }
+//        }
 
 //        Set<DirectedWeightedEdge> edges = g.edgeSet();
 //        for (DirectedWeightedEdge e : edges) {
@@ -955,11 +958,12 @@ public class App {
 //                }
 //            }
 //        }
+        System.err.println("--------------------");
         g.removeAllVertices(vertexToRemove);
         g.removeAllEdges(edgeToRemove);
         depth--;
         export2SKOS(g, skosFile + depth + ".rdf");
-        export2DOT(g, graphFile + depth + ".dot");
+//        export2DOT(g, graphFile + depth + ".dot");
         if (depth >= 1) {
             pruneGraph(g, depth);
         }
@@ -1081,28 +1085,8 @@ public class App {
         List<List<String>> allDocs = new ArrayList<>();
         Map<String, List<String>> docs = new HashMap<>();
         for (TermVertex tv : possibleTerms) {
-            Set<String> doc = new HashSet<>();
-            List<String> g = tv.getGlosses();
-            if (g != null) {
-                for (String s : g) {
-                    doc.addAll(tokenize(s, false));
-                }
-            }
-            List<String> al = tv.getAlternativeLables();
-            if (al != null) {
-                for (String s : al) {
-                    doc.addAll(tokenize(s, false));
-                }
-            }
-            List<String> cat = tv.getCategories();
-            if (cat != null) {
-                for (String s : cat) {
-                    doc.addAll(tokenize(s, false));
-                }
-            }
-//            doc.addAll(doc);
+            Set<String> doc = getDocument(tv);
             allDocs.add(new ArrayList<>(doc));
-//            System.err.println(doc);
             docs.put(tv.getUID(), new ArrayList<>(doc));
         }
 
@@ -1111,13 +1095,13 @@ public class App {
         for (String s : nGrams) {
             String[] parts = s.split("_");
             for (String token : parts) {
-
                 if (token.length() > 1) {
                     contextDoc.add(token);
                 }
             }
         }
         docs.put("context", new ArrayList<>(contextDoc));
+
         Map<String, Map<String, Double>> featureVectors = new HashMap<>();
         for (String k : docs.keySet()) {
             List<String> doc = docs.get(k);
@@ -1234,83 +1218,31 @@ public class App {
         return null;
     }
 
-    private static boolean isRelated(TermVertex h) throws IOException, JWNLException, FileNotFoundException, MalformedURLException, ParseException, Exception {
-//        List<List<String>> allDocs = new ArrayList<>();
-//        Map<String, List<String>> docs = new HashMap<>();
-//
-//        Set<String> hDoc = new HashSet<>();
-//        List<String> g = h.getGlosses();
-//        if (g != null) {
-//            for (String s : g) {
-//                hDoc.addAll(tokenize(s, false));
-//            }
-//        }
-//        List<String> al = h.getAlternativeLables();
-//        if (al != null) {
-//            for (String s : al) {
-//                hDoc.addAll(tokenize(s, false));
-//            }
-//        }
-//        List<String> cat = h.getCategories();
-//        if (cat != null) {
-//            for (String s : cat) {
-//                hDoc.addAll(tokenize(s, false));
-//            }
-//        }
-////            doc.addAll(doc);
-//        allDocs.add(new ArrayList<>(hDoc));
-////            System.err.println(doc);
-//        docs.put(h.getUID(), new ArrayList<>(hDoc));
-//
-//
-//        Set<String> contextDoc = new HashSet<>();
-//
-//
-//        try (BufferedReader br = new BufferedReader(new FileReader(keywordsDictionarayFile))) {
-//            String line;
-//            while ((line = br.readLine()) != null) {
-//                String[] kv = line.split(",");
-//                String key = kv[0];
-//                Integer value = Integer.valueOf(kv[1]);
-//                if (value >= 10) {
-//                    if (key.contains("_")) {
-//                        String[] parts = key.split("_");
-//                        for (String token : parts) {
-//                            if (token.length() > 1) {
-//                                contextDoc.add(token);
-//                            }
-//                        }
-//                    } else {
-//                        contextDoc.add(key);
-//                    }
-//                } else {
-//                    break;
-//                }
-//
-//            }
-//        }
-//
-//        docs.put("context", new ArrayList<>(contextDoc));
-//        Map<String, Map<String, Double>> featureVectors = new HashMap<>();
-//        for (String k : docs.keySet()) {
-//            List<String> doc = docs.get(k);
-//            Map<String, Double> featureVector = new TreeMap<>();
-//            for (String term : doc) {
-//                if (!featureVector.containsKey(term)) {
-//                    double score = tfIdf(doc, allDocs, term);
-//                    featureVector.put(term, score);
-//                }
-//            }
-//            featureVectors.put(k, featureVector);
-//        }
-//
-//        String winner = null;
-//        Map<String, Double> contextVector = featureVectors.remove("context");
-//        for (String key : featureVectors.keySet()) {
-//            Double similarity = Utils.cosineSimilarity(contextVector, featureVectors.get(key));
-//            System.err.println("Hyper: " +  h.getLemma() + " similarity: " + similarity);
-//        }
+    
 
-        return true;
+    private static Set<String> getDocument(TermVertex term) throws Exception {
+
+
+        Set<String> doc = new HashSet<>();
+
+        List<String> g = term.getGlosses();
+        if (g != null) {
+            for (String s : g) {
+                doc.addAll(tokenize(s, false));
+            }
+        }
+        List<String> al = term.getAlternativeLables();
+        if (al != null) {
+            for (String s : al) {
+                doc.addAll(tokenize(s, false));
+            }
+        }
+        List<String> cat = term.getCategories();
+        if (cat != null) {
+            for (String s : cat) {
+                doc.addAll(tokenize(s, false));
+            }
+        }
+        return doc;
     }
 }

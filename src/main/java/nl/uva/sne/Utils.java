@@ -7,13 +7,18 @@ package nl.uva.sne;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import me.champeau.ld.UberLanguageDetector;
+import static nl.uva.sne.App.tfIdf;
 import org.apache.lucene.analysis.util.CharArraySet;
 import org.apache.lucene.util.Version;
 
@@ -910,6 +915,8 @@ class Utils {
     static String detectLang(String text) {
         return getUberLanguageInstance().detectLang(text);
     }
+    
+    
 
     //Code From org.apache.commons.text.similarity. 
     /**
@@ -1015,7 +1022,11 @@ class Utils {
     }
 
     static String getCachePath() throws IOException {
-        return getProperties().getProperty("cache.path", System.getProperty("user.home") + 
-                File.separator + "workspace" + File.separator + "TEXT" + File.separator + "cache" + File.separator + "cacheDB");
+        return getProperties().getProperty("cache.path", System.getProperty("user.home")
+                + File.separator + "workspace" + File.separator + "TEXT" + File.separator + "cache" + File.separator + "cacheDB");
+    }
+
+    static int getMaxPrunDepth() throws IOException {
+        return Integer.valueOf(getProperties().getProperty("max.prun.depth", "4"));
     }
 }

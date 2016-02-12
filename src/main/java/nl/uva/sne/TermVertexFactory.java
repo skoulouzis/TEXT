@@ -18,12 +18,15 @@ import org.json.simple.parser.ParseException;
  */
 public class TermVertexFactory {
 
-    public static TermVertex create(String synet, String language, String lemma, String id) throws ParseException, UnsupportedEncodingException {
+    public static TermVertex create(String synet, String language, String lemma, String theID) throws ParseException, UnsupportedEncodingException {
         TermVertex node = null;
         JSONObject jSynet = (JSONObject) JSONValue.parseWithException(synet);
+
+
         JSONArray categoriesArray = (JSONArray) jSynet.get("categories");
         List<String> categories = null;
         if (categoriesArray != null) {
+
             categories = new ArrayList<>();
             for (Object o : categoriesArray) {
                 JSONObject cat = (JSONObject) o;
@@ -35,10 +38,13 @@ public class TermVertexFactory {
                 }
             }
         }
+
         JSONArray glossesArray = (JSONArray) jSynet.get("glosses");
+
         List<String> glosses = null;
         if (glossesArray != null) {
             glosses = new ArrayList<>();
+
             for (Object o : glossesArray) {
                 JSONObject gloss = (JSONObject) o;
                 String lang = (String) gloss.get("language");
@@ -57,6 +63,7 @@ public class TermVertexFactory {
                 String babelNetID = (String) synsetID.get("id");
 
                 String lang = (String) jo2.get("language");
+
                 String lemma1, lemma2;
                 if (lang.equals(language)) {
                     List<String> altLables = new ArrayList<>();
@@ -64,9 +71,7 @@ public class TermVertexFactory {
                     jlemma = jlemma.toLowerCase().replaceAll("(\\d+,\\d+)|\\d+", "");
                     altLables.add(jlemma);
 
-                    lemma = java.net.URLDecoder.decode(lemma, "UTF-8");
-                    lemma = lemma.replaceAll(" ", "_");
-                    if (id != null && babelNetID.equals(id)) {
+                    if (theID != null && babelNetID.equals(theID)) {
                         node = new TermVertex(jlemma);
                         node.setUID(babelNetID);
                         node.setCategories(categories);
@@ -74,6 +79,9 @@ public class TermVertexFactory {
                         node.setGlosses(glosses);
                         return node;
                     }
+                    lemma = java.net.URLDecoder.decode(lemma, "UTF-8");
+                    lemma = lemma.replaceAll(" ", "_");
+
                     if (jlemma.contains(lemma) && jlemma.contains("_")) {
                         String[] parts = jlemma.split("_");
                         for (String p : parts) {

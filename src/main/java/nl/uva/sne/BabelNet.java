@@ -124,7 +124,7 @@ public class BabelNet {
         String synet = getBabelnetSynset(id, language, key);
         node = TermVertexFactory.create(synet, language, word, id);
         if (node != null) {
-            List<TermVertex> h = getHypernyms(language, id, key);
+            List<TermVertex> h = getHypernyms(language, node, key);
             node.setBroader(h);
         }
         return node;
@@ -136,14 +136,15 @@ public class BabelNet {
 
         List<String> ids = getcandidateWordIDs(language, word, key);
         List<TermVertex> nodes = null;
+        TermVertexFactory tvf = new TermVertexFactory();
         if (ids != null) {
             nodes = new ArrayList<>(ids.size());
             for (String id : ids) {
                 String synet = getBabelnetSynset(id, language, key);
-                TermVertex node = TermVertexFactory.create(synet, language, word, null);
+                TermVertex node = tvf.create(synet, language, word, null);
                 if (node != null) {
                     try {
-                        List<TermVertex> h = getHypernyms(language, id, key);
+                        List<TermVertex> h = getHypernyms(language, node, key);
                         node.setBroader(h);
                     } catch (Exception ex) {
                     }
@@ -569,6 +570,7 @@ public class BabelNet {
 //        TermVertex term = null;
         if (obj instanceof JSONArray) {
             JSONArray ja = (JSONArray) obj;
+            TermVertexFactory tvf = new TermVertexFactory();
             for (Object o : ja) {
                 JSONObject jo = (JSONObject) o;
                 String id = (String) jo.get("babelSynsetID");
@@ -577,9 +579,9 @@ public class BabelNet {
                 Double coherenceScore = (Double) jo.get("coherenceScore");
                 double someScore = (score + globalScore + coherenceScore) / 3.0;
                 String synet = getBabelnetSynset(id, language, key);
-                TermVertex t = TermVertexFactory.create(synet, language, lemma, null);
+                TermVertex t = tvf.create(synet, language, lemma, null);
                 if (t != null) {
-                    List<TermVertex> h = getHypernyms(language, t.getUID(), key);
+                    List<TermVertex> h = getHypernyms(language, t, key);
                     t.setBroader(h);
 //                    System.err.println("id: " + id + " lemma: " + lemma + " score: " + score + " globalScore: " + globalScore + " coherenceScore: " + coherenceScore + " someScore: " + someScore);
                     return new Pair<>(t, someScore);
@@ -781,8 +783,8 @@ public class BabelNet {
         }
     }
 
-    private List<TermVertex> getHypernyms(String language, String correctID, String key) throws MalformedURLException, IOException, ParseException, Exception {
-        Map<String, Double> hypenymMap = getEdgeIDs(language, correctID, "HYPERNYM", key);
+    private List<TermVertex> getHypernyms(String language, TermVertex t, String key) throws MalformedURLException, IOException, ParseException, Exception {
+        Map<String, Double> hypenymMap = getEdgeIDs(language, t.getUID(), "HYPERNYM", key);
         List<TermVertex> hypernyms = new ArrayList<>();
 
         ValueComparator bvc = new ValueComparator(hypenymMap);
@@ -790,35 +792,15 @@ public class BabelNet {
         sorted_map.putAll(hypenymMap);
         int maxNumOfHyper = 3;
 
-        for (String h : sorted_map.keySet()) {
+        for (String uid : sorted_map.keySet()) {
             if (maxNumOfHyper <= 0) {
                 break;
             }
-            String synetHyper = getBabelnetSynset(h, language, key);
-            JSONObject jSynetHyper = (JSONObject) JSONValue.parseWithException(synetHyper);
-            JSONArray sensestHyper = (JSONArray) jSynetHyper.get("senses");
-            for (Object o : sensestHyper) {
-                JSONObject jo = (JSONObject) o;
-                String lang = (String) jo.get("language");
-                if (lang.equals(language)) {
-                    String lemma = (String) jo.get("lemma");
-                    String id = (String) ((JSONObject) jo.get("synsetID")).get("id");
-                    lemma = lemma.toLowerCase();
-                    //                    String hyper = lemma.toLowerCase().replaceAll("(\\d+,\\d+)|\\d+", "");
-                    //                    String detectedLang = Utils.detectLang(hyper);
 
-                    if (lemma.length() > 1) {
-                        TermVertex v = new TermVertex(lemma);
-                        v.setUID(id);
-                        v.setIsFromDictionary(false);
-//                        System.err.println("hypo: " + correctID + " hyper: " + lemma + " id: " + id);
-//                        hMap.put(lemma, v);
-                        hypernyms.add(v);
-                        break;
-                    }
+            String synetHyper = getBabelnetSynset(uid, language, key);
+            TermVertex hypernym = TermVertexFactory.create(synetHyper, language, null, uid);
+            hypernyms.add(hypernym);
 
-                }
-            }
             maxNumOfHyper--;
         }
 //        List list;
