@@ -6,12 +6,10 @@ package nl.uva.sne;
 
 import edu.stanford.nlp.util.Pair;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -42,8 +40,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.mapdb.BTreeKeySerializer;
-import org.mapdb.BTreeMap;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
 import org.mapdb.HTreeMap;
@@ -73,8 +69,7 @@ public class BabelNet {
     private static HTreeMap<String, String> edgesCache;
     private static File edgesCacheFile = new File(System.getProperty("user.home")
             + File.separator + "workspace" + File.separator + "TEXT" + File.separator + "cache" + File.separator + "edgesCacheFile.csv");
-    private static File cacheDBFile = new File(System.getProperty("user.home")
-            + File.separator + "workspace" + File.separator + "TEXT" + File.separator + "cache" + File.separator + "cacheDB");
+//    private static File cacheDBFile;
 
     static {
         try {
@@ -308,6 +303,7 @@ public class BabelNet {
 
     private void loadCache() throws FileNotFoundException, IOException {
         Logger.getLogger(BabelNet.class.getName()).log(Level.INFO, "Loading cache");
+        File cacheDBFile = new File(Utils.getCachePath());
         db = DBMaker.newFileDB(cacheDBFile).make();
         synsetCache = db.getHashMap("synsetCacheDB");
         if (synsetCache == null) {
