@@ -898,14 +898,21 @@ public class App {
         for (DirectedWeightedEdge e : edges) {
             TermVertex source = (TermVertex) e.getSource();
             TermVertex target = (TermVertex) e.getTarget();
+            int inSourceSize = g.incomingEdgesOf(source).size();
+            int outSourceSize = g.outgoingEdgesOf(source).size();
+            int inTargetSize = g.incomingEdgesOf(target).size();
+            int outTargetSize = g.outgoingEdgesOf(target).size();
+            if (!source.getIsFromDictionary() && inSourceSize <= 0 && outSourceSize <= 0) {
+                vertexToRemove.add(source);
+            }
+            if (!target.getIsFromDictionary() && inTargetSize <= 0 && outTargetSize <= 0) {
+                vertexToRemove.add(source);
+            }
             if (!source.getIsFromDictionary() && !target.getIsFromDictionary()) {
-                int inSourceSize = g.incomingEdgesOf(source).size();
-                int outSourceSize = g.outgoingEdgesOf(source).size();
                 if (inSourceSize <= 0 && outSourceSize <= 1) {
                     vertexToRemove.add(source);
                 }
             }
-            int outTargetSize = g.outgoingEdgesOf(target).size();
             if (!target.getIsFromDictionary() && outTargetSize <= 0) {
                 vertexToRemove.add(target);
             }
@@ -958,7 +965,6 @@ public class App {
 //                }
 //            }
 //        }
-        System.err.println("--------------------");
         g.removeAllVertices(vertexToRemove);
         g.removeAllEdges(edgeToRemove);
         depth--;
@@ -1217,8 +1223,6 @@ public class App {
         }
         return null;
     }
-
-    
 
     private static Set<String> getDocument(TermVertex term) throws Exception {
 
