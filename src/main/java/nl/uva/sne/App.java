@@ -809,11 +809,11 @@ public class App {
             }
             List<TermVertex> hyper = tv.getBroader();
             if (hyper != null) {
-                for (TermVertex h : tv.getBroader()) {
-                    if (!g.containsVertex(h)) {
+                for (TermVertex h : hyper) {
+                    if (h != null && !g.containsVertex(h)) {
                         g.addVertex(h);
                     }
-                    if (!g.containsEdge(h, tv)) {
+                    if (h != null && !g.containsEdge(h, tv)) {
                         g.addEdge(h, tv);
                     }
                 }
