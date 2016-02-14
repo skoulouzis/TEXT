@@ -898,8 +898,10 @@ public class App {
         for (DirectedWeightedEdge e : edges) {
             TermVertex source = (TermVertex) e.getSource();
             TermVertex target = (TermVertex) e.getTarget();
-            int inSourceSize = g.incomingEdgesOf(source).size();
-            int outSourceSize = g.outgoingEdgesOf(source).size();
+            List<DirectedWeightedEdge> inSource = g.incomingEdgesOf(source);
+            List<DirectedWeightedEdge> outSource = g.outgoingEdgesOf(source);
+            int inSourceSize = inSource.size();
+            int outSourceSize = outSource.size();
             int inTargetSize = g.incomingEdgesOf(target).size();
             int outTargetSize = g.outgoingEdgesOf(target).size();
             if (!source.getIsFromDictionary() && inSourceSize <= 0 && outSourceSize <= 0) {
@@ -916,55 +918,30 @@ public class App {
             if (!target.getIsFromDictionary() && outTargetSize <= 0) {
                 vertexToRemove.add(target);
             }
+            for (DirectedWeightedEdge in : inSource) {
+                TermVertex sourceOfin = (TermVertex) in.getSource();
+                TermVertex targetOfin = (TermVertex) in.getTarget();
+                if (sourceOfin.toString().equals(targetOfin.toString())) {
+                    edgeToRemove.add(in);
+                }
+                if (sourceOfin.getLemma().equals(targetOfin.getLemma())) {
+                    if (!sourceOfin.getIsFromDictionary() && !connectsWithDictionaryTerm(sourceOfin)) {
+                        vertexToRemove.add(sourceOfin);
+                    } else if (!targetOfin.getIsFromDictionary() && !connectsWithDictionaryTerm(targetOfin)) {
+                        vertexToRemove.add(targetOfin);
+                    }
+//                    System.err.println(in + " " + g.inDegreeOf(sourceOfin) + " " + g.outDegreeOf(sourceOfin) + " " + g.inDegreeOf(targetOfin) + " " + g.outDegreeOf(targetOfin));
+                }
+            }
+            for (DirectedWeightedEdge out : outSource) {
+                if (out.getSource().toString().equals(out.getTarget().toString())) {
+                    edgeToRemove.add(out);
+                }
+            }
+
+
         }
 
-
-        //        Set<TermVertex> vs = g.vertexSet();
-//        for (TermVertex tv : vs) {
-//            List<DirectedWeightedEdge> outEdges = g.outgoingEdgesOf(tv);
-//            List<DirectedWeightedEdge> inEdges = g.incomingEdgesOf(tv);
-//           
-//            if (!tv.getIsFromDictionary()) {
-////                List<DirectedWeightedEdge> outEdges = g.outgoingEdgesOf(tv);
-////                List<DirectedWeightedEdge> inEdges = g.incomingEdgesOf(tv);
-//                for (DirectedWeightedEdge out : outEdges) {
-//                    TermVertex target = (TermVertex) out.getTarget();
-//                    for (DirectedWeightedEdge in : inEdges) {
-//                        TermVertex source = (TermVertex) in.getSource();
-//                        if (target.getUID().endsWith(source.getUID())) {
-//                            edgeToRemove.add(in);
-//                        }
-//                    }
-//                }
-//
-//                if (inEdges.size() <= 0 && outEdges.size() <= 1) {
-//
-//                    for (DirectedWeightedEdge out : outEdges) {
-//                        TermVertex target = (TermVertex) out.getTarget();
-//                        if (!target.getIsFromDictionary()) {
-////                            System.err.println("Remove: " + tv.toString() + " out: " + outEdges.size() + " in: " + inEdges.size());
-//                            vertexToRemove.add(tv);
-//                        }
-//                    }
-//                }
-//                if (outEdges.size() <= 0) {
-////                    System.err.println("Remove: " + tv.toString() + " out: " + outEdges.size() + " in: " + inEdges.size());
-//                    vertexToRemove.add(tv);
-//                }
-//            }
-//        }
-
-//        Set<DirectedWeightedEdge> edges = g.edgeSet();
-//        for (DirectedWeightedEdge e : edges) {
-//            TermVertex source = (TermVertex) e.getSource();
-//            TermVertex target = (TermVertex) e.getTarget();
-//            if (!source.getIsFromDictionary() && !target.getIsFromDictionary()) {
-//                if (g.outgoingEdgesOf(source).size() <= 1) {
-//                    vertexToRemove.add(source);
-//                    System.err.println("Source: " + source.toString());
-//                }
-//            }
-//        }
         g.removeAllVertices(vertexToRemove);
         g.removeAllEdges(edgeToRemove);
         depth--;
@@ -1248,5 +1225,18 @@ public class App {
             }
         }
         return doc;
+    }
+
+    private static boolean connectsWithDictionaryTerm(TermVertex term) {
+        List<TermVertex> b = term.getBroader();
+        if (b == null || b.isEmpty()) {
+            return false;
+        }
+        for (TermVertex tv : term.getBroader()) {
+            if (tv.getIsFromDictionary()) {
+                return true;
+            }
+        }
+        return false;
     }
 }
