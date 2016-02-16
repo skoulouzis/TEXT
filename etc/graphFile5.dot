@@ -1,0 +1,14 @@
+digraph G {
+"digital_forensics-bn:02470434n" -> "computer_forensics-bn:03452690n"
+"computer_forensics-bn:03452690n" [shape=rectangle]
+"forensic_science-bn:03219208n" -> "digital_forensics-bn:02470434n"
+"application-bn:00005095n" -> "forensic_science-bn:03219208n"
+"program-bn:00021492n" -> "application-bn:00005095n"
+"program-bn:00021492n" -> "software-bn:00021497n"
+"software-bn:00021497n" -> "application-bn:00005095n"
+"merchandise-bn:00054416n" -> "program-bn:00021492n"
+"sequence-bn:00070574n" -> "program-bn:00021492n"
+"sequence-bn:00070574n" -> "software-bn:00021497n"
+"instruction_(computer_science)-bn:14119589n" -> "program-bn:00021492n"
+"code-bn:00020354n" -> "software-bn:00021497n"
+}

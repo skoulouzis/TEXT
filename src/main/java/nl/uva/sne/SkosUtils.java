@@ -63,6 +63,68 @@ class SkosUtils {
         return dataset;
     }
 
+    static Collection<? extends SKOSChange> create(TermVertex tv, String lang, boolean isTpConcept) throws SKOSCreationException, IOException {
+        List<SKOSChange> addAssertions = new ArrayList<>();
+        SKOSConceptScheme scheme = getSKOSDataFactory().getSKOSConceptScheme(URI.create(SKOS_URI));
+
+        SKOSEntityAssertion schemaAss = getSKOSDataFactory().getSKOSEntityAssertion(scheme);
+        addAssertions.add(new AddAssertion(getSKOSDataset(), schemaAss));
+
+        SKOSConcept concept = getSKOSDataFactory().getSKOSConcept(URI.create(SKOS_URI + "#" + tv.getUID()));
+
+        if (isTpConcept) {
+            SKOSObjectRelationAssertion topConcept = getSKOSDataFactory().getSKOSObjectRelationAssertion(scheme, getSKOSDataFactory().getSKOSHasTopConceptProperty(), concept);
+            addAssertions.add(new AddAssertion(getSKOSDataset(), topConcept));
+        }
+
+        addAssertions.add(new AddAssertion(getSKOSDataset(), getPrefAssertion(concept, tv.getLemma(), lang)));
+        addAssertions.add(new AddAssertion(getSKOSDataset(), getInSchemeAssertion(concept, scheme)));
+
+        List<String> alt = tv.getAlternativeLables();
+        if (alt != null) {
+            for (String s : alt) {
+                if (!s.equals(tv.getLemma())) {
+                    addAssertions.add(new AddAssertion(getSKOSDataset(), getAltAssertion(concept, s, lang)));
+                }
+            }
+        }
+
+        List<String> cats = tv.getCategories();
+        if (cats != null) {
+            for (String cat : cats) {
+                addAssertions.add(new AddAssertion(getSKOSDataset(), getCategoryAssertion(concept, cat, lang)));
+            }
+        }
+        List<String> glosses = tv.getGlosses();
+        if (glosses != null) {
+            for (String gloss : glosses) {
+                addAssertions.add(new AddAssertion(getSKOSDataset(), getDefinitionAassertion(concept, gloss, lang)));
+            }
+        }
+
+        List<TermVertex> broader = tv.getBroader();
+        if (broader != null) {
+            for (TermVertex b : broader) {
+                SKOSConcept broaderConcept = getSKOSDataFactory().getSKOSConcept(URI.create(SKOS_URI + "#" + b.getUID()));
+                SKOSObjectRelationAssertion broaderPropertyRelationAssertion = getSKOSDataFactory().
+                        getSKOSObjectRelationAssertion(concept, getSKOSDataFactory().getSKOSBroaderProperty(), broaderConcept);
+                addAssertions.add(new AddAssertion(getSKOSDataset(), broaderPropertyRelationAssertion));
+
+                SKOSObjectRelationAssertion narrowerPropertyRelationAssertion = getSKOSDataFactory().
+                        getSKOSObjectRelationAssertion(broaderConcept, getSKOSDataFactory().getSKOSNarrowerProperty(), concept);
+                addAssertions.add(new AddAssertion(getSKOSDataset(), narrowerPropertyRelationAssertion));
+
+                if (tv.getBroader() == null || tv.getBroader().isEmpty()) {
+                    addAssertions.addAll(create(b, "EN", true));
+                } else {
+                    addAssertions.addAll(create(b, "EN", false));
+                }
+            }
+        }
+
+        return addAssertions;
+    }
+
     public static List<SKOSChange> create(DirectedWeightedEdge edge, String lang, boolean isTpConcept) throws ParseException, SKOSCreationException, IOException {
 
         TermVertex target = (TermVertex) edge.getTarget();
@@ -74,9 +136,6 @@ class SkosUtils {
         addAssertions.add(new AddAssertion(getSKOSDataset(), schemaAss));
 
         SKOSConcept targetConcept = getSKOSDataFactory().getSKOSConcept(URI.create(SKOS_URI + "#" + target.getUID()));
-
-
-
 
         addAssertions.add(new AddAssertion(getSKOSDataset(), getPrefAssertion(targetConcept, target.getLemma(), lang)));
         addAssertions.add(new AddAssertion(getSKOSDataset(), getInSchemeAssertion(targetConcept, scheme)));

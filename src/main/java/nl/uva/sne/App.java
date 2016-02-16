@@ -330,9 +330,7 @@ public class App {
                 multiTermRank++;
                 if (!key1.contains("_") && key2.contains("_") && key2.split("_")[0].equals(key1)) {
                     int diff = multiTermRank - singleTermRank;
-//                    System.err.println(key1 + ":" + singleTermRank + " " + key2 + ":" + multiTermRank + " diff: " + diff);
                     if (diff <= 5 && diff > 0) {
-//                        System.err.println(key1 + ":" + singleTermRank + " " + key2 + ":" + multiTermRank + " diff: " + diff);
                         if (!toRemove.contains(key1)) {
                             Logger.getLogger(App.class.getName()).log(Level.INFO, "Will remove: {0}", key1);
                             toRemove.add(key1);
@@ -343,7 +341,6 @@ public class App {
             }
         }
         for (String k : toRemove) {
-//            System.err.println("removing: " + k);
             keywordsDictionaray.remove(k);
         }
         bvc = new ValueComparator(keywordsDictionaray);
@@ -504,12 +501,13 @@ public class App {
 
         } finally {
             bbn.saveCache();
-            DefaultDirectedWeightedGraph g = buildGraph(allTerms);
+//            DefaultDirectedWeightedGraph g = buildGraph(allTerms);
 
 //            export2SKOS(g, skosFile + prunDepth + ".rdf");
 //            export2DOT(g, graphFile + prunDepth + ".dot");
-            DefaultDirectedWeightedGraph pg = pruneGraph(g, prunDepth);
-            export2SKOS(pg, skosFile + ".rdf");
+//            DefaultDirectedWeightedGraph pg = pruneGraph(g, prunDepth);
+            allTerms = pruneGraph(allTerms, prunDepth);
+            export2SKOS(allTerms, skosFile + ".rdf");
 //            export2DOT(pg, graphFile + ".dot");
 //            rapper -o dot ~/workspace/TEXT/etc/taxonomy.rdf | dot -Kfdp -Tsvg -o taxonomy.svg
         }
@@ -519,7 +517,7 @@ public class App {
         if (bbn == null) {
             bbn = new BabelNet();
         }
-        Logger.getLogger(App.class.getName()).log(Level.INFO, "Building tree exiting taxonomy ", leaves.size());
+        Logger.getLogger(App.class.getName()).log(Level.INFO, "Building tree from exiting taxonomy. Num of terms {0}", leaves.size());
         List<TermVertex> allTerms = new ArrayList<>();
         try {
             int count = 0;
@@ -528,9 +526,7 @@ public class App {
                 if (count >= termLimit) {
                     break;
                 }
-
                 String lemma = bbn.lemmatize(tv.getLemma(), "EN");
-
                 List<TermVertex> terms = getTermVertices(URLEncoder.encode(lemma, "UTF-8"), null, depth, true, bbn, indexPath, termDictionaryPath, null);
                 if (terms != null && !terms.isEmpty()) {
                     allTerms.addAll(terms);
@@ -538,6 +534,7 @@ public class App {
                     List<String> alt = tv.getAlternativeLables();
                     if (alt != null) {
                         for (String a : alt) {
+                            a = a.toLowerCase().replaceAll(" ", "_");
                             lemma = bbn.lemmatize(a, "EN");
                             terms = getTermVertices(URLEncoder.encode(lemma, "UTF-8"), null, depth, true, bbn, indexPath, termDictionaryPath, null);
                             if (terms != null && !terms.isEmpty()) {
@@ -554,12 +551,15 @@ public class App {
 
         } finally {
             bbn.saveCache();
-            DefaultDirectedWeightedGraph g = buildGraph(allTerms);
-            export2SKOS(g, skosFile + prunDepth + ".rdf");
+//            DefaultDirectedWeightedGraph g = buildGraph(allTerms);
+
+//            export2SKOS(g, skosFile + prunDepth + ".rdf");
 //            export2DOT(g, graphFile + prunDepth + ".dot");
-            DefaultDirectedWeightedGraph pg = pruneGraph(g, prunDepth);
-            export2SKOS(pg, skosFile + ".rdf");
+//            DefaultDirectedWeightedGraph pg = pruneGraph(g, prunDepth);
+            allTerms = pruneGraph(allTerms, prunDepth);
+            export2SKOS(allTerms, skosFile + ".rdf");
 //            export2DOT(pg, graphFile + ".dot");
+//            rapper -o dot ~/workspace/TEXT/etc/taxonomy.rdf | dot -Kfdp -Tsvg -o taxonomy.svg
         }
     }
 
@@ -625,7 +625,6 @@ public class App {
 //        }
 //
 //
-////        System.err.println("Found " + hits.length + " hits.");
 //        StringBuilder scentence = new StringBuilder();
 //        StringBuilder candidateScentence = new StringBuilder();
 //        int count = 0;
@@ -633,7 +632,6 @@ public class App {
 //            int docId = hits[i].doc;
 //
 //            String path = reader.document(docId).getField("path").stringValue();
-////            System.err.println("path: " + path + "score: " + hits[i].score);
 //
 //            try (BufferedReader br = new BufferedReader(new FileReader(path))) {
 //                for (String line; (line = br.readLine()) != null;) {
@@ -683,7 +681,6 @@ public class App {
 //        }
 //        List<String> docs = new ArrayList<>(hits.length);
 //
-////        System.err.println("Found " + hits.length + " hits.");
 //
 //        StringBuilder candidateScentence = new StringBuilder();
 //        int count = 0;
@@ -766,8 +763,6 @@ public class App {
             List<String> ngarms = getNGrams(lemma, termDictionaryPath);
             possibleTerms = resolveTerms(possibleTerms, ngarms);
             if (possibleTerms == null || possibleTerms.isEmpty()) {
-//                String scentense = getScentsens(lemma, numOfWords, indexPath);
-//                ngarms.add(scentense);
                 possibleTerms = bbn.disambiguate("EN", lemma, ngarms);
             }
 
@@ -787,11 +782,7 @@ public class App {
                 if (hyper != null) {
                     for (TermVertex h : hyper) {
                         if (h != null) {
-
                             getTermVertices(h.getLemma(), h.getUID(), --depth, false, bbn, indexPath, termDictionaryPath, terms);
-
-//                            System.err.println("lemma: " + h.getLemma() + " id: " + h.getUID());
-
                         }
                     }
                 }
@@ -801,80 +792,78 @@ public class App {
         return terms;
     }
 
-    private static DefaultDirectedWeightedGraph buildGraph(List<TermVertex> terms) {
-        DefaultDirectedWeightedGraph g = new DefaultDirectedWeightedGraph();
-        for (TermVertex tv : terms) {
-            if (!g.containsVertex(tv)) {
-                g.addVertex(tv);
-            }
-            List<TermVertex> hyper = tv.getBroader();
-            if (hyper != null) {
-                for (TermVertex h : hyper) {
-                    if (h != null && !g.containsVertex(h)) {
-                        g.addVertex(h);
-                    }
-                    if (h != null && !g.containsEdge(h, tv)) {
-                        g.addEdge(h, tv);
+//    private static DefaultDirectedWeightedGraph buildGraph(List<TermVertex> terms) {
+//        DefaultDirectedWeightedGraph g = new DefaultDirectedWeightedGraph();
+//        for (TermVertex tv : terms) {
+//            if (!g.containsVertex(tv)) {
+//                g.addVertex(tv);
+//            }
+//            List<TermVertex> hyper = tv.getBroader();
+//            if (hyper != null) {
+//                for (TermVertex h : hyper) {
+//                    if (h != null && !g.containsVertex(h)) {
+//                        g.addVertex(h);
+//                    }
+//                    if (h != null && !g.containsEdge(h, tv)) {
+//                        g.addEdge(h, tv);
+//                    }
+//                }
+//            }
+//        }
+//        return g;
+//    }
+    public static void export2DOT(DefaultDirectedWeightedGraph g, String graphFile) throws IOException {
+        Set<Edge> set = g.edgeSet();
+        List<String> lines = new ArrayList<>();
+        lines.add("digraph G {");
+        for (Edge e : set) {
+            TermVertex sVertex = (TermVertex) e.getSource();
+            List<DirectedWeightedEdge> sourceOut = g.outgoingEdgesOf(sVertex);
+            for (DirectedWeightedEdge out : sourceOut) {
+                TermVertex tVertex = (TermVertex) out.getTarget();
+                String l = "\"" + sVertex.toString() + "\" -> \"" + tVertex.toString() + "\"";
+                if (!lines.contains(l)) {
+                    lines.add(l);
+                }
+                if (tVertex.getIsFromDictionary()) {
+                    l = "\"" + tVertex.toString() + "\"" + " [shape=rectangle]";
+                    if (!lines.contains(l)) {
+                        lines.add(l);
                     }
                 }
             }
-        }
-        return g;
-    }
+            if (sVertex.getIsFromDictionary()) {
+                String l = "\"" + sVertex.toString() + "\"" + " [shape=rectangle]";
+                if (!lines.contains(l)) {
+                    lines.add(l);
+                }
+            }
+            TermVertex tVertex = (TermVertex) e.getTarget();
+            List<DirectedWeightedEdge> targetOut = g.outgoingEdgesOf(tVertex);
+            for (DirectedWeightedEdge out : targetOut) {
+                TermVertex ttVertex = (TermVertex) out.getTarget();
+                String l = "\"" + tVertex.toString() + "\" -> \"" + ttVertex.toString() + "\"";
+                if (!lines.contains(l)) {
+                    lines.add(l);
+                }
+                if (ttVertex.getIsFromDictionary()) {
+                    l = "\"" + ttVertex.toString() + "\"" + " [shape=rectangle]";
+                    if (!lines.contains(l)) {
+                        lines.add(l);
+                    }
+                }
+            }
 
-//    public static void export2DOT(DefaultDirectedWeightedGraph g, String graphFile) throws IOException {
-//        Set<Edge> set = g.edgeSet();
-//        List<String> lines = new ArrayList<>();
-//        lines.add("digraph G {");
-//        for (Edge e : set) {
-//            TermVertex sVertex = (TermVertex) e.getSource();
-////                System.err.println("\"" + sVertex.toString() + "\" -> \"" + tVertex.toString() + "\"");
-//            List<DirectedWeightedEdge> sourceOut = g.outgoingEdgesOf(sVertex);
-//            for (DirectedWeightedEdge out : sourceOut) {
-//                TermVertex tVertex = (TermVertex) out.getTarget();
-//                String l = "\"" + sVertex.toString() + "\" -> \"" + tVertex.toString() + "\"";
-//                if (!lines.contains(l)) {
-//                    lines.add(l);
-//                }
-//                if (tVertex.getIsFromDictionary()) {
-//                    l = "\"" + tVertex.toString() + "\"" + " [shape=rectangle]";
-//                    if (!lines.contains(l)) {
-//                        lines.add(l);
-//                    }
-//                }
-//            }
-//            if (sVertex.getIsFromDictionary()) {
-//                String l = "\"" + sVertex.toString() + "\"" + " [shape=rectangle]";
-//                if (!lines.contains(l)) {
-//                    lines.add(l);
-//                }
-//            }
-//            TermVertex tVertex = (TermVertex) e.getTarget();
-//            List<DirectedWeightedEdge> targetOut = g.outgoingEdgesOf(tVertex);
-//            for (DirectedWeightedEdge out : targetOut) {
-//                TermVertex ttVertex = (TermVertex) out.getTarget();
-//                String l = "\"" + tVertex.toString() + "\" -> \"" + ttVertex.toString() + "\"";
-//                if (!lines.contains(l)) {
-//                    lines.add(l);
-//                }
-//                if (ttVertex.getIsFromDictionary()) {
-//                    l = "\"" + ttVertex.toString() + "\"" + " [shape=rectangle]";
-//                    if (!lines.contains(l)) {
-//                        lines.add(l);
-//                    }
-//                }
-//            }
-//
-//        }
-//        lines.add("}");
-//        try (BufferedWriter bw = new BufferedWriter(new FileWriter(graphFile, false))) {
-//            for (String line : lines) {
-//                bw.write(line);
-//                bw.newLine();
-//            }
-//            bw.flush();
-//        }
-//    }
+        }
+        lines.add("}");
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(graphFile, false))) {
+            for (String line : lines) {
+                bw.write(line);
+                bw.newLine();
+            }
+            bw.flush();
+        }
+    }
 //    private static Query buildQuery(String searchString, boolean useWildcard) throws org.apache.lucene.queryparser.classic.ParseException {
 //        StandardAnalyzer analyzer = new StandardAnalyzer(Version.LUCENE_42);
 //        QueryParser qp = new QueryParser(Version.LUCENE_42, "content", analyzer);
@@ -890,6 +879,7 @@ public class App {
 //        indexSearcher.search(q, collector);
 //        return collector.topDocs().scoreDocs;
 //    }
+
     private static DefaultDirectedWeightedGraph pruneGraph(DefaultDirectedWeightedGraph g, int depth) throws ParseException, IOException, SKOSCreationException, SKOSChangeException, SKOSStorageException {
         List<TermVertex> vertexToRemove = new ArrayList<>();
         List<Edge> edgeToRemove = new ArrayList<>();
@@ -898,6 +888,7 @@ public class App {
         for (DirectedWeightedEdge e : edges) {
             TermVertex source = (TermVertex) e.getSource();
             TermVertex target = (TermVertex) e.getTarget();
+
             List<DirectedWeightedEdge> inSource = g.incomingEdgesOf(source);
             List<DirectedWeightedEdge> outSource = g.outgoingEdgesOf(source);
             int inSourceSize = inSource.size();
@@ -930,7 +921,6 @@ public class App {
                     } else if (!targetOfin.getIsFromDictionary() && !connectsWithDictionaryTerm(targetOfin)) {
                         vertexToRemove.add(targetOfin);
                     }
-//                    System.err.println(in + " " + g.inDegreeOf(sourceOfin) + " " + g.outDegreeOf(sourceOfin) + " " + g.inDegreeOf(targetOfin) + " " + g.outDegreeOf(targetOfin));
                 }
             }
             for (DirectedWeightedEdge out : outSource) {
@@ -953,6 +943,24 @@ public class App {
         return g;
     }
 
+    private static void export2SKOS(List<TermVertex> allTerms, String fileName) throws SKOSCreationException, IOException, SKOSChangeException, SKOSStorageException {
+        SKOSConceptScheme scheme = SkosUtils.getSKOSDataFactory().getSKOSConceptScheme(URI.create(SkosUtils.SKOS_URI));
+
+        List<SKOSChange> change = new ArrayList<>();
+        SKOSEntityAssertion schemaAss = SkosUtils.getSKOSDataFactory().getSKOSEntityAssertion(scheme);
+        change.add(new AddAssertion(SkosUtils.getSKOSDataset(), schemaAss));
+
+        for (TermVertex tv : allTerms) {
+            if (tv.getBroader() == null || tv.getBroader().isEmpty()) {
+                change.addAll(SkosUtils.create(tv, "EN", true));
+            } else {
+                change.addAll(SkosUtils.create(tv, "EN", false));
+            }
+        }
+        SkosUtils.getSKOSManager().applyChanges(change);
+        SkosUtils.getSKOSManager().save(SkosUtils.getSKOSDataset(), SKOSFormatExt.RDFXML, new File(fileName).toURI());
+    }
+
     private static void export2SKOS(DefaultDirectedWeightedGraph g, String skosFile) throws ParseException, SKOSCreationException, SKOSChangeException, SKOSStorageException, IOException {
 
         SKOSConceptScheme scheme = SkosUtils.getSKOSDataFactory().getSKOSConceptScheme(URI.create(SkosUtils.SKOS_URI));
@@ -964,7 +972,7 @@ public class App {
         Set<DirectedWeightedEdge> edges = g.edgeSet();
         for (DirectedWeightedEdge e : edges) {
             TermVertex s = (TermVertex) e.getSource();
-
+//            Logger.getLogger(App.class.getName()).log(Level.INFO, "Term: {0}", s.toString());
 //                List<DirectedWeightedEdge> outEdges = g.outgoingEdgesOf((TermVertex) e.getSource());
             List<DirectedWeightedEdge> inEdges = g.incomingEdgesOf(s);
 
@@ -1047,12 +1055,14 @@ public class App {
         for (SKOSConcept concept : dataset.getSKOSConcepts()) {
 //            List<String> nuids = SkosUtils.getNarrowerUIDs(dataset, concept);
 //            if (nuids == null || nuids.isEmpty()) {
-            String value = SkosUtils.getPrefLabelValue(dataset, concept, language).toLowerCase();
+            String value = SkosUtils.getPrefLabelValue(dataset, concept, language).toLowerCase().replaceAll(" ", "_");
             TermVertex term = new TermVertex(value);
             String uid = SkosUtils.getUID(concept, taxonomyFile);
             term.setForeignKey(uid);
+            
             List<String> altLables = SkosUtils.getAltLabelValues(dataset, concept, language);
             term.setAlternativeLables(altLables);
+            term.setIsFromDictionary(true);
 //                List<String> buids = SkosUtils.getBroaderUIDs(dataset, concept);
 //                term.setBroaderUIDS(buids);
 //                term.setNarrowerUIDS(nuids);
@@ -1111,7 +1121,6 @@ public class App {
         List<TermVertex> terms = new ArrayList<>();
         for (TermVertex t : possibleTerms) {
             if (t.getUID().equals(winner)) {
-//                System.err.println("Winner: " + winner + " score: " + highScore);
                 terms.add(t);
             }
         }
@@ -1137,7 +1146,6 @@ public class App {
                         String targetUid = SkosUtils.getUID(targetConcepts, new File(skosFile2));
                         String targetPref = SkosUtils.getPrefLabelValue(dataset2, targetConcepts, language);
                         if (sourceUid.equals(targetUid)) {
-//                            System.err.println("sourceUid: " + sourceUid + " targetUid: " + targetUid);
                             change.add(new AddAssertion(dataset1, SkosUtils.addExactMatchMapping(sourceConcepts, targetConcepts)));
                             break;
                         } else if (sourcePref.equals(targetPref)) {
@@ -1238,5 +1246,9 @@ public class App {
             }
         }
         return false;
+    }
+
+    private static List<TermVertex> pruneGraph(List<TermVertex> allTerms, int prunDepth) {
+        return allTerms;
     }
 }

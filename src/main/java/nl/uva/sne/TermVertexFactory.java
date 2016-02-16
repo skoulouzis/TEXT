@@ -34,7 +34,6 @@ public class TermVertexFactory {
                 if (lang.equals(language)) {
                     String category = ((String) cat.get("category")).toLowerCase();
                     categories.add(category);
-//                System.err.println("category: " + category);
                 }
             }
         }
@@ -70,7 +69,6 @@ public class TermVertexFactory {
                     String jlemma = (String) jo2.get("lemma");
                     jlemma = jlemma.toLowerCase().replaceAll("(\\d+,\\d+)|\\d+", "");
                     altLables.add(jlemma);
-
                     if (theID != null && babelNetID.equals(theID)) {
                         node = new TermVertex(jlemma);
                         node.setUID(babelNetID);
@@ -96,7 +94,6 @@ public class TermVertexFactory {
                         }
                     }
                     int dist = edu.stanford.nlp.util.StringUtils.editDistance(lemma, jlemma);
-//                    System.err.println("original: " + lemma + " jlemma: " + jlemma + " id: " + babelNetID + " lang " + lang + " dist: " + dist);
                     if (lemma.length() < jlemma.length()) {
                         lemma1 = lemma;
                         lemma2 = jlemma;
@@ -116,9 +113,6 @@ public class TermVertexFactory {
                 }
             }
         }
-//        else {
-//            System.err.println(synet + " lemma: " + lemma);
-//        }
 
         return null;
     }

@@ -16,6 +16,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -133,23 +134,36 @@ public class BabelNet {
     public List<TermVertex> getTermNodeByLemma(String word, boolean isFromDictionary) throws IOException, MalformedURLException, ParseException, Exception {
         String key = getKey();
         String language = "EN";
-
         List<String> ids = getcandidateWordIDs(language, word, key);
         List<TermVertex> nodes = null;
-        TermVertexFactory tvf = new TermVertexFactory();
-        if (ids != null) {
-            nodes = new ArrayList<>(ids.size());
+        nodes = new ArrayList<>();
+        if (ids != null && ids.size() > 1) {
             for (String id : ids) {
                 String synet = getBabelnetSynset(id, language, key);
-                TermVertex node = tvf.create(synet, language, word, null);
+                TermVertex node = TermVertexFactory.create(synet, language, word, null);
                 if (node != null) {
                     try {
                         List<TermVertex> h = getHypernyms(language, node, key);
-                        node.setBroader(h);
+                        if (h != null && !h.isEmpty()) {
+                            node.setBroader(h);
+                        }
                     } catch (Exception ex) {
                     }
                     nodes.add(node);
                 }
+            }
+        } else if (ids != null && ids.size() == 1) {
+            String synet = getBabelnetSynset(ids.get(0), language, key);
+            TermVertex node = TermVertexFactory.create(synet, language, word, ids.get(0));
+            if (node != null) {
+                try {
+                    List<TermVertex> h = getHypernyms(language, node, key);
+                    if (h != null && !h.isEmpty()) {
+                        node.setBroader(h);
+                    }
+                } catch (Exception ex) {
+                }
+                nodes.add(node);
             }
         }
         return nodes;
@@ -389,8 +403,7 @@ public class BabelNet {
 
     public void saveCache() throws FileNotFoundException, IOException {
         Logger.getLogger(BabelNet.class.getName()).log(Level.INFO, "Saving cache");
-//        deleteEntry("bn:03316494n");
-//        deleteEntry("bn:00023236n");
+//        deleteNonExisting();
         if (db != null) {
             if (!db.isClosed()) {
                 db.commit();
@@ -480,7 +493,6 @@ public class BabelNet {
                 Double second = idsMap.get(iter.next());
 
                 persent = first / (first + second);
-//                System.err.println("first: " + first + " second: " + second + " persent: " + persent);
                 if (persent > 0.65) {
                     break;
                 }
@@ -509,7 +521,6 @@ public class BabelNet {
 //                    score = 1.0;
                     score = termPair.second;
                 }
-//                System.err.println(termPair.first.getUID() + " : " + score + " : " + termPair.first.getLemma());
                 idsMap.put(termPair.first.getUID(), score);
             }
         }
@@ -517,7 +528,6 @@ public class BabelNet {
             ValueComparator bvc = new ValueComparator(idsMap);
             TreeMap<String, Double> sorted_map = new TreeMap(bvc);
             sorted_map.putAll(idsMap);
-//            System.err.println(sorted_map);
             count = 0;
             Double firstScore = idsMap.get(sorted_map.firstKey());
             terms.add(termMap.get(sorted_map.firstKey()));
@@ -565,7 +575,6 @@ public class BabelNet {
             }
             db.commit();
         }
-//        System.err.println(sentence);
         Object obj = JSONValue.parseWithException(genreJson);
 //        TermVertex term = null;
         if (obj instanceof JSONArray) {
@@ -583,7 +592,6 @@ public class BabelNet {
                 if (t != null) {
                     List<TermVertex> h = getHypernyms(language, t, key);
                     t.setBroader(h);
-//                    System.err.println("id: " + id + " lemma: " + lemma + " score: " + score + " globalScore: " + globalScore + " coherenceScore: " + coherenceScore + " someScore: " + someScore);
                     return new Pair<>(t, someScore);
                 }
             }
@@ -614,12 +622,10 @@ public class BabelNet {
         for (Object o : edgeArray) {
             JSONObject pointer = (JSONObject) ((JSONObject) o).get("pointer");
             String relationGroup = (String) pointer.get("relationGroup");
-//            System.err.println("relationGroup: "+relationGroup);
             if (relationGroup.equals(relation)) {
                 String target = (String) ((JSONObject) o).get("target");
                 Double normalizedWeight = (Double) ((JSONObject) o).get("normalizedWeight");
                 Double weight = (Double) ((JSONObject) o).get("weight");
-//                System.err.println("hyponym: " + id + " target: " + target + " normalizedWeight: " + normalizedWeight + " weight: " + weight);
                 map.put(target, ((normalizedWeight + weight) / 2.0));
             }
         }
@@ -642,7 +648,6 @@ public class BabelNet {
 //                    PointerTargetTreeNode chNode = (PointerTargetTreeNode) ch;
 //                    for (Word w : chNode.getSynset().getWords()) {
 //                        String syn = w.getLemma().toLowerCase().replaceAll("(\\d+,\\d+)|\\d+", "");
-//                        System.err.println("synonyms: " + syn);
 //                        synonyms.add(new TermVertex(syn));
 //                    }
 //                }
@@ -715,9 +720,6 @@ public class BabelNet {
 //                if (syn != null) {
 //                    for (TermVertex s : syn) {
 //                        int dist = edu.stanford.nlp.util.StringUtils.editDistance(s.getLemma(), word);
-//                        if (dist < 15) {
-//                            System.err.println("dist " + s.getLemma() + " " + word + "= " + dist);
-//                        }
 //                        if (s.getLemma().equals(word)) {
 //                            return term;
 //                        }
@@ -799,7 +801,10 @@ public class BabelNet {
 
             String synetHyper = getBabelnetSynset(uid, language, key);
             TermVertex hypernym = TermVertexFactory.create(synetHyper, language, null, uid);
-            hypernyms.add(hypernym);
+            if (hypernym != null) {
+                hypernyms.add(hypernym);
+            }
+
 
             maxNumOfHyper--;
         }
@@ -839,6 +844,39 @@ public class BabelNet {
         wordIDCache.remove(key);
         disambiguateCache.remove(key);
         edgesCache.remove(key);
+    }
+
+    private void deleteNonExisting() {
+
+        Map<String, String> map = synsetCache;
+        Collection<String> keys = map.keySet();
+        for (String k : keys) {
+            if (map.get(k).equals("NON-EXISTING")) {
+                map.remove(k);
+            }
+        }
+        map = disambiguateCache;
+        keys = map.keySet();
+        for (String k : keys) {
+            if (map.get(k).equals("NON-EXISTING")) {
+                map.remove(k);
+            }
+        }
+
+        map = edgesCache;
+        keys = map.keySet();
+        for (String k : keys) {
+            if (map.get(k).equals("NON-EXISTING")) {
+                map.remove(k);
+            }
+        }
+        keys = wordIDCache.keySet();
+        for (String k : keys) {
+            List<String> val = wordIDCache.get(k);
+            if (val != null && val.size() == 1 && val.get(0).equals("NON-EXISTING")) {
+                wordIDCache.remove(k);
+            }
+        }
     }
 
     private String lmmtizeFromOnlineWordNet(String word, String language) throws IOException {
@@ -884,10 +922,8 @@ public class BabelNet {
                         shortLemma = tmpWord;
                         longLemma = wNetlemma;
                     }
-//                    System.err.println("original: " + word + " shortLemma: " + shortLemma + " longLemma: " + longLemma + " dist: " + dist);
                     if (dist <= 3 && longLemma.startsWith(shortLemma)) {
                         lemmaCache.put(word, wNetlemma);
-//                        System.err.println("return: " + wNetlemma);
                         return wNetlemma;
                     }
                 }
@@ -926,7 +962,6 @@ public class BabelNet {
                         word = word.replaceAll(" ", "_");
                         int dist = edu.stanford.nlp.util.StringUtils.editDistance(word, jlemma);
                         String lemma1, lemma2;
-//                        System.err.println("original: " + word + " jlemma: " + jlemma + " lang " + lang + " dist: " + dist);
                         if (word.length() < jlemma.length()) {
                             lemma1 = word;
                             lemma2 = jlemma;
