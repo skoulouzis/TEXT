@@ -1,5 +1,6 @@
 package nl.uva.sne;
 
+import edu.stanford.nlp.util.ArraySet;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -502,13 +503,14 @@ public class App {
         } finally {
             bbn.saveCache();
 //            DefaultDirectedWeightedGraph g = buildGraph(allTerms);
-
-//            export2SKOS(g, skosFile + prunDepth + ".rdf");
-//            export2DOT(g, graphFile + prunDepth + ".dot");
+            allTerms = buildGraph(allTerms);
+           
+            export2SKOS(allTerms, skosFile + prunDepth + ".rdf");
+            export2DOT(allTerms, graphFile + prunDepth + ".dot");
 //            DefaultDirectedWeightedGraph pg = pruneGraph(g, prunDepth);
             allTerms = pruneGraph(allTerms, prunDepth);
             export2SKOS(allTerms, skosFile + ".rdf");
-//            export2DOT(pg, graphFile + ".dot");
+            export2DOT(allTerms, graphFile + ".dot");
 //            rapper -o dot ~/workspace/TEXT/etc/taxonomy.rdf | dot -Kfdp -Tsvg -o taxonomy.svg
         }
     }
@@ -551,14 +553,14 @@ public class App {
 
         } finally {
             bbn.saveCache();
-//            DefaultDirectedWeightedGraph g = buildGraph(allTerms);
+            allTerms = buildGraph(allTerms);
 
 //            export2SKOS(g, skosFile + prunDepth + ".rdf");
-//            export2DOT(g, graphFile + prunDepth + ".dot");
-//            DefaultDirectedWeightedGraph pg = pruneGraph(g, prunDepth);
+            export2DOT(allTerms, graphFile + prunDepth + ".dot");
+            export2SKOS(allTerms, skosFile + prunDepth + ".rdf");
             allTerms = pruneGraph(allTerms, prunDepth);
             export2SKOS(allTerms, skosFile + ".rdf");
-//            export2DOT(pg, graphFile + ".dot");
+            export2DOT(allTerms, graphFile + prunDepth + ".dot");
 //            rapper -o dot ~/workspace/TEXT/etc/taxonomy.rdf | dot -Kfdp -Tsvg -o taxonomy.svg
         }
     }
@@ -812,6 +814,23 @@ public class App {
 //        }
 //        return g;
 //    }
+    private static void export2DOT(List<TermVertex> allTerms, String file) throws IOException {
+        Set<String> lines = new ArraySet<>();
+        lines.add("digraph G {");
+        for (TermVertex tv : allTerms) {
+            Set<String> edges = addEdgses(tv);
+            lines.addAll(edges);
+        }
+        lines.add("}");
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(file, false))) {
+            for (String line : lines) {
+                bw.write(line);
+                bw.newLine();
+            }
+            bw.flush();
+        }
+    }
+
     public static void export2DOT(DefaultDirectedWeightedGraph g, String graphFile) throws IOException {
         Set<Edge> set = g.edgeSet();
         List<String> lines = new ArrayList<>();
@@ -879,6 +898,49 @@ public class App {
 //        indexSearcher.search(q, collector);
 //        return collector.topDocs().scoreDocs;
 //    }
+
+    private static List<TermVertex> pruneGraph(List<TermVertex> allTerms, int prunDepth) {
+        List<TermVertex> vertexToRemove = new ArrayList<>();
+        for (TermVertex tv : allTerms) {
+            vertexToRemove.addAll(removeOrphanNodes(tv));
+        }
+//        System.err.println("vertexToRemove: " + vertexToRemove);
+        allTerms.removeAll(vertexToRemove);
+        prunDepth--;
+//        if (prunDepth > 1) {
+//            allTerms = pruneGraph(allTerms, prunDepth);
+//        }
+        return allTerms;
+    }
+
+    private static List<TermVertex> removeOrphanNodes(TermVertex tv) {
+        ArrayList<TermVertex> vertexToRemove = new ArrayList<>();
+        if (!tv.getIsFromDictionary()) {
+            List<TermVertex> broader = tv.getBroader();
+            List<TermVertex> narrower = tv.getNarrower();
+
+            if (broader == null || broader.isEmpty()) {
+                System.err.println("Remove? " + tv + " broader: " + broader + " narrower: " + narrower);
+                if (narrower == null || narrower.isEmpty()) {
+//                    System.err.println("Remove: " + tv);
+                    vertexToRemove.add(tv);
+                }
+                if (narrower != null) {
+                    if (narrower.size() == 1) {
+                        if (!narrower.get(0).getIsFromDictionary()) {
+                            vertexToRemove.add(tv);
+                        }
+                    }
+                }
+            } else {
+                for (TermVertex b : broader) {
+                    removeOrphanNodes(b);
+                }
+
+            }
+        }
+        return vertexToRemove;
+    }
 
     private static DefaultDirectedWeightedGraph pruneGraph(DefaultDirectedWeightedGraph g, int depth) throws ParseException, IOException, SKOSCreationException, SKOSChangeException, SKOSStorageException {
         List<TermVertex> vertexToRemove = new ArrayList<>();
@@ -1003,7 +1065,7 @@ public class App {
                     term.setAlternativeLables(altLables);
                     List<String> buids = SkosUtils.getBroaderUIDs(dataset, concept);
                     term.setBroaderUIDS(buids);
-                    List<String> nuids = SkosUtils.getNarrowerUIDs(dataset, concept);
+                    Set<String> nuids = SkosUtils.getNarrowerUIDs(dataset, concept);
                     term.setNarrowerUIDS(nuids);
                     idMap.put(uid, term);
                 }
@@ -1018,7 +1080,7 @@ public class App {
                 term.setAlternativeLables(altLables);
                 List<String> buids = SkosUtils.getBroaderUIDs(dataset, concept);
                 term.setBroaderUIDS(buids);
-                List<String> nuids = SkosUtils.getNarrowerUIDs(dataset, concept);
+                Set<String> nuids = SkosUtils.getNarrowerUIDs(dataset, concept);
                 term.setNarrowerUIDS(nuids);
                 idMap.put(uid, term);
             }
@@ -1059,7 +1121,7 @@ public class App {
             TermVertex term = new TermVertex(value);
             String uid = SkosUtils.getUID(concept, taxonomyFile);
             term.setForeignKey(uid);
-            
+
             List<String> altLables = SkosUtils.getAltLabelValues(dataset, concept, language);
             term.setAlternativeLables(altLables);
             term.setIsFromDictionary(true);
@@ -1248,7 +1310,62 @@ public class App {
         return false;
     }
 
-    private static List<TermVertex> pruneGraph(List<TermVertex> allTerms, int prunDepth) {
-        return allTerms;
+    private static List<TermVertex> buildGraph(List<TermVertex> allTerms) {
+        ArrayList<TermVertex> updatedTerms = new ArrayList<>();
+
+        for (TermVertex tv : allTerms) {
+            List<TermVertex> broader = tv.getBroader();
+            if (broader != null) {
+                for (TermVertex b : broader) {
+                    b.addNarrowerUID(tv.getUID());
+                    b.addNarrower(tv);
+                    updatedTerms.add(b);
+                }
+                updatedTerms.addAll(buildGraph(broader));
+            }
+            updatedTerms.add(tv);
+        }
+        return updatedTerms;
+    }
+
+    private static Set<String> addEdgses(TermVertex tv) {
+        Set<String> lines = new HashSet<>();
+        if (tv.getIsFromDictionary()) {
+            String l = "\"" + tv.toString() + "\"" + " [shape=rectangle]";
+            if (!lines.contains(l)) {
+                lines.add(l);
+            }
+        }
+
+        List<TermVertex> broader = tv.getBroader();
+        if (broader != null) {
+            for (TermVertex b : broader) {
+                String l = "\"" + b.toString() + "\" -> \"" + tv.toString() + "\"";
+                lines.add(l);
+                if (b.getIsFromDictionary()) {
+                    l = "\"" + b.toString() + "\"" + " [shape=rectangle]";
+                    if (!lines.contains(l)) {
+                        lines.add(l);
+                    }
+                }
+//                lines.addAll(addEdgses(b));
+            }
+        }
+        List<TermVertex> narrower = tv.getNarrower();
+        if (narrower != null) {
+            for (TermVertex n : narrower) {
+                String l = "\"" + tv.toString() + "\" -> \"" + n.toString() + "\"";
+                lines.add(l);
+                if (n.getIsFromDictionary()) {
+                    l = "\"" + n.toString() + "\"" + " [shape=rectangle]";
+                    if (!lines.contains(l)) {
+                        lines.add(l);
+                    }
+                }
+                lines.addAll(addEdgses(n));
+            }
+
+        }
+        return lines;
     }
 }

@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -328,8 +329,8 @@ class SkosUtils {
         return broaderUIDs;
     }
 
-    static List<String> getNarrowerUIDs(SKOSDataset dataset, SKOSConcept concept) throws SKOSCreationException {
-        List<String> narrowerUIDs = new ArrayList<>();
+    static Set<String> getNarrowerUIDs(SKOSDataset dataset, SKOSConcept concept) throws SKOSCreationException {
+        Set<String> narrowerUIDs = new HashSet<>();
         Set<SKOSAnnotation> narrowerLabel = dataset.getSKOSAnnotationsByURI(concept, getSKOSDataFactory().getSKOSNarrowerProperty().getURI());
         Iterator<SKOSAnnotation> iter = narrowerLabel.iterator();
 
@@ -344,7 +345,6 @@ class SkosUtils {
                 SKOSEntity entity = ann.getAnnotationValue();
                 value = entity.getURI().getFragment();
             }
-            narrowerUIDs.add(value);
             narrowerUIDs.add(value);
 
         }

@@ -4,8 +4,11 @@
  */
 package nl.uva.sne;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  *
@@ -22,8 +25,9 @@ public class TermVertex {
     private List<String> altLables;
     private List<String> glosses;
     private List<String> buids;
-    private List<String> nuids;
+    private Set<String> nuids;
     private String fKey;
+    private List<TermVertex> narrower;
 
     public TermVertex(String lemma) {
         this.lemma = lemma;
@@ -110,11 +114,11 @@ public class TermVertex {
         this.buids = buids;
     }
 
-    List<String> getNarrowerUIDS() {
+    Set<String> getNarrowerUIDS() {
         return this.nuids;
     }
 
-    void setNarrowerUIDS(List<String> nuids) {
+    void setNarrowerUIDS(Set<String> nuids) {
         this.nuids = nuids;
     }
 
@@ -133,5 +137,23 @@ public class TermVertex {
     @Override
     public String toString() {
         return this.lemma + "-" + uid;
+    }
+
+    void addNarrowerUID(String uid) {
+        if (this.nuids == null) {
+            nuids = new HashSet<>();
+        }
+        nuids.add(uid);
+    }
+
+    List<TermVertex> getNarrower() {
+        return this.narrower;
+    }
+
+    void addNarrower(TermVertex tv) {
+        if (narrower == null) {
+            this.narrower = new ArrayList<>();
+        }
+        narrower.add(tv);
     }
 }
