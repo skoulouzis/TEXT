@@ -4,6 +4,7 @@
  */
 package nl.uva.sne;
 
+import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -70,16 +71,14 @@ public class TermVertex {
     public boolean equals(Object obj) {
         if (obj instanceof TermVertex) {
             TermVertex v = (TermVertex) obj;
-            return (v.getLemma().equals(this.lemma));
+            return (v.getUID().equals(this.uid));
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-//        int hash = 7;
-//        hash = 29 * hash + Objects.hashCode(this.lemma);
-        return Objects.hashCode(this.lemma);
+        return Objects.hashCode(this.uid);
     }
 
     public String getUID() {
@@ -155,5 +154,23 @@ public class TermVertex {
             this.narrower = new ArrayList<>();
         }
         narrower.add(tv);
+    }
+
+    void setNarrower(ArrayList<TermVertex> narrower) {
+        this.narrower = narrower;
+    }
+
+    void addBroaderUID(String buid) {
+        if (this.buids == null) {
+            this.buids = new ArrayList<>();
+        }
+        this.buids.add(buid);
+    }
+
+    void addBroader(TermVertex tv) {
+        if (this.broader == null) {
+            this.broader = new ArrayList<>();
+        }
+        this.broader.add(tv);
     }
 }

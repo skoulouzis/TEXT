@@ -503,14 +503,18 @@ public class App {
         } finally {
             bbn.saveCache();
 //            DefaultDirectedWeightedGraph g = buildGraph(allTerms);
-            allTerms = buildGraph(allTerms);
-           
-            export2SKOS(allTerms, skosFile + prunDepth + ".rdf");
-            export2DOT(allTerms, graphFile + prunDepth + ".dot");
-//            DefaultDirectedWeightedGraph pg = pruneGraph(g, prunDepth);
-            allTerms = pruneGraph(allTerms, prunDepth);
-            export2SKOS(allTerms, skosFile + ".rdf");
-            export2DOT(allTerms, graphFile + ".dot");
+            allTerms = buildGraph(allTerms, null);
+            for (TermVertex tv : allTerms) {
+                System.err.println(tv.toString() + " b: " + tv.getBroader() + " n: " + tv.getNarrower());
+            }
+
+//            export2SKOS(allTerms, skosFile + prunDepth + ".rdf");
+//            export2DOT(allTerms, graphFile + prunDepth + ".dot");
+////            DefaultDirectedWeightedGraph pg = pruneGraph(g, prunDepth);
+//            allTerms = pruneGraph(allTerms, prunDepth);
+//
+//            export2SKOS(allTerms, skosFile + ".rdf");
+//            export2DOT(allTerms, graphFile + ".dot");
 //            rapper -o dot ~/workspace/TEXT/etc/taxonomy.rdf | dot -Kfdp -Tsvg -o taxonomy.svg
         }
     }
@@ -553,7 +557,7 @@ public class App {
 
         } finally {
             bbn.saveCache();
-            allTerms = buildGraph(allTerms);
+            allTerms = buildGraph(allTerms, null);
 
 //            export2SKOS(g, skosFile + prunDepth + ".rdf");
             export2DOT(allTerms, graphFile + prunDepth + ".dot");
@@ -1310,22 +1314,28 @@ public class App {
         return false;
     }
 
-    private static List<TermVertex> buildGraph(List<TermVertex> allTerms) {
-        ArrayList<TermVertex> updatedTerms = new ArrayList<>();
-
+    private static List<TermVertex> buildGraph(List<TermVertex> allTerms, Map<String, TermVertex> termMap) throws Exception {
+        if (termMap == null) {
+            termMap = new HashMap<>();
+        }
         for (TermVertex tv : allTerms) {
             List<TermVertex> broader = tv.getBroader();
             if (broader != null) {
                 for (TermVertex b : broader) {
                     b.addNarrowerUID(tv.getUID());
                     b.addNarrower(tv);
-                    updatedTerms.add(b);
                 }
-                updatedTerms.addAll(buildGraph(broader));
+                buildGraph(broader, termMap);
             }
-            updatedTerms.add(tv);
+            TermVertex tmp = termMap.get(tv.getUID());
+            if (tmp != null) {
+                tv = TermVertexFactory.merge(tmp, tv);
+            }
+
+            termMap.put(tv.getUID(), tv);
         }
-        return updatedTerms;
+
+        return new ArrayList<>(termMap.values());
     }
 
     private static Set<String> addEdgses(TermVertex tv) {
