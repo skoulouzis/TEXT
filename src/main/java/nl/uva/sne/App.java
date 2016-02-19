@@ -27,6 +27,7 @@ import java.util.logging.Logger;
 
 import net.didion.jwnl.JWNLException;
 import net.didion.jwnl.data.POS;
+import static nl.uva.sne.SkosUtils.SKOS_URI;
 import static nl.uva.sne.SkosUtils.getSKOSDataFactory;
 import org._3pq.jgrapht.Edge;
 import org._3pq.jgrapht.edge.DirectedWeightedEdge;
@@ -502,19 +503,10 @@ public class App {
 
         } finally {
             bbn.saveCache();
-//            DefaultDirectedWeightedGraph g = buildGraph(allTerms);
             allTerms = buildGraph(allTerms, null);
-            for (TermVertex tv : allTerms) {
-                System.err.println(tv.toString() + " b: " + tv.getBroader() + " n: " + tv.getNarrower());
-            }
-
-//            export2SKOS(allTerms, skosFile + prunDepth + ".rdf");
-//            export2DOT(allTerms, graphFile + prunDepth + ".dot");
-////            DefaultDirectedWeightedGraph pg = pruneGraph(g, prunDepth);
-//            allTerms = pruneGraph(allTerms, prunDepth);
-//
-//            export2SKOS(allTerms, skosFile + ".rdf");
-//            export2DOT(allTerms, graphFile + ".dot");
+            allTerms = pruneGraph(allTerms, prunDepth);
+            export2SKOS(allTerms, skosFile + ".rdf", String.valueOf(1));
+            export2DOT(allTerms, graphFile + ".dot");
 //            rapper -o dot ~/workspace/TEXT/etc/taxonomy.rdf | dot -Kfdp -Tsvg -o taxonomy.svg
         }
     }
@@ -558,12 +550,11 @@ public class App {
         } finally {
             bbn.saveCache();
             allTerms = buildGraph(allTerms, null);
-
-//            export2SKOS(g, skosFile + prunDepth + ".rdf");
             export2DOT(allTerms, graphFile + prunDepth + ".dot");
-            export2SKOS(allTerms, skosFile + prunDepth + ".rdf");
+            export2SKOS(allTerms, skosFile + ".rdf", String.valueOf(0));
+            System.err.println("--------------------------------");
             allTerms = pruneGraph(allTerms, prunDepth);
-            export2SKOS(allTerms, skosFile + ".rdf");
+            export2SKOS(allTerms, skosFile + ".rdf", String.valueOf(1));
             export2DOT(allTerms, graphFile + prunDepth + ".dot");
 //            rapper -o dot ~/workspace/TEXT/etc/taxonomy.rdf | dot -Kfdp -Tsvg -o taxonomy.svg
         }
@@ -908,8 +899,20 @@ public class App {
         for (TermVertex tv : allTerms) {
             vertexToRemove.addAll(removeOrphanNodes(tv));
         }
-//        System.err.println("vertexToRemove: " + vertexToRemove);
         allTerms.removeAll(vertexToRemove);
+        for (TermVertex tv : allTerms) {
+            List<TermVertex> b = tv.getBroader();
+            if (b != null) {
+                b.removeAll(vertexToRemove);
+            }
+            List<TermVertex> n = tv.getNarrower();
+            if (n != null) {
+                n.removeAll(vertexToRemove);
+            }
+        }
+
+
+
         prunDepth--;
 //        if (prunDepth > 1) {
 //            allTerms = pruneGraph(allTerms, prunDepth);
@@ -924,9 +927,7 @@ public class App {
             List<TermVertex> narrower = tv.getNarrower();
 
             if (broader == null || broader.isEmpty()) {
-                System.err.println("Remove? " + tv + " broader: " + broader + " narrower: " + narrower);
                 if (narrower == null || narrower.isEmpty()) {
-//                    System.err.println("Remove: " + tv);
                     vertexToRemove.add(tv);
                 }
                 if (narrower != null) {
@@ -938,9 +939,8 @@ public class App {
                 }
             } else {
                 for (TermVertex b : broader) {
-                    removeOrphanNodes(b);
+                    vertexToRemove.addAll(removeOrphanNodes(b));
                 }
-
             }
         }
         return vertexToRemove;
@@ -1009,18 +1009,18 @@ public class App {
         return g;
     }
 
-    private static void export2SKOS(List<TermVertex> allTerms, String fileName) throws SKOSCreationException, IOException, SKOSChangeException, SKOSStorageException {
-        SKOSConceptScheme scheme = SkosUtils.getSKOSDataFactory().getSKOSConceptScheme(URI.create(SkosUtils.SKOS_URI));
-
+    private static void export2SKOS(List<TermVertex> allTerms, String fileName, String version) throws SKOSCreationException, IOException, SKOSChangeException, SKOSStorageException {
+        URI uri = URI.create(SKOS_URI + "v" + version);
+        SKOSConceptScheme scheme = SkosUtils.getSKOSDataFactory().getSKOSConceptScheme(uri);
         List<SKOSChange> change = new ArrayList<>();
         SKOSEntityAssertion schemaAss = SkosUtils.getSKOSDataFactory().getSKOSEntityAssertion(scheme);
         change.add(new AddAssertion(SkosUtils.getSKOSDataset(), schemaAss));
 
         for (TermVertex tv : allTerms) {
             if (tv.getBroader() == null || tv.getBroader().isEmpty()) {
-                change.addAll(SkosUtils.create(tv, "EN", true));
+                change.addAll(SkosUtils.create(tv, "EN", true, version));
             } else {
-                change.addAll(SkosUtils.create(tv, "EN", false));
+                change.addAll(SkosUtils.create(tv, "EN", false, version));
             }
         }
         SkosUtils.getSKOSManager().applyChanges(change);
@@ -1331,10 +1331,8 @@ public class App {
             if (tmp != null) {
                 tv = TermVertexFactory.merge(tmp, tv);
             }
-
             termMap.put(tv.getUID(), tv);
         }
-
         return new ArrayList<>(termMap.values());
     }
 

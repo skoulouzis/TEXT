@@ -64,14 +64,15 @@ class SkosUtils {
         return dataset;
     }
 
-    static Collection<? extends SKOSChange> create(TermVertex tv, String lang, boolean isTpConcept) throws SKOSCreationException, IOException {
+    static Collection<? extends SKOSChange> create(TermVertex tv, String lang, boolean isTpConcept, String version) throws SKOSCreationException, IOException {
         List<SKOSChange> addAssertions = new ArrayList<>();
-        SKOSConceptScheme scheme = getSKOSDataFactory().getSKOSConceptScheme(URI.create(SKOS_URI));
+        URI uri = URI.create(SKOS_URI + "v" + version);
+        SKOSConceptScheme scheme = getSKOSDataFactory().getSKOSConceptScheme(uri);
 
         SKOSEntityAssertion schemaAss = getSKOSDataFactory().getSKOSEntityAssertion(scheme);
         addAssertions.add(new AddAssertion(getSKOSDataset(), schemaAss));
 
-        SKOSConcept concept = getSKOSDataFactory().getSKOSConcept(URI.create(SKOS_URI + "#" + tv.getUID()));
+        SKOSConcept concept = getSKOSDataFactory().getSKOSConcept(URI.create(uri + "#" + tv.getUID()));
 
         if (isTpConcept) {
             SKOSObjectRelationAssertion topConcept = getSKOSDataFactory().getSKOSObjectRelationAssertion(scheme, getSKOSDataFactory().getSKOSHasTopConceptProperty(), concept);
@@ -106,7 +107,7 @@ class SkosUtils {
         List<TermVertex> broader = tv.getBroader();
         if (broader != null) {
             for (TermVertex b : broader) {
-                SKOSConcept broaderConcept = getSKOSDataFactory().getSKOSConcept(URI.create(SKOS_URI + "#" + b.getUID()));
+                SKOSConcept broaderConcept = getSKOSDataFactory().getSKOSConcept(URI.create(uri + "#" + b.getUID()));
                 SKOSObjectRelationAssertion broaderPropertyRelationAssertion = getSKOSDataFactory().
                         getSKOSObjectRelationAssertion(concept, getSKOSDataFactory().getSKOSBroaderProperty(), broaderConcept);
                 addAssertions.add(new AddAssertion(getSKOSDataset(), broaderPropertyRelationAssertion));
@@ -116,9 +117,9 @@ class SkosUtils {
                 addAssertions.add(new AddAssertion(getSKOSDataset(), narrowerPropertyRelationAssertion));
 
                 if (tv.getBroader() == null || tv.getBroader().isEmpty()) {
-                    addAssertions.addAll(create(b, "EN", true));
+                    addAssertions.addAll(create(b, "EN", true, version));
                 } else {
-                    addAssertions.addAll(create(b, "EN", false));
+                    addAssertions.addAll(create(b, "EN", false, version));
                 }
             }
         }
