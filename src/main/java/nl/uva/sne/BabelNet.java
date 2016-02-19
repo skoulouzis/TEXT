@@ -464,6 +464,7 @@ public class BabelNet {
             return null;
         }
         Logger.getLogger(BabelNet.class.getName()).log(Level.INFO, "lemma: {0}", lemma);
+        
         HashMap<String, Double> idsMap = new HashMap<>();
         Map<String, TermVertex> termMap = new HashMap<>();
         List<TermVertex> terms = new ArrayList<>();
