@@ -167,7 +167,7 @@
         <repository>
             <snapshots />
             <id>skoulouzis-snapshots</id>
-            <url>https://raw.github.com/skoulouzis/mvn-repo/master/snapshots</url>
+            <url>https://raw.githubusercontent.com/skoulouzis/mvn-repo/master/snapshots</url>
         </repository>
                 
                 
@@ -176,7 +176,7 @@
                 <enabled>false</enabled>
             </snapshots>
             <id>releases</id>
-            <url>https://raw.github.com/skoulouzis/mvn-repo/master/releases</url>
+            <url>https://raw.githubusercontent.com/skoulouzis/mvn-repo/master/releases</url>
         </repository>
       
         <repository>
