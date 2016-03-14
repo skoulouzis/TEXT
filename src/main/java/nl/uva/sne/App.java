@@ -1,6 +1,8 @@
 package nl.uva.sne;
 
 import edu.stanford.nlp.util.ArraySet;
+import java.awt.Container;
+import java.awt.GridLayout;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -23,7 +25,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
+import javax.swing.JFrame;
 
 import net.didion.jwnl.JWNLException;
 import net.didion.jwnl.data.POS;
@@ -66,6 +68,13 @@ import org.semanticweb.skos.SKOSEntityAssertion;
 import org.semanticweb.skos.SKOSObjectRelationAssertion;
 import org.semanticweb.skos.SKOSStorageException;
 import org.semanticweb.skosapibinding.SKOSFormatExt;
+import weka.clusterers.HierarchicalClusterer;
+import weka.core.Attribute;
+import weka.core.EuclideanDistance;
+import weka.core.FastVector;
+import weka.core.Instance;
+import weka.core.Instances;
+import weka.gui.hierarchyvisualizer.HierarchyVisualizer;
 
 public class App {
 
@@ -97,7 +106,6 @@ public class App {
             File taxonomyFile = new File(System.getProperty("user.home")
                     + File.separator + "workspace" + File.separator + "TEXT"
                     + File.separator + "etc" + File.separator + "ACMComputingClassificationSystemSKOSTaxonomy.rdf");
-
 
             termLimit = Utils.getTermLimit();
             depth = Utils.getTreeDepth();
@@ -201,58 +209,58 @@ public class App {
                 //                String outputFile = mergeTaxonomies(skosFile1, skosFile2);
 //                export2DOT(g, graphFile);
             }
+            hierarchicalClusteringExample();
 
         } catch (Exception ex) {
             Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
-//    private static void hierarchicalClusteringExample() throws Exception {
-//        HierarchicalClusterer clusterer = new HierarchicalClusterer();
-//        clusterer.setOptions(new String[]{"-L", "COMPLETE"});
-//        clusterer.setDebug(true);
-//        clusterer.setNumClusters(2);
-//        clusterer.setDistanceFunction(new EuclideanDistance());
-//        clusterer.setDistanceIsBranchLength(true);
-//
-//        // Declare the feature vector
-//        FastVector fv = new FastVector();
-//        fv.addElement(new Attribute("A"));
-//        fv.addElement(new Attribute("B"));
-//        fv.addElement(new Attribute("C"));
-//
-//
-//        Instances data = new Instances("Weka test", fv, fv.size());
-//
-//
-//        // Add data
-//        data.add(new Instance(1.0, new double[]{1.0, 0.0, 1.0})); //vector1
-//        data.add(new Instance(1.0, new double[]{0.5, 0.0, 1.0}));
-//        data.add(new Instance(1.0, new double[]{0.0, 1.0, 0.0}));
-//        data.add(new Instance(1.0, new double[]{0.0, 1.0, 0.3}));//vector4
-//
-//        // Cluster network
-//        clusterer.buildClusterer(data);
-//
-//        // Print normal
-//        clusterer.setPrintNewick(false);
-//        System.out.println(clusterer.graph());
-//        // Print Newick
-//        clusterer.setPrintNewick(true);
-//        System.out.println(clusterer.graph());
-//
-//        // Let's try to show this clustered data!
-//        JFrame mainFrame = new JFrame("Weka Test");
-//        mainFrame.setSize(600, 400);
-//        mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//        Container content = mainFrame.getContentPane();
-//        content.setLayout(new GridLayout(1, 1));
-//
-//        HierarchyVisualizer visualizer = new HierarchyVisualizer(clusterer.graph());
-//        content.add(visualizer);
-//
-//        mainFrame.setVisible(true);
-//    }
+    private static void hierarchicalClusteringExample() throws Exception {
+        HierarchicalClusterer clusterer = new HierarchicalClusterer();
+        clusterer.setOptions(new String[]{"-L", "COMPLETE"});
+        clusterer.setDebug(true);
+        clusterer.setNumClusters(2);
+        clusterer.setDistanceFunction(new EuclideanDistance());
+        clusterer.setDistanceIsBranchLength(true);
+
+        // Declare the feature vector
+        FastVector fv = new FastVector();
+        fv.addElement(new Attribute("Attribute_A"));
+        fv.addElement(new Attribute("Attribute_B"));
+        fv.addElement(new Attribute("Attribute_C"));
+
+        Instances data = new Instances("Weka test", fv, fv.size());
+
+        // Add data
+        data.add(new Instance(1.0, new double[]{1.0, 0.0, 1.0})); //vector1
+        data.add(new Instance(1.0, new double[]{0.5, 0.0, 1.0}));
+        data.add(new Instance(1.0, new double[]{0.0, 1.0, 0.0}));
+        data.add(new Instance(1.0, new double[]{0.0, 1.0, 0.3}));//vector4
+
+        // Cluster network
+        clusterer.buildClusterer(data);
+
+        // Print normal
+        clusterer.setPrintNewick(false);
+        System.out.println(clusterer.graph());
+        // Print Newick
+        clusterer.setPrintNewick(true);
+        System.out.println(clusterer.graph());
+
+        // Let's try to show this clustered data!
+        JFrame mainFrame = new JFrame("Weka Test");
+        mainFrame.setSize(600, 400);
+        mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        Container content = mainFrame.getContentPane();
+        content.setLayout(new GridLayout(1, 1));
+
+        HierarchyVisualizer visualizer = new HierarchyVisualizer(clusterer.graph());
+        content.add(visualizer);
+
+        mainFrame.setVisible(true);
+    }
+
     private static String getRawText(String path) throws FileNotFoundException, IOException, ParseException {
         JSONParser parser = new JSONParser();
         Object obj = parser.parse(new FileReader(path));
@@ -285,29 +293,30 @@ public class App {
                                 List<String> tokens = tokenize(text, generateNgrams);
 
                                 for (String t : tokens) {
-//                                POS[] pos = BabelNet.getPOS(t);
-//                                if (pos.length == 1 && pos[0].equals(POS.NOUN)) {
+                                    POS[] pos = BabelNet.getPOS(t);
+                                    if (Utils.getUseNouns() && pos.length == 1 && pos[0].equals(POS.NOUN)) {
+                                        Integer tf;
+                                        if (keywordsDictionaray.containsKey(t)) {
+                                            tf = keywordsDictionaray.get(t);
+                                            tf++;
+                                        } else {
+                                            tf = 1;
+                                        }
+                                        keywordsDictionaray.put(t, tf);
+                                    }
+                                }
+                            } else {
+                                POS[] pos = BabelNet.getPOS(text);
+                                if (Utils.getUseNouns() && pos.length == 1 && pos[0].equals(POS.NOUN)) {
                                     Integer tf;
-                                    if (keywordsDictionaray.containsKey(t)) {
-                                        tf = keywordsDictionaray.get(t);
+                                    if (keywordsDictionaray.containsKey(text.toLowerCase())) {
+                                        tf = keywordsDictionaray.get(text.toLowerCase());
                                         tf++;
                                     } else {
                                         tf = 1;
                                     }
-                                    keywordsDictionaray.put(t, tf);
-//                                }
+                                    keywordsDictionaray.put(text.toLowerCase(), tf);
                                 }
-                            } else {
-                                //                                POS[] pos = BabelNet.getPOS(t);
-//                                if (pos.length == 1 && pos[0].equals(POS.NOUN)) {
-                                Integer tf;
-                                if (keywordsDictionaray.containsKey(text.toLowerCase())) {
-                                    tf = keywordsDictionaray.get(text.toLowerCase());
-                                    tf++;
-                                } else {
-                                    tf = 1;
-                                }
-                                keywordsDictionaray.put(text.toLowerCase(), tf);
                             }
                         }
                     }
@@ -318,7 +327,6 @@ public class App {
         ValueComparator bvc = new ValueComparator(keywordsDictionaray);
         Map<String, Integer> sorted_map = new TreeMap(bvc);
         sorted_map.putAll(keywordsDictionaray);
-
 
         //remove terms that only apear with others. e.g. if we only 
         //have 'machine learning' there is no point to keep 'machine' or 'learning'
@@ -911,8 +919,6 @@ public class App {
             }
         }
 
-
-
         prunDepth--;
 //        if (prunDepth > 1) {
 //            allTerms = pruneGraph(allTerms, prunDepth);
@@ -994,7 +1000,6 @@ public class App {
                     edgeToRemove.add(out);
                 }
             }
-
 
         }
 
@@ -1090,8 +1095,6 @@ public class App {
             }
         }
 
-
-
         Collection<TermVertex> vs = idMap.values();
         for (TermVertex tv : vs) {
             if (!g.containsVertex(tv)) {
@@ -1148,7 +1151,6 @@ public class App {
             allDocs.add(new ArrayList<>(doc));
             docs.put(tv.getUID(), new ArrayList<>(doc));
         }
-
 
         Set<String> contextDoc = new HashSet<>();
         for (String s : nGrams) {
@@ -1276,7 +1278,6 @@ public class App {
     }
 
     private static Set<String> getDocument(TermVertex term) throws Exception {
-
 
         Set<String> doc = new HashSet<>();
 
