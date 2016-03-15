@@ -209,7 +209,7 @@ public class App {
                 //                String outputFile = mergeTaxonomies(skosFile1, skosFile2);
 //                export2DOT(g, graphFile);
             }
-            hierarchicalClusteringExample();
+//            hierarchicalClusteringExample();
 
         } catch (Exception ex) {
             Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
