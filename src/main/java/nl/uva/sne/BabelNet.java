@@ -449,7 +449,7 @@ public class BabelNet {
 //        }
     }
 
-    private static boolean nonLemetize(String word) throws FileNotFoundException, IOException {
+    public static boolean nonLemetize(String word) throws FileNotFoundException, IOException {
         if (nonLematizedWords.isEmpty() || nonLematizedWords == null) {
             loadNonLematizeWords();
         }

@@ -1,5 +1,6 @@
 package nl.uva.sne;
 
+import bsh.util.Util;
 import edu.stanford.nlp.util.ArraySet;
 import java.awt.Container;
 import java.awt.GridLayout;
@@ -293,17 +294,35 @@ public class App {
                                 List<String> tokens = tokenize(text, generateNgrams);
 
                                 for (String t : tokens) {
-                                    POS[] pos = BabelNet.getPOS(t);
-                                    if (Utils.getUseNouns() && pos.length == 1 && pos[0].equals(POS.NOUN)) {
-                                        Integer tf;
-                                        if (keywordsDictionaray.containsKey(t)) {
-                                            tf = keywordsDictionaray.get(t);
-                                            tf++;
-                                        } else {
-                                            tf = 1;
-                                        }
-                                        keywordsDictionaray.put(t, tf);
+                                    if (t.contains("artificial")) {
+                                        System.err.println(t);
                                     }
+                                    if (Utils.getUseNouns() && !BabelNet.nonLemetize(t) && !t.contains("_")) {
+                                        POS[] pos = BabelNet.getPOS(t);
+                                        if (pos.length == 1 && !pos[0].equals(POS.NOUN)) {
+                                            continue;
+                                        }
+                                        boolean hasNoun = false;
+                                        for (POS p : pos) {
+                                            if (p.equals(POS.NOUN)) {
+                                                hasNoun = true;
+                                                break;
+                                            }
+                                        }
+                                        if (!hasNoun) {
+                                            continue;
+                                        }
+                                    }
+
+                                    Integer tf;
+                                    if (keywordsDictionaray.containsKey(t)) {
+                                        tf = keywordsDictionaray.get(t);
+                                        tf++;
+                                    } else {
+                                        tf = 1;
+                                    }
+                                    keywordsDictionaray.put(t, tf);
+
                                 }
                             } else {
                                 POS[] pos = BabelNet.getPOS(text);
