@@ -294,9 +294,6 @@ public class App {
                                 List<String> tokens = tokenize(text, generateNgrams);
 
                                 for (String t : tokens) {
-                                    if (t.contains("artificial")) {
-                                        System.err.println(t);
-                                    }
                                     if (Utils.getUseNouns() && !BabelNet.nonLemetize(t) && !t.contains("_")) {
                                         POS[] pos = BabelNet.getPOS(t);
                                         if (pos.length == 1 && !pos[0].equals(POS.NOUN)) {
