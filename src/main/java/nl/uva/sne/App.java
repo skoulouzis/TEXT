@@ -527,7 +527,7 @@ public class App {
                 }
                 String trem = line.split(",")[0];
                 String lemma = bbn.lemmatize(trem, "EN");
-                Logger.getLogger(App.class.getName()).log(Level.FINE, "lemma: {0}", line);
+                Logger.getLogger(App.class.getName()).log(Level.INFO, "lemma: {0}", line);
                 if (Integer.valueOf(line.split(",")[1]) > 0) {
                     List<TermVertex> terms = getTermVertices(lemma, null, depth, true, bbn, indexPath, termDictionaryPath, null);
                     if (terms != null && !terms.isEmpty()) {
