@@ -788,6 +788,17 @@ public class App {
 //            }
 //        }
 
+        POS[] pos = BabelNet.getPOS(lemma);
+
+        for (POS p : pos) {
+            if (p.equals(POS.ADVERB) && !lemma.contains("_")) {
+                return null;
+            }
+        }
+        if (pos.length == 1 && pos[0].equals(POS.ADJECTIVE) && !lemma.contains("_")) {
+            return null;
+        }
+
         if (terms == null) {
             terms = new ArrayList<>();
         }
