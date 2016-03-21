@@ -1,6 +1,5 @@
 package nl.uva.sne;
 
-import bsh.util.Util;
 import edu.stanford.nlp.util.ArraySet;
 import java.awt.Container;
 import java.awt.GridLayout;
@@ -20,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -27,6 +27,9 @@ import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import net.didion.jwnl.JWNLException;
 import net.didion.jwnl.data.POS;
@@ -50,7 +53,11 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
+import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.index.IndexableField;
+import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.json.simple.JSONObject;
@@ -69,6 +76,11 @@ import org.semanticweb.skos.SKOSEntityAssertion;
 import org.semanticweb.skos.SKOSObjectRelationAssertion;
 import org.semanticweb.skos.SKOSStorageException;
 import org.semanticweb.skosapibinding.SKOSFormatExt;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 import weka.clusterers.HierarchicalClusterer;
 import weka.core.Attribute;
 import weka.core.EuclideanDistance;
@@ -211,6 +223,9 @@ public class App {
 //                export2DOT(g, graphFile);
             }
 //            hierarchicalClusteringExample();
+//            String xmlDoc = System.getProperty("user.home") + File.separator
+//                    + "Downloads" + File.separator + "data-scientist.xml";
+//            copyDocumentsBasedOnCarrotCluster(xmlDoc);
 
         } catch (Exception ex) {
             Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
@@ -513,7 +528,7 @@ public class App {
                 String trem = line.split(",")[0];
                 String lemma = bbn.lemmatize(trem, "EN");
 
-                if (Integer.valueOf(line.split(",")[1]) > 2) {
+                if (Integer.valueOf(line.split(",")[1]) > 0) {
                     List<TermVertex> terms = getTermVertices(lemma, null, depth, true, bbn, indexPath, termDictionaryPath, null);
                     if (terms != null && !terms.isEmpty()) {
                         allTerms.addAll(terms);
@@ -747,8 +762,14 @@ public class App {
             String line;
             while ((line = br.readLine()) != null) {
                 String keyword = line.split(",")[0];
-                if (keyword.contains(lemma) && keyword.contains("_")) {
-                    nGrams.add(keyword);
+                if (keyword.contains("_")) {
+                    String[] parts = keyword.split("_");
+                    for (String p : parts) {
+                        if (p.equals(lemma)) {
+                            nGrams.add(keyword);
+                            break;
+                        }
+                    }
                 }
             }
         }
@@ -757,15 +778,15 @@ public class App {
     }
 
     private static List<TermVertex> getTermVertices(String lemma, String id, int depth, boolean isFromDiec, BabelNet bbn, String indexPath, String termDictionaryPath, List<TermVertex> terms) throws IOException, MalformedURLException, ParseException, Exception {
-        if (Utils.getUseNouns()) {
-            POS[] pos = BabelNet.getPOS(lemma);
-            if (pos.length > 1) {
-                return null;
-            }
-            if (pos.length == 1 && !pos[0].equals(POS.NOUN)) {
-                return null;
-            }
-        }
+//        if (Utils.getUseNouns() && !lemma.contains("_")) {
+//            POS[] pos = BabelNet.getPOS(lemma);
+//            if (pos.length > 1) {
+//                return null;
+//            }
+//            if (pos.length == 1 && !pos[0].equals(POS.NOUN)) {
+//                return null;
+//            }
+//        }
 
         if (terms == null) {
             terms = new ArrayList<>();
@@ -777,12 +798,18 @@ public class App {
         }
         if (isFromDiec) {
             possibleTerms = bbn.getTermNodeByLemma(lemma, isFromDiec);
+            if ((possibleTerms == null || possibleTerms.size() < 1) && lemma.contains("_")) {
+                String[] parts = lemma.split("_");
+                for (String part : parts) {
+                    getTermVertices(part, null, depth, true, bbn, indexPath, termDictionaryPath, terms);
+                }
+            }
         } else {
             termVertex = bbn.getTermNodeByID(lemma, id, isFromDiec);
         }
         if (possibleTerms != null && possibleTerms.size() > 1 && termVertex == null) {
             List<String> ngarms = getNGrams(lemma, termDictionaryPath);
-            possibleTerms = resolveTerms(possibleTerms, ngarms);
+            possibleTerms = resolveTerms(possibleTerms, ngarms, lemma);
             if (possibleTerms == null || possibleTerms.isEmpty()) {
                 possibleTerms = bbn.disambiguate("EN", lemma, ngarms);
             }
@@ -1158,7 +1185,7 @@ public class App {
 
     }
 
-    private static List<TermVertex> resolveTerms(List<TermVertex> possibleTerms, List<String> nGrams) throws IOException, JWNLException, FileNotFoundException, MalformedURLException, ParseException, Exception {
+    private static List<TermVertex> resolveTerms(List<TermVertex> possibleTerms, List<String> nGrams, String lemma) throws IOException, JWNLException, FileNotFoundException, MalformedURLException, ParseException, Exception {
 
         List<List<String>> allDocs = new ArrayList<>();
         Map<String, List<String>> docs = new HashMap<>();
@@ -1172,7 +1199,7 @@ public class App {
         for (String s : nGrams) {
             String[] parts = s.split("_");
             for (String token : parts) {
-                if (token.length() > 1) {
+                if (token.length() > 1 && !token.contains(lemma)) {
                     contextDoc.add(token);
                 }
             }
@@ -1192,16 +1219,32 @@ public class App {
             featureVectors.put(k, featureVector);
         }
 
-        double highScore = 0.03;
+        double highScore = 0.032;
         String winner = null;
         Map<String, Double> contextVector = featureVectors.remove("context");
+
+        Map<String, Double> scoreMap = new HashMap<>();
         for (String key : featureVectors.keySet()) {
             Double similarity = Utils.cosineSimilarity(contextVector, featureVectors.get(key));
-            if (similarity > highScore) {
-                highScore = similarity;
-                winner = key;
-            }
+            scoreMap.put(key, similarity);
         }
+
+        ValueComparator bvc = new ValueComparator(scoreMap);
+        TreeMap<String, Double> sorted_map = new TreeMap(bvc);
+        sorted_map.putAll(scoreMap);
+        if (sorted_map.firstEntry().getValue() < highScore) {
+            return null;
+        }
+        Iterator<String> it = sorted_map.keySet().iterator();
+        winner = it.next();
+        String secondKey = it.next();
+        Double s1 = scoreMap.get(winner);
+        Double s2 = scoreMap.get(secondKey);
+        double diff = s1 - s2;
+        if (Math.abs(diff) <= 0.006) {
+            return null;
+        }
+
         List<TermVertex> terms = new ArrayList<>();
         for (TermVertex t : possibleTerms) {
             if (t.getUID().equals(winner)) {
@@ -1393,4 +1436,55 @@ public class App {
         }
         return lines;
     }
+
+    private static void copyDocumentsBasedOnCarrotCluster(String xmlFile) throws ParserConfigurationException, SAXException, IOException {
+        File fXmlFile = new File(xmlFile);
+        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+        org.w3c.dom.Document doc = dBuilder.parse(fXmlFile);
+
+        doc.getDocumentElement().normalize();
+
+        System.err.println("Root element :" + doc.getDocumentElement().getNodeName());
+        NodeList nList = doc.getElementsByTagName("group");
+        System.out.println("----------------------------");
+
+        for (int temp = 0; temp < nList.getLength(); temp++) {
+            System.out.println("----------------------------");
+            Node nNode = nList.item(temp);
+            NodeList chNodes = nNode.getChildNodes();
+            for (int i = 0; i < chNodes.getLength(); i++) {
+                Node node = chNodes.item(i);
+                if (node.getNodeType() == Node.ELEMENT_NODE) {
+                    String nodeName = node.getNodeName();
+                    switch (nodeName) {
+                        case "title":
+                            System.err.println(node.getFirstChild().getNodeName());
+                            break;
+                    }
+                }
+            }
+//            if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+//                Element eElement = (Element) nNode;
+//                NamedNodeMap e = eElement.getAttributes();
+//                for (int i = 0; i < e.getLength(); i++) {
+//                    System.err.println(e.item(i));
+//                }
+//                NodeList chNodes = nNode.getChildNodes();
+//                for (int i = 0; i < chNodes.getLength(); i++) {
+//                    Node node = chNodes.item(i);
+//                    if (node.getNodeType() == Node.ELEMENT_NODE) {
+//                        System.out.println("node name: " + node.getNodeName());
+//                        eElement = (Element) node;
+//                        e = eElement.getAttributes();
+//                        for (int j = 0; j < e.getLength(); j++) {
+//                            System.err.println(e.item(j));
+//                        }
+//                    }
+//                }
+//            }
+        }
+
+    }
+
 }

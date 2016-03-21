@@ -254,7 +254,7 @@ public class BabelNet {
 
         if (ids == null || ids.isEmpty()) {
             ids = new ArrayList<>();
-            URL url = new URL("https://babelnet.io/v2/getSynsetIds?word=" + word + "&langs=" + language + "&langs=" + language + "&key=" + key);
+            URL url = new URL("http://babelnet.io/v2/getSynsetIds?word=" + word +  "&langs=" + language + "&key=" + key);
             String genreJson = IOUtils.toString(url);
             handleKeyLimitException(genreJson);
             Object obj = JSONValue.parseWithException(genreJson);
@@ -301,7 +301,7 @@ public class BabelNet {
             return null;
         }
         if (json == null) {
-            URL url = new URL("https://babelnet.io/v2/getSynset?id=" + id + "&filterLangs=" + lan + "&langs=" + lan + "&key=" + key);
+            URL url = new URL("http://babelnet.io/v2/getSynset?id=" + id + "&filterLangs=" + lan + "&langs=" + lan + "&key=" + key);
             json = IOUtils.toString(url);
             handleKeyLimitException(json);
             if (json != null) {
@@ -606,7 +606,7 @@ public class BabelNet {
         }
         String genreJson = edgesCache.get(id);
         if (genreJson == null) {
-            URL url = new URL("https://babelnet.io/v2/getEdges?id=" + id + "&key=" + key);
+            URL url = new URL("http://babelnet.io/v2/getEdges?id=" + id + "&key=" + key);
             genreJson = IOUtils.toString(url);
             handleKeyLimitException(genreJson);
             if (genreJson != null) {

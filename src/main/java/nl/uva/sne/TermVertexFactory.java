@@ -24,7 +24,6 @@ public class TermVertexFactory {
         TermVertex node = null;
         JSONObject jSynet = (JSONObject) JSONValue.parseWithException(synet);
 
-
         JSONArray categoriesArray = (JSONArray) jSynet.get("categories");
         List<String> categories = null;
         if (categoriesArray != null) {
@@ -81,7 +80,21 @@ public class TermVertexFactory {
                     }
                     lemma = java.net.URLDecoder.decode(lemma, "UTF-8");
                     lemma = lemma.replaceAll(" ", "_");
-
+                    int dist;
+                    if (jlemma.contains("(")) {
+                        dist = edu.stanford.nlp.util.StringUtils.editDistance(lemma, jlemma.substring(0, jlemma.indexOf("(") - 1));
+                    } else {
+                        dist = edu.stanford.nlp.util.StringUtils.editDistance(lemma, jlemma);
+                    }
+//                    dist = edu.stanford.nlp.util.StringUtils.editDistance(lemma, jlemma);
+                    if (dist <= 0) {
+                        node = new TermVertex(jlemma);
+                        node.setUID(babelNetID);
+                        node.setCategories(categories);
+                        node.setAlternativeLables(altLables);
+                        node.setGlosses(glosses);
+                        return node;
+                    }
                     if (jlemma.contains(lemma) && jlemma.contains("_")) {
                         String[] parts = jlemma.split("_");
                         for (String p : parts) {
@@ -95,7 +108,7 @@ public class TermVertexFactory {
                             }
                         }
                     }
-                    int dist = edu.stanford.nlp.util.StringUtils.editDistance(lemma, jlemma);
+                    dist = edu.stanford.nlp.util.StringUtils.editDistance(lemma, jlemma);
                     if (lemma.length() < jlemma.length()) {
                         lemma1 = lemma;
                         lemma2 = jlemma;
@@ -103,7 +116,6 @@ public class TermVertexFactory {
                         lemma2 = lemma;
                         lemma1 = jlemma;
                     }
-
                     if (dist <= 3 && lemma2.contains(lemma1)) {
                         node = new TermVertex(jlemma);
                         node.setUID(babelNetID);
@@ -133,7 +145,6 @@ public class TermVertexFactory {
             altLables.addAll(a2);
         }
 
-
         Set<TermVertex> broader = new HashSet<>();
         List<TermVertex> b1 = tv1.getBroader();
         if (b1 != null) {
@@ -157,7 +168,6 @@ public class TermVertexFactory {
 //                broader.add(b);
 //            }
 //        }
-
         Set<TermVertex> narrower = new HashSet<>();
         List<TermVertex> n1 = tv1.getNarrower();
         if (n1 != null) {
@@ -181,7 +191,6 @@ public class TermVertexFactory {
 //                narrower.add(n);
 //            }
 //        }
-
         Set<String> broaderUIDS = new HashSet<>();
         List<String> buid1 = tv1.getBroaderUIDS();
         if (buid1 != null) {
@@ -191,8 +200,6 @@ public class TermVertexFactory {
         if (buid2 != null) {
             broaderUIDS.addAll(buid2);
         }
-
-
 
         Set<String> categories = new HashSet<>();
         List<String> c1 = tv1.getCategories();
@@ -251,8 +258,6 @@ public class TermVertexFactory {
         if (s2 != null) {
             synonyms.addAll(s2);
         }
-
-
 
         TermVertex mtv = new TermVertex(lemma);
         mtv.setUID(tv1.getUID());
