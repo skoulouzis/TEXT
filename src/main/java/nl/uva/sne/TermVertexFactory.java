@@ -81,8 +81,10 @@ public class TermVertexFactory {
                     lemma = java.net.URLDecoder.decode(lemma, "UTF-8");
                     lemma = lemma.replaceAll(" ", "_");
                     int dist;
-                    if (jlemma.contains("(")) {
-                        dist = edu.stanford.nlp.util.StringUtils.editDistance(lemma, jlemma.substring(0, jlemma.indexOf("(") - 1));
+                    if (!jlemma.startsWith("(") && jlemma.contains("(")) {
+                        int index = jlemma.indexOf("(") - 1;
+                        String sub = jlemma.substring(0, index);
+                        dist = edu.stanford.nlp.util.StringUtils.editDistance(lemma, sub);
                     } else {
                         dist = edu.stanford.nlp.util.StringUtils.editDistance(lemma, jlemma);
                     }
