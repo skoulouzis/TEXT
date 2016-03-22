@@ -1,7 +1,6 @@
 package nl.uva.sne;
 
 import com.sree.textbytes.jtopia.Configuration;
-import static com.sree.textbytes.jtopia.JtopiaUsage.logger;
 import com.sree.textbytes.jtopia.TermDocument;
 import com.sree.textbytes.jtopia.TermsExtractor;
 import edu.stanford.nlp.util.ArraySet;
@@ -9,14 +8,11 @@ import java.awt.Container;
 import java.awt.GridLayout;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.DataInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.net.MalformedURLException;
@@ -92,7 +88,7 @@ import weka.gui.hierarchyvisualizer.HierarchyVisualizer;
 
 public class App {
 
-    private static Map<String, Integer> keywordsDictionaray;
+//    private static Map<String, Integer> keywordsDictionaray;
     private static String keywordsDictionarayFile;
     private static int maxNGrams = 2;
 //    private static UberLanguageDetector inst;
@@ -297,136 +293,16 @@ public class App {
 
     private static void createTermDictionary(String inputJsonDocsPath, String outkeywordsDictionarayFile, boolean tokenize) throws FileNotFoundException, IOException, ParseException, JWNLException, MalformedURLException, Exception {
         File dir = new File(inputJsonDocsPath);
-        if (keywordsDictionaray == null) {
-            keywordsDictionaray = new HashMap();
-        }
+//        if (keywordsDictionaray == null) {
+//            keywordsDictionaray = new HashMap();
+//        }
         if (bbn == null) {
             bbn = new BabelNet();
         }
 
-        //for default lexicon POS tags
-        //Configuration.setTaggerType("default"); 
-        // for openNLP POS tagger
-        //Configuration.setTaggerType("openNLP");
-        //for Stanford POS tagger
-        String taggerType = Utils.getTaggerType();
-        switch (taggerType) {
-            case "stanford":
-                Configuration.setModelFileLocation(System.getProperty("user.home")
-                        + File.separator + "workspace" + File.separator + "TEXT" + File.separator + "etc" + File.separator + "model/stanford/english-left3words-distsim.tagger");
-                Configuration.setTaggerType("stanford");
-                break;
-            case "openNLP":
-                Configuration.setModelFileLocation(System.getProperty("user.home")
-                        + File.separator + "workspace" + File.separator + "TEXT" + File.separator + "etc"
-                        + File.separator + "model/openNLP/en-pos-maxent.bin");
-                Configuration.setTaggerType("openNLP");
-                break;
-            case "default":
-                Configuration.setModelFileLocation(System.getProperty("user.home")
-                        + File.separator + "workspace" + File.separator + "TEXT" + File.separator + "etc"
-                        + File.separator + "model/default/english-lexicon.txt");
-                Configuration.setTaggerType("default");
-                break;
-        }
-
-        Configuration.setSingleStrength(Utils.getSingleStrength());
-        Configuration.setNoLimitStrength(Utils.getNoLimitStrength());
-
-        TermsExtractor termExtractor = new TermsExtractor();
-        TermDocument topiaDoc = new TermDocument();
-        for (File f : dir.listFiles()) {
-            if (FilenameUtils.getExtension(f.getName()).endsWith("txt")) {
-                try (BufferedReader br = new BufferedReader(new FileReader(f))) {
-                    StringBuilder stringBuffer = new StringBuilder();
-                    for (String text; (text = br.readLine()) != null;) {
-                        String lang = Utils.detectLang(text);
-                        if (lang.toLowerCase().equals("en")) {
-                            text = text.replaceAll("-", "");
-//                            text = text.replaceAll("((mailto\\:|(news|(ht|f)tp(s?))\\://){1}\\S+)", "");
-                            text = text.replaceAll("[^a-zA-Z\\s]", "");
-//        text = text.replaceAll("(\\d+,\\d+)|\\d+", "");
-                            text = text.replaceAll("  ", " ");
-                            text = text.toLowerCase();
-                            stringBuffer.append(text).append("\n");
-                        }
-                    }
-                    topiaDoc = termExtractor.extractTerms(stringBuffer.toString());
-                    Set<String> terms = topiaDoc.getFinalFilteredTerms().keySet();
-                    for (String t : terms) {
-                        String text = t.replaceAll(" ", "_");
-                        Integer tf;
-                        if (keywordsDictionaray.containsKey(text.toLowerCase())) {
-                            tf = keywordsDictionaray.get(text.toLowerCase());
-                            tf++;
-                        } else {
-                            tf = 1;
-                        }
-                        keywordsDictionaray.put(text.toLowerCase(), tf);
-                    }
-//                    Logger.getLogger(App.class.getName()).log(Level.INFO, "Extracted terms : {0}", topiaDoc.getExtractedTerms());
-//                    Logger.getLogger(App.class.getName()).log(Level.INFO, "Final Filtered Terms : {0}", topiaDoc.getFinalFilteredTerms());
-                }
-            }
-        }
-        ValueComparator bvc = new ValueComparator(keywordsDictionaray);
-        Map<String, Integer> sorted_map = new TreeMap(bvc);
-        sorted_map.putAll(keywordsDictionaray);
-
-//        //remove terms that only apear with others. e.g. if we only 
-//        //have 'machine learning' there is no point to keep 'machine' or 'learning'
-//        Logger.getLogger(App.class.getName()).log(Level.INFO, "Filtering out terms");
-//        List<String> toRemove = new ArrayList<>();
-//        Integer singleTermRank = 0;
-//        for (String key1 : sorted_map.keySet()) {
-//            singleTermRank++;
-//            Integer multiTermRank = 0;
-//            for (String key2 : sorted_map.keySet()) {
-//                multiTermRank++;
-//                if (!key1.contains("_") && key2.contains("_") && key2.split("_")[0].equals(key1)) {
-//                    int diff = multiTermRank - singleTermRank;
-//                    if (diff <= 5 && diff > 0) {
-//                        if (!toRemove.contains(key1)) {
-//                            Logger.getLogger(App.class.getName()).log(Level.INFO, "Will remove: {0}", key1);
-//                            toRemove.add(key1);
-//                        }
-//                    }
-//                    break;
-//                }
-//            }
-//        }
-//        for (String k : toRemove) {
-//            keywordsDictionaray.remove(k);
-//        }
-        Logger.getLogger(App.class.getName()).log(Level.INFO, "Writing : {0}", outkeywordsDictionarayFile);
-
-        try (PrintWriter out = new PrintWriter(outkeywordsDictionarayFile)) {
-            for (String key : sorted_map.keySet()) {
-                String lemma, term;
-                if (key.contains("_")) {
-                    String[] parts = key.split("_");
-                    StringBuilder sb = new StringBuilder();
-                    for (String p : parts) {
-                        try {
-                            lemma = bbn.lemmatize(p, "EN");
-                        } catch (Exception ex) {
-                            lemma = p;
-                        }
-                        sb.append(lemma).append("_");
-                    }
-                    term = sb.toString().substring(0, sb.toString().lastIndexOf("_"));
-                } else {
-                    try {
-                        lemma = bbn.lemmatize(key, "EN");
-                        term = lemma;
-                    } catch (Exception ex) {
-                        term = key;
-                    }
-                }
-                out.print(term + "," + keywordsDictionaray.get(key) + "\n");
-            }
-        }
-
+        Map<String, Integer> keywordsDictionaray = termXtraction(dir);
+        keywordsDictionaray = extractNgrams(dir, keywordsDictionaray);
+        writeDictionary2File(keywordsDictionaray, outkeywordsDictionarayFile);
     }
 
     private static List<String> tokenize(String text, boolean generateNgrams) throws IOException, JWNLException, FileNotFoundException, MalformedURLException, ParseException, Exception {
@@ -676,111 +552,6 @@ public class App {
         Logger.getLogger(App.class.getName()).log(Level.INFO, "Index in : {0}", indexDir);
     }
 
-//    private static String getScentsens(String searchString, int numOfWords, String INDEX_DIRECTORY) throws IOException, org.apache.lucene.queryparser.classic.ParseException {
-//        if (searchString.contains("_")) {
-//            searchString = searchString.replaceAll("_", " ");
-//        }
-//        Directory directory = FSDirectory.open(new File(INDEX_DIRECTORY));
-//        IndexReader indexReader = DirectoryReader.open(directory);
-//        IndexSearcher indexSearcher = new IndexSearcher(indexReader);
-//        IndexReader reader = indexSearcher.getIndexReader();
-//
-//        Query q = buildQuery(searchString, false);
-//        ScoreDoc[] hits = getDocs(q, indexSearcher, 10);
-//        if (hits.length < 1) {
-//            q = buildQuery(searchString, true);
-//            hits = getDocs(q, indexSearcher, 10);
-//        }
-//
-//
-//        StringBuilder scentence = new StringBuilder();
-//        StringBuilder candidateScentence = new StringBuilder();
-//        int count = 0;
-//        for (int i = 0; i < hits.length; ++i) {
-//            int docId = hits[i].doc;
-//
-//            String path = reader.document(docId).getField("path").stringValue();
-//
-//            try (BufferedReader br = new BufferedReader(new FileReader(path))) {
-//                for (String line; (line = br.readLine()) != null;) {
-//                    line = line.replaceAll(" &amp; ", " and ");
-////                    String regex = "^.*" + searchString + ".*$";
-////                    java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(regex);
-////
-////                    Matcher matcher = pattern.matcher(line);
-////                    matrchi = matcher.group();
-//
-//                    String[] parts = line.split(" ");
-//                    for (int j = 0; j < parts.length; j++) {
-//                        candidateScentence.append(parts[j]).append(" ");
-//
-//                        if (parts[j].endsWith(".") || parts[j].endsWith("?") || parts[j].endsWith("!") || parts[j].endsWith(";") || j >= parts.length) {
-//                            if (candidateScentence.toString().toLowerCase().contains(searchString)) {
-//
-//                                scentence.append(candidateScentence.toString()).append(" ");
-//                                count += scentence.toString().split(" ").length;
-//                                if (count >= numOfWords) {
-//                                    return scentence.toString().replaceAll("  ", " ");
-//                                }
-//                            }
-//                            candidateScentence.setLength(0);
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//        return scentence.toString().replaceAll("  ", " ");
-//    }
-////
-//    private static List<String> getDocuments(String searchString, int numOfWords, int maxDoxs, String INDEX_DIRECTORY) throws IOException, org.apache.lucene.queryparser.classic.ParseException {
-//        if (searchString.contains("_")) {
-//            searchString = searchString.replaceAll("_", " ");
-//        }
-//        Directory directory = FSDirectory.open(new File(INDEX_DIRECTORY));
-//        IndexReader indexReader = DirectoryReader.open(directory);
-//        IndexSearcher indexSearcher = new IndexSearcher(indexReader);
-//        IndexReader reader = indexSearcher.getIndexReader();
-//
-//        Query q = buildQuery(searchString, false);
-//        ScoreDoc[] hits = getDocs(q, indexSearcher, maxDoxs);
-//        if (hits.length < 1) {
-//            q = buildQuery(searchString, true);
-//            hits = getDocs(q, indexSearcher, maxDoxs);
-//        }
-//        List<String> docs = new ArrayList<>(hits.length);
-//
-//
-//        StringBuilder candidateScentence = new StringBuilder();
-//        int count = 0;
-//        for (int i = 0; i < hits.length; ++i) {
-//            int docId = hits[i].doc;
-//
-//            String path = reader.document(docId).getField("path").stringValue();
-//            StringBuilder scentence = new StringBuilder();
-//            try (BufferedReader br = new BufferedReader(new FileReader(path))) {
-//                for (String line; (line = br.readLine()) != null;) {
-//                    line = line.replaceAll(" &amp; ", " and ");
-//                    String[] parts = line.split(" ");
-//                    for (int j = 0; j < parts.length; j++) {
-//                        candidateScentence.append(parts[j]).append(" ");
-//                        if (parts[j].endsWith(".") || parts[j].endsWith("?") || parts[j].endsWith("!") || parts[j].endsWith(";") || j >= parts.length) {
-//                            if (candidateScentence.toString().toLowerCase().contains(searchString)) {
-//                                scentence.append(candidateScentence.toString()).append(" ");
-//                                count += scentence.toString().split(" ").length;
-//                                if (count >= numOfWords) {
-//                                    docs.add(scentence.toString().replaceAll("  ", " "));
-//                                    break;
-//                                }
-//                            }
-//                            candidateScentence.setLength(0);
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//        return docs;
-//
-//    }
     private static List<String> getNGrams(String lemma, String keywordsDictionarayFile) throws FileNotFoundException, IOException {
         if (nGramsMap == null) {
             nGramsMap = new HashMap<>();
@@ -1530,4 +1301,161 @@ public class App {
 
     }
 
+    private static Map<String, Integer> termXtraction(File dir) throws IOException {
+        HashMap<String, Integer> keywordsDictionaray = new HashMap();
+        //for default lexicon POS tags
+        //Configuration.setTaggerType("default"); 
+        // for openNLP POS tagger
+        //Configuration.setTaggerType("openNLP");
+        //for Stanford POS tagger
+        String taggerType = Utils.getTaggerType();
+        switch (taggerType) {
+            case "stanford":
+                Configuration.setModelFileLocation(System.getProperty("user.home")
+                        + File.separator + "workspace" + File.separator + "TEXT" + File.separator + "etc" + File.separator + "model/stanford/english-left3words-distsim.tagger");
+                Configuration.setTaggerType("stanford");
+                break;
+            case "openNLP":
+                Configuration.setModelFileLocation(System.getProperty("user.home")
+                        + File.separator + "workspace" + File.separator + "TEXT" + File.separator + "etc"
+                        + File.separator + "model/openNLP/en-pos-maxent.bin");
+                Configuration.setTaggerType("openNLP");
+                break;
+            case "default":
+                Configuration.setModelFileLocation(System.getProperty("user.home")
+                        + File.separator + "workspace" + File.separator + "TEXT" + File.separator + "etc"
+                        + File.separator + "model/default/english-lexicon.txt");
+                Configuration.setTaggerType("default");
+                break;
+        }
+
+        Configuration.setSingleStrength(Utils.getSingleStrength());
+        Configuration.setNoLimitStrength(Utils.getNoLimitStrength());
+
+        TermsExtractor termExtractor = new TermsExtractor();
+        TermDocument topiaDoc = new TermDocument();
+        for (File f : dir.listFiles()) {
+            if (FilenameUtils.getExtension(f.getName()).endsWith("txt")) {
+                try (BufferedReader br = new BufferedReader(new FileReader(f))) {
+                    StringBuilder stringBuffer = new StringBuilder();
+                    for (String text; (text = br.readLine()) != null;) {
+                        String lang = Utils.detectLang(text);
+                        if (lang.toLowerCase().equals("en")) {
+                            text = text.replaceAll("-", "");
+                            text = text.replaceAll("((mailto\\:|(news|(ht|f)tp(s?))\\://){1}\\S+)", "");
+                            text = text.replaceAll("[^a-zA-Z\\s]", "");
+//        text = text.replaceAll("(\\d+,\\d+)|\\d+", "");
+                            text = text.replaceAll("  ", " ");
+                            text = text.toLowerCase();
+                            stringBuffer.append(text).append("\n");
+                        }
+                    }
+                    topiaDoc = termExtractor.extractTerms(stringBuffer.toString());
+                    Set<String> terms = topiaDoc.getFinalFilteredTerms().keySet();
+                    for (String t : terms) {
+                        String text = t.replaceAll(" ", "_");
+                        Integer tf;
+                        if (keywordsDictionaray.containsKey(text.toLowerCase())) {
+                            tf = keywordsDictionaray.get(text.toLowerCase());
+                            tf++;
+                        } else {
+                            tf = 1;
+                        }
+                        keywordsDictionaray.put(text.toLowerCase(), tf);
+                    }
+                }
+            }
+        }
+        return keywordsDictionaray;
+    }
+
+    private static void writeDictionary2File(Map<String, Integer> keywordsDictionaray, String outkeywordsDictionarayFile) throws FileNotFoundException {
+        ValueComparator bvc = new ValueComparator(keywordsDictionaray);
+        Map<String, Integer> sorted_map = new TreeMap(bvc);
+        sorted_map.putAll(keywordsDictionaray);
+        Logger.getLogger(App.class.getName()).log(Level.INFO, "Writing : {0}", outkeywordsDictionarayFile);
+
+        try (PrintWriter out = new PrintWriter(outkeywordsDictionarayFile)) {
+            for (String key : sorted_map.keySet()) {
+                String lemma, term;
+                if (key.contains("_")) {
+                    String[] parts = key.split("_");
+                    StringBuilder sb = new StringBuilder();
+                    for (String p : parts) {
+                        try {
+                            lemma = bbn.lemmatize(p, "EN");
+                        } catch (Exception ex) {
+                            lemma = p;
+                        }
+                        sb.append(lemma).append("_");
+                    }
+                    term = sb.toString().substring(0, sb.toString().lastIndexOf("_"));
+                } else {
+                    try {
+                        lemma = bbn.lemmatize(key, "EN");
+                        term = lemma;
+                    } catch (Exception ex) {
+                        term = key;
+                    }
+                }
+                out.print(term + "," + keywordsDictionaray.get(key) + "\n");
+            }
+        }
+    }
+
+    private static Map<String, Integer> extractNgrams(File dir, Map<String, Integer> keywordsDictionaray) throws IOException {
+        if (keywordsDictionaray == null) {
+            keywordsDictionaray = new HashMap();
+        }
+        for (File f : dir.listFiles()) {
+            if (FilenameUtils.getExtension(f.getName()).endsWith("txt")) {
+                try (BufferedReader br = new BufferedReader(new FileReader(f))) {
+                    for (String text; (text = br.readLine()) != null;) {
+                        String lang = Utils.detectLang(text);
+                        if (lang.toLowerCase().equals("en")) {
+                            Analyzer analyzer = new ArmenianAnalyzer(Version.LUCENE_42, Utils.getCharArrayStopwords());
+                            StringBuilder sb = new StringBuilder();
+                            try (TokenStream tokenStream = analyzer.tokenStream("field", new StringReader(text))) {
+                                CharTermAttribute term = tokenStream.addAttribute(CharTermAttribute.class);
+                                tokenStream.reset();
+                                while (tokenStream.incrementToken()) {
+                                    String lemma;
+                                    try {
+                                        lemma = bbn.lemmatize(term.toString(), "EN");
+                                    } catch (Exception ex) {
+                                        lemma = term.toString();
+                                    }
+                                    if (!Utils.isStopWord(text)) {
+                                        sb.append(lemma).append(" ");
+                                    }
+                                }
+                                tokenStream.end();
+                            }
+                            StandardTokenizer source = new StandardTokenizer(Version.LUCENE_42, new StringReader(sb.toString()));
+                            TokenStream tokenStream = new StandardFilter(Version.LUCENE_42, source);
+                            try (ShingleFilter sf = new ShingleFilter(tokenStream, 2, maxNGrams)) {
+                                sf.setOutputUnigrams(false);
+                                CharTermAttribute charTermAttribute = sf.addAttribute(CharTermAttribute.class);
+                                sf.reset();
+                                while (sf.incrementToken()) {
+                                    String word = charTermAttribute.toString();
+                                    String ng = word.replaceAll(" ", "_");
+                                    Integer tf;
+                                    if (keywordsDictionaray.containsKey(ng.toLowerCase())) {
+                                        tf = keywordsDictionaray.get(ng.toLowerCase());
+                                        tf++;
+                                    } else {
+                                        tf = 1;
+                                    }
+                                    keywordsDictionaray.put(ng.toLowerCase(), tf);
+                                }
+                                sf.end();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return keywordsDictionaray;
+    }
 }
