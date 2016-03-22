@@ -111,7 +111,6 @@ public class App {
 
     public static void main(String[] args) {
         try {
-
             String jsonDocsPath = System.getProperty("user.home") + File.separator + "Downloads" + File.separator + "jsondocs";
             String textDocsPath = System.getProperty("user.home") + File.separator + "Downloads" + File.separator + "textdocs";
             String indexPath = System.getProperty("user.home") + File.separator + "Downloads" + File.separator + "index";
@@ -194,6 +193,10 @@ public class App {
                         doMappings = true;
                         break;
                     }
+                }
+                String props = args[args.length - 1];
+                if (props.endsWith("text.properties")) {
+                    Utils.propertiesPath = props;
                 }
             }
 
@@ -307,8 +310,8 @@ public class App {
         //Configuration.setTaggerType("openNLP");
         //for Stanford POS tagger
         Configuration.setTaggerType("stanford");
-        Configuration.setSingleStrength(3);
-        Configuration.setNoLimitStrength(2);
+        Configuration.setSingleStrength(Utils.getSingleStrength());
+        Configuration.setNoLimitStrength(Utils.getNoLimitStrength());
         // if tagger type is "openNLP" then give the openNLP POS tagger path
         //Configuration.setModelFileLocation("model/openNLP/en-pos-maxent.bin"); 
         // if tagger type is "default" then give the default POS lexicon file
@@ -384,12 +387,11 @@ public class App {
 
         try (PrintWriter out = new PrintWriter(outkeywordsDictionarayFile)) {
             for (String key : sorted_map.keySet()) {
-                String lemma;
+                String lemma, term;
                 if (key.contains("_")) {
                     String[] parts = key.split("_");
                     StringBuilder sb = new StringBuilder();
                     for (String p : parts) {
-
                         try {
                             lemma = bbn.lemmatize(p, "EN");
                         } catch (Exception ex) {
@@ -397,16 +399,16 @@ public class App {
                         }
                         sb.append(lemma).append("_");
                     }
-                    key = sb.toString().substring(0, sb.toString().lastIndexOf("_") - 1);
+                    term = sb.toString().substring(0, sb.toString().lastIndexOf("_"));
                 } else {
                     try {
                         lemma = bbn.lemmatize(key, "EN");
-                        key = lemma;
+                        term = lemma;
                     } catch (Exception ex) {
-
+                        term = key;
                     }
                 }
-                out.print(key + "," + keywordsDictionaray.get(key) + "\n");
+                out.print(term + "," + keywordsDictionaray.get(key) + "\n");
             }
         }
 

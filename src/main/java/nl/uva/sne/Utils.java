@@ -23,7 +23,7 @@ import org.apache.lucene.util.Version;
  */
 class Utils {
 
-    public static final String propertiesPath = "text.properties";
+    public static String propertiesPath = "text.properties";
     static Set<String> stopwords = new HashSet();
     private static UberLanguageDetector uberLanguageDetector;
 
@@ -885,8 +885,7 @@ class Utils {
         stopwords.add("zero﻿able");
         stopwords.add("zero﻿I");
         stopwords.add("andor");
-        
-        
+
     }
 
     static boolean isStopWord(String word) {
@@ -1020,5 +1019,13 @@ class Utils {
 
     static int getMaxPrunDepth() throws IOException {
         return Integer.valueOf(getProperties().getProperty("max.prun.depth", "4"));
+    }
+
+    static int getSingleStrength() throws IOException {
+        return Integer.valueOf(getProperties().getProperty("single.strength", "3"));
+    }
+
+    static int getNoLimitStrength() throws IOException {
+        return Integer.valueOf(getProperties().getProperty("no.limit.strength", "2"));
     }
 }
