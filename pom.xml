@@ -110,6 +110,13 @@
             <version>1.0.7</version>
         </dependency>
         
+        <dependency>
+            <groupId>com.sree.textbytes</groupId>
+            <artifactId>jtopia</artifactId>
+            <version>0.0.3</version>
+        </dependency>
+        
+        
     </dependencies>
     <description>Taxonomy EXtraction from Text attemts to extract a taxonomy of terms from text</description>
     <build>

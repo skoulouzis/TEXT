@@ -1,15 +1,22 @@
 package nl.uva.sne;
 
+import com.sree.textbytes.jtopia.Configuration;
+import static com.sree.textbytes.jtopia.JtopiaUsage.logger;
+import com.sree.textbytes.jtopia.TermDocument;
+import com.sree.textbytes.jtopia.TermsExtractor;
 import edu.stanford.nlp.util.ArraySet;
 import java.awt.Container;
 import java.awt.GridLayout;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.net.MalformedURLException;
@@ -53,11 +60,7 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
-import org.apache.lucene.index.DirectoryReader;
-import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.index.IndexableField;
-import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.json.simple.JSONObject;
@@ -76,8 +79,6 @@ import org.semanticweb.skos.SKOSEntityAssertion;
 import org.semanticweb.skos.SKOSObjectRelationAssertion;
 import org.semanticweb.skos.SKOSStorageException;
 import org.semanticweb.skosapibinding.SKOSFormatExt;
-import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -296,105 +297,119 @@ public class App {
         if (keywordsDictionaray == null) {
             keywordsDictionaray = new HashMap();
         }
-        int count = 0;
+        if (bbn == null) {
+            bbn = new BabelNet();
+        }
+
+        //for default lexicon POS tags
+        //Configuration.setTaggerType("default"); 
+        // for openNLP POS tagger
+        //Configuration.setTaggerType("openNLP");
+        //for Stanford POS tagger
+        Configuration.setTaggerType("stanford");
+        Configuration.setSingleStrength(3);
+        Configuration.setNoLimitStrength(2);
+        // if tagger type is "openNLP" then give the openNLP POS tagger path
+        //Configuration.setModelFileLocation("model/openNLP/en-pos-maxent.bin"); 
+        // if tagger type is "default" then give the default POS lexicon file
+        //Configuration.setModelFileLocation("model/default/english-lexicon.txt");
+        // if tagger type is "stanford "
+        Configuration.setModelFileLocation("model/stanford/english-left3words-distsim.tagger");
+        TermsExtractor termExtractor = new TermsExtractor();
+        TermDocument topiaDoc = new TermDocument();
         for (File f : dir.listFiles()) {
             if (FilenameUtils.getExtension(f.getName()).endsWith("txt")) {
                 try (BufferedReader br = new BufferedReader(new FileReader(f))) {
+                    StringBuilder stringBuffer = new StringBuilder();
                     for (String text; (text = br.readLine()) != null;) {
-                        count++;
                         String lang = Utils.detectLang(text);
                         if (lang.toLowerCase().equals("en")) {
-                            if (tokenize) {
-                                Logger.getLogger(App.class.getName()).log(Level.INFO, "Tokenizing: {0} {1} / {2}", new Object[]{f.getAbsolutePath(), count, dir.list().length});
-                                List<String> tokens = tokenize(text, generateNgrams);
-
-                                for (String t : tokens) {
-                                    if (Utils.getUseNouns() && !BabelNet.nonLemetize(t) && !t.contains("_")) {
-                                        POS[] pos = BabelNet.getPOS(t);
-                                        if (pos.length == 1 && !pos[0].equals(POS.NOUN)) {
-                                            continue;
-                                        }
-                                        boolean hasNoun = false;
-                                        for (POS p : pos) {
-                                            if (p.equals(POS.NOUN)) {
-                                                hasNoun = true;
-                                                break;
-                                            }
-                                        }
-                                        if (!hasNoun) {
-                                            continue;
-                                        }
-                                    }
-
-                                    Integer tf;
-                                    if (keywordsDictionaray.containsKey(t)) {
-                                        tf = keywordsDictionaray.get(t);
-                                        tf++;
-                                    } else {
-                                        tf = 1;
-                                    }
-                                    keywordsDictionaray.put(t, tf);
-
-                                }
-                            } else {
-                                POS[] pos = BabelNet.getPOS(text);
-                                if (Utils.getUseNouns() && pos.length == 1 && pos[0].equals(POS.NOUN)) {
-                                    Integer tf;
-                                    if (keywordsDictionaray.containsKey(text.toLowerCase())) {
-                                        tf = keywordsDictionaray.get(text.toLowerCase());
-                                        tf++;
-                                    } else {
-                                        tf = 1;
-                                    }
-                                    keywordsDictionaray.put(text.toLowerCase(), tf);
-                                }
-                            }
+                            text = text.replaceAll("-", "");
+//                            text = text.replaceAll("((mailto\\:|(news|(ht|f)tp(s?))\\://){1}\\S+)", "");
+                            text = text.replaceAll("[^a-zA-Z\\s]", "");
+//        text = text.replaceAll("(\\d+,\\d+)|\\d+", "");
+                            text = text.replaceAll("  ", " ");
+                            text = text.toLowerCase();
+                            stringBuffer.append(text).append("\n");
                         }
                     }
+                    topiaDoc = termExtractor.extractTerms(stringBuffer.toString());
+                    Set<String> terms = topiaDoc.getFinalFilteredTerms().keySet();
+                    for (String t : terms) {
+                        String text = t.replaceAll(" ", "_");
+                        Integer tf;
+                        if (keywordsDictionaray.containsKey(text.toLowerCase())) {
+                            tf = keywordsDictionaray.get(text.toLowerCase());
+                            tf++;
+                        } else {
+                            tf = 1;
+                        }
+                        keywordsDictionaray.put(text.toLowerCase(), tf);
+                    }
+//                    Logger.getLogger(App.class.getName()).log(Level.INFO, "Extracted terms : {0}", topiaDoc.getExtractedTerms());
+//                    Logger.getLogger(App.class.getName()).log(Level.INFO, "Final Filtered Terms : {0}", topiaDoc.getFinalFilteredTerms());
                 }
             }
         }
-
         ValueComparator bvc = new ValueComparator(keywordsDictionaray);
         Map<String, Integer> sorted_map = new TreeMap(bvc);
         sorted_map.putAll(keywordsDictionaray);
 
-        //remove terms that only apear with others. e.g. if we only 
-        //have 'machine learning' there is no point to keep 'machine' or 'learning'
-        Logger.getLogger(App.class.getName()).log(Level.INFO, "Filtering out terms");
-        List<String> toRemove = new ArrayList<>();
-        Integer singleTermRank = 0;
-        for (String key1 : sorted_map.keySet()) {
-            singleTermRank++;
-            Integer multiTermRank = 0;
-            for (String key2 : sorted_map.keySet()) {
-                multiTermRank++;
-                if (!key1.contains("_") && key2.contains("_") && key2.split("_")[0].equals(key1)) {
-                    int diff = multiTermRank - singleTermRank;
-                    if (diff <= 5 && diff > 0) {
-                        if (!toRemove.contains(key1)) {
-                            Logger.getLogger(App.class.getName()).log(Level.INFO, "Will remove: {0}", key1);
-                            toRemove.add(key1);
-                        }
-                    }
-                    break;
-                }
-            }
-        }
-        for (String k : toRemove) {
-            keywordsDictionaray.remove(k);
-        }
-        bvc = new ValueComparator(keywordsDictionaray);
-        sorted_map = new TreeMap(bvc);
-        sorted_map.putAll(keywordsDictionaray);
-
+//        //remove terms that only apear with others. e.g. if we only 
+//        //have 'machine learning' there is no point to keep 'machine' or 'learning'
+//        Logger.getLogger(App.class.getName()).log(Level.INFO, "Filtering out terms");
+//        List<String> toRemove = new ArrayList<>();
+//        Integer singleTermRank = 0;
+//        for (String key1 : sorted_map.keySet()) {
+//            singleTermRank++;
+//            Integer multiTermRank = 0;
+//            for (String key2 : sorted_map.keySet()) {
+//                multiTermRank++;
+//                if (!key1.contains("_") && key2.contains("_") && key2.split("_")[0].equals(key1)) {
+//                    int diff = multiTermRank - singleTermRank;
+//                    if (diff <= 5 && diff > 0) {
+//                        if (!toRemove.contains(key1)) {
+//                            Logger.getLogger(App.class.getName()).log(Level.INFO, "Will remove: {0}", key1);
+//                            toRemove.add(key1);
+//                        }
+//                    }
+//                    break;
+//                }
+//            }
+//        }
+//        for (String k : toRemove) {
+//            keywordsDictionaray.remove(k);
+//        }
         Logger.getLogger(App.class.getName()).log(Level.INFO, "Writing : {0}", outkeywordsDictionarayFile);
 
         try (PrintWriter out = new PrintWriter(outkeywordsDictionarayFile)) {
             for (String key : sorted_map.keySet()) {
+                String lemma;
+                if (key.contains("_")) {
+                    String[] parts = key.split("_");
+                    StringBuilder sb = new StringBuilder();
+                    for (String p : parts) {
+
+                        try {
+                            lemma = bbn.lemmatize(p, "EN");
+                        } catch (Exception ex) {
+                            lemma = p;
+                        }
+                        sb.append(lemma).append("_");
+                    }
+                    key = sb.toString().substring(0, sb.toString().lastIndexOf("_") - 1);
+                } else {
+                    try {
+                        lemma = bbn.lemmatize(key, "EN");
+                        key = lemma;
+                    } catch (Exception ex) {
+
+                    }
+                }
                 out.print(key + "," + keywordsDictionaray.get(key) + "\n");
             }
         }
+
     }
 
     private static List<String> tokenize(String text, boolean generateNgrams) throws IOException, JWNLException, FileNotFoundException, MalformedURLException, ParseException, Exception {

@@ -1013,10 +1013,6 @@ class Utils {
         return Integer.valueOf(getProperties().getProperty("max.ngrams", "2"));
     }
 
-    static boolean getUseNouns() throws IOException {
-        return Boolean.valueOf(getProperties().getProperty("use.nouns", "false"));
-    }
-
     static String getCachePath() throws IOException {
         return getProperties().getProperty("cache.path", System.getProperty("user.home")
                 + File.separator + "workspace" + File.separator + "TEXT" + File.separator + "cache" + File.separator + "cacheDB");
