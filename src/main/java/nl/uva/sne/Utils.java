@@ -1028,4 +1028,8 @@ class Utils {
     static int getNoLimitStrength() throws IOException {
         return Integer.valueOf(getProperties().getProperty("no.limit.strength", "2"));
     }
+
+    static String getTaggerType() throws IOException {
+        return getProperties().getProperty("tagger.type", "stanford");
+    }
 }

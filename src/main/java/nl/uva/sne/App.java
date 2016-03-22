@@ -309,16 +309,30 @@ public class App {
         // for openNLP POS tagger
         //Configuration.setTaggerType("openNLP");
         //for Stanford POS tagger
-        Configuration.setTaggerType("stanford");
+        String taggerType = Utils.getTaggerType();
+        switch (taggerType) {
+            case "stanford":
+                Configuration.setModelFileLocation(System.getProperty("user.home")
+                        + File.separator + "workspace" + File.separator + "TEXT" + File.separator + "etc" + File.separator + "model/stanford/english-left3words-distsim.tagger");
+                Configuration.setTaggerType("stanford");
+                break;
+            case "openNLP":
+                Configuration.setModelFileLocation(System.getProperty("user.home")
+                        + File.separator + "workspace" + File.separator + "TEXT" + File.separator + "etc"
+                        + File.separator + "model/openNLP/en-pos-maxent.bin");
+                Configuration.setTaggerType("openNLP");
+                break;
+            case "default":
+                Configuration.setModelFileLocation(System.getProperty("user.home")
+                        + File.separator + "workspace" + File.separator + "TEXT" + File.separator + "etc"
+                        + File.separator + "model/default/english-lexicon.txt");
+                Configuration.setTaggerType("default");
+                break;
+        }
+
         Configuration.setSingleStrength(Utils.getSingleStrength());
         Configuration.setNoLimitStrength(Utils.getNoLimitStrength());
-        // if tagger type is "openNLP" then give the openNLP POS tagger path
-        //Configuration.setModelFileLocation("model/openNLP/en-pos-maxent.bin"); 
-        // if tagger type is "default" then give the default POS lexicon file
-        //Configuration.setModelFileLocation("model/default/english-lexicon.txt");
-        // if tagger type is "stanford "
-        Configuration.setModelFileLocation(System.getProperty("user.home")
-                + File.separator + "workspace" + File.separator + "TEXT" + File.separator + "etc" + File.separator + "model/stanford/english-left3words-distsim.tagger");
+
         TermsExtractor termExtractor = new TermsExtractor();
         TermDocument topiaDoc = new TermDocument();
         for (File f : dir.listFiles()) {
