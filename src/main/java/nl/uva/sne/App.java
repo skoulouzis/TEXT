@@ -317,7 +317,8 @@ public class App {
         // if tagger type is "default" then give the default POS lexicon file
         //Configuration.setModelFileLocation("model/default/english-lexicon.txt");
         // if tagger type is "stanford "
-        Configuration.setModelFileLocation("model/stanford/english-left3words-distsim.tagger");
+        Configuration.setModelFileLocation(System.getProperty("user.home")
+                + File.separator + "workspace" + File.separator + "TEXT" + File.separator + "etc" + File.separator + "model/stanford/english-left3words-distsim.tagger");
         TermsExtractor termExtractor = new TermsExtractor();
         TermDocument topiaDoc = new TermDocument();
         for (File f : dir.listFiles()) {
