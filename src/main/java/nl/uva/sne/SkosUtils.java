@@ -124,6 +124,24 @@ class SkosUtils {
             }
         }
 
+        List<TermVertex> related = tv.getSynonyms();
+        if (related != null) {
+            for (TermVertex r : related) {
+                SKOSConcept relatedConcept = getSKOSDataFactory().getSKOSConcept(URI.create(uri + "#" + r.getUID()));
+
+                SKOSObjectRelationAssertion relatedPropertyRelationAssertion = getSKOSDataFactory().
+                        getSKOSObjectRelationAssertion(concept, getSKOSDataFactory().getSKOSRelatedProperty(), relatedConcept);
+                
+                
+                addAssertions.add(new AddAssertion(getSKOSDataset(), relatedPropertyRelationAssertion));
+
+                relatedPropertyRelationAssertion = getSKOSDataFactory().
+                        getSKOSObjectRelationAssertion(relatedConcept, getSKOSDataFactory().getSKOSRelatedProperty(), concept);
+
+                addAssertions.add(new AddAssertion(getSKOSDataset(), relatedPropertyRelationAssertion));
+            }
+        }
+
         return addAssertions;
     }
 
@@ -164,7 +182,6 @@ class SkosUtils {
             }
         }
 
-
         SKOSConcept sourceConcept = getSKOSDataFactory().getSKOSConcept(URI.create(SKOS_URI + "#" + source.getUID()));
 //        SKOSConcept sourceConcept = getSKOSDataFactory().getSKOSConcept(URI.create(SKOS_URI + "#" + source.getLemma()));
         addAssertions.add(new AddAssertion(getSKOSDataset(), getPrefAssertion(sourceConcept, source.getLemma(), lang)));
@@ -195,16 +212,13 @@ class SkosUtils {
             }
         }
 
-
         SKOSObjectRelationAssertion broaderPropertyRelationAssertion = getSKOSDataFactory().
                 getSKOSObjectRelationAssertion(sourceConcept, getSKOSDataFactory().getSKOSBroaderProperty(), targetConcept);
         addAssertions.add(new AddAssertion(getSKOSDataset(), broaderPropertyRelationAssertion));
 
-
         SKOSObjectRelationAssertion narrowerPropertyRelationAssertion = getSKOSDataFactory().
                 getSKOSObjectRelationAssertion(targetConcept, getSKOSDataFactory().getSKOSNarrowerProperty(), sourceConcept);
         addAssertions.add(new AddAssertion(getSKOSDataset(), narrowerPropertyRelationAssertion));
-
 
         return addAssertions;
     }

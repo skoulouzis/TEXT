@@ -123,7 +123,7 @@ public class App {
             boolean json2text = false, createIndex = false, creatDict = false, buildTree = false, doMappings = false;
             if (args != null) {
                 for (int i = 0; i < args.length; i++) {
-                    //-json2text $HOME/Downloads/jsondocs/ $HOME/Downloads/textdocs/ 
+                    //-json2text $HOME/Downloads/jsondocs/ $HOME/Downloads/textdocs/
                     if (args[i].equals("-json2text")) {
                         json2text = true;
                         File in = new File(args[i + 1]);
@@ -441,17 +441,12 @@ public class App {
                     if (terms != null && !terms.isEmpty()) {
                         allTerms.addAll(terms);
                     }
-                    if (count % 100 == 0) {
-//                        bbn.saveCache();
-                        Logger.getLogger(App.class.getName()).log(Level.FINE, "Word Num.: {0}", count);
-                    }
                 }
             }
-
         } finally {
             bbn.saveCache();
             allTerms = buildGraph(allTerms, null);
-            allTerms = pruneGraph(allTerms, prunDepth);
+//            allTerms = pruneGraph(allTerms, prunDepth);
             export2SKOS(allTerms, skosFile + ".rdf", String.valueOf(1));
             export2DOT(allTerms, graphFile + ".dot");
 //            rapper -o dot ~/workspace/TEXT/etc/taxonomy.rdf | dot -Kfdp -Tsvg -o taxonomy.svg
@@ -581,26 +576,16 @@ public class App {
     }
 
     private static List<TermVertex> getTermVertices(String lemma, String id, int depth, boolean isFromDiec, BabelNet bbn, String indexPath, String termDictionaryPath, List<TermVertex> terms) throws IOException, MalformedURLException, ParseException, Exception {
-//        if (Utils.getUseNouns() && !lemma.contains("_")) {
-//            POS[] pos = BabelNet.getPOS(lemma);
-//            if (pos.length > 1) {
-//                return null;
-//            }
-//            if (pos.length == 1 && !pos[0].equals(POS.NOUN)) {
+//        POS[] pos = BabelNet.getPOS(lemma);
+//
+//        for (POS p : pos) {
+//            if (p.equals(POS.ADVERB) && !lemma.contains("_")) {
 //                return null;
 //            }
 //        }
-
-        POS[] pos = BabelNet.getPOS(lemma);
-
-        for (POS p : pos) {
-            if (p.equals(POS.ADVERB) && !lemma.contains("_")) {
-                return null;
-            }
-        }
-        if (pos.length == 1 && pos[0].equals(POS.ADJECTIVE) && !lemma.contains("_")) {
-            return null;
-        }
+//        if (pos.length == 1 && pos[0].equals(POS.ADJECTIVE) && !lemma.contains("_")) {
+//            return null;
+//        }
 
         if (terms == null) {
             terms = new ArrayList<>();
@@ -612,12 +597,26 @@ public class App {
         }
         if (isFromDiec) {
             possibleTerms = bbn.getTermNodeByLemma(lemma, isFromDiec);
-            if ((possibleTerms == null || possibleTerms.size() < 1) && lemma.contains("_")) {
-                String[] parts = lemma.split("_");
-                for (String part : parts) {
-                    getTermVertices(part, null, depth, true, bbn, indexPath, termDictionaryPath, terms);
-                }
-            }
+//            if ((possibleTerms == null || possibleTerms.size() < 1) && lemma.contains("_")) {
+//                String[] parts = lemma.split("_");
+//                StringBuilder sb = new StringBuilder();
+//                for(int i=0;i<parts.length-1;i++){
+//                    sb.append(parts[i]).append("_");
+//                }
+//                String term = sb.toString().substring(0, sb.toString().lastIndexOf("_"));
+//                getTermVertices(term, null, depth, true, bbn, indexPath, termDictionaryPath, terms);
+//                
+//                sb = new StringBuilder();
+//                for(int i=0;i<parts.length-1;i++){
+//                    sb.append(parts[i]).append("_");
+//                }
+//                term = sb.toString().substring(0, sb.toString().lastIndexOf("_"));
+//                getTermVertices(term, null, depth, true, bbn, indexPath, termDictionaryPath, terms);
+//                
+//                for (String part : parts) {
+//                    getTermVertices(part, null, depth, true, bbn, indexPath, termDictionaryPath, terms);
+//                }
+//            }
         } else {
             termVertex = bbn.getTermNodeByID(lemma, id, isFromDiec);
         }

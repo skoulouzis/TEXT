@@ -98,7 +98,6 @@ public class BabelNet {
             return word;
         }
 
-
         wordNetdictionary = getWordNetDictionary();
         IndexWordSet set = wordNetdictionary.lookupAllIndexWords(word);
         for (IndexWord iw : set.getIndexWordArray()) {
@@ -106,7 +105,6 @@ public class BabelNet {
         }
 //        word = lmmtizeFromOnlineWordNet(word, language);
 //        word = lemmatizeFromBabelNet(word, language);
-
 
         return word;
     }
@@ -146,6 +144,10 @@ public class BabelNet {
                         List<TermVertex> h = getHypernyms(language, node, key);
                         if (h != null && !h.isEmpty()) {
                             node.setBroader(h);
+                        }
+                        List<TermVertex> s = getSynonyms(language, node, key);
+                        if (s != null && !s.isEmpty()) {
+                            node.setSynonyms(s);
                         }
                     } catch (Exception ex) {
                     }
@@ -254,7 +256,7 @@ public class BabelNet {
 
         if (ids == null || ids.isEmpty()) {
             ids = new ArrayList<>();
-            URL url = new URL("http://babelnet.io/v2/getSynsetIds?word=" + word +  "&langs=" + language + "&key=" + key);
+            URL url = new URL("http://babelnet.io/v2/getSynsetIds?word=" + word + "&langs=" + language + "&key=" + key);
             String genreJson = IOUtils.toString(url);
             handleKeyLimitException(genreJson);
             Object obj = JSONValue.parseWithException(genreJson);
@@ -397,7 +399,6 @@ public class BabelNet {
             }
         }
 
-
         db.commit();
     }
 
@@ -410,8 +411,6 @@ public class BabelNet {
                 db.close();
             }
         }
-
-
 
 //        try (BufferedWriter bw = new BufferedWriter(new FileWriter(wordIDCacheFile, false))) {
 //            for (String key : wordIDCache.keySet()) {
@@ -464,7 +463,7 @@ public class BabelNet {
             return null;
         }
         Logger.getLogger(BabelNet.class.getName()).log(Level.INFO, "lemma: {0}", lemma);
-        
+
         HashMap<String, Double> idsMap = new HashMap<>();
         Map<String, TermVertex> termMap = new HashMap<>();
         List<TermVertex> terms = new ArrayList<>();
@@ -623,13 +622,15 @@ public class BabelNet {
         for (Object o : edgeArray) {
             JSONObject pointer = (JSONObject) ((JSONObject) o).get("pointer");
             String relationGroup = (String) pointer.get("relationGroup");
+            String target = (String) ((JSONObject) o).get("target");
+            Double normalizedWeight = (Double) ((JSONObject) o).get("normalizedWeight");
+            Double weight = (Double) ((JSONObject) o).get("weight");
             if (relationGroup.equals(relation)) {
-                String target = (String) ((JSONObject) o).get("target");
-                Double normalizedWeight = (Double) ((JSONObject) o).get("normalizedWeight");
-                Double weight = (Double) ((JSONObject) o).get("weight");
                 map.put(target, ((normalizedWeight + weight) / 2.0));
             }
+//            System.err.println(relationGroup + " " + target + " normalizedWeight: " + normalizedWeight + " weight: " + weight);
         }
+//         System.err.println("--------------------");
         return map;
     }
 
@@ -786,6 +787,38 @@ public class BabelNet {
         }
     }
 
+    private List<TermVertex> getSynonyms(String language, TermVertex t, String key) throws ParseException, Exception {
+        Map<String, Double> synonymsMap = getEdgeIDs(language, t.getUID(), "OTHER", key);
+        List<TermVertex> synonyms = new ArrayList<>();
+
+        ValueComparator bvc = new ValueComparator(synonymsMap);
+        Map<String, Double> sorted_map = new TreeMap(bvc);
+        sorted_map.putAll(synonymsMap);
+        int maxNum = 5;
+
+        for (String uid : sorted_map.keySet()) {
+            if (maxNum <= 0) {
+                break;
+            }
+
+            String synet = getBabelnetSynset(uid, language, key);
+            TermVertex synonym = TermVertexFactory.create(synet, language, null, uid);
+            if (synonym != null) {
+                synonyms.add(synonym);
+            }
+
+            maxNum--;
+        }
+//        List list;
+//        if (hMap.values() instanceof List) {
+//            list = (List) hMap.values();
+//        } else {
+//            list = new ArrayList(hMap.values());
+//        }
+        return synonyms;
+
+    }
+
     private List<TermVertex> getHypernyms(String language, TermVertex t, String key) throws MalformedURLException, IOException, ParseException, Exception {
         Map<String, Double> hypenymMap = getEdgeIDs(language, t.getUID(), "HYPERNYM", key);
         List<TermVertex> hypernyms = new ArrayList<>();
@@ -793,7 +826,7 @@ public class BabelNet {
         ValueComparator bvc = new ValueComparator(hypenymMap);
         Map<String, Double> sorted_map = new TreeMap(bvc);
         sorted_map.putAll(hypenymMap);
-        int maxNumOfHyper = 3;
+        int maxNumOfHyper = 5;
 
         for (String uid : sorted_map.keySet()) {
             if (maxNumOfHyper <= 0) {
@@ -805,7 +838,6 @@ public class BabelNet {
             if (hypernym != null) {
                 hypernyms.add(hypernym);
             }
-
 
             maxNumOfHyper--;
         }
