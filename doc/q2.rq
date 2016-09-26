@@ -1,0 +1,14 @@
+
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+
+
+select ?concept ?lcc
+
+WHERE {  
+    ?concept skos:prefLabel ?lcc.
+    
+    
+    OPTIONAL { ?concept skos:broader ?broader }
+    FILTER (!bound(?broader))
+    #FILTER regex(?lcc, "^QA")
+} LIMIT 50

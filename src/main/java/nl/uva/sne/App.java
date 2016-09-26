@@ -35,7 +35,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import net.didion.jwnl.JWNLException;
-import net.didion.jwnl.data.POS;
 import static nl.uva.sne.SkosUtils.SKOS_URI;
 import static nl.uva.sne.SkosUtils.getSKOSDataFactory;
 import org._3pq.jgrapht.Edge;
@@ -444,7 +443,7 @@ public class App {
                 }
             }
         } finally {
-            bbn.saveCache();
+//            bbn.saveCache();
             allTerms = buildGraph(allTerms, null);
 //            allTerms = pruneGraph(allTerms, prunDepth);
             export2SKOS(allTerms, skosFile + ".rdf", String.valueOf(1));

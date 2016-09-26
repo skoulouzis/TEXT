@@ -1,0 +1,16 @@
+#Construct an RDF graph of terms with narrower terms but no broader terms
+
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+
+
+CONSTRUCT   { 
+    ?concept skos:narrower ?child .
+   
+}  WHERE { 
+   
+    ?concept skos:narrower ?child . 
+   
+    #OPTIONAL { ?concept skos:broader ?parent }
+    
+    FILTER (!bound(?parent))
+} LIMIT 3
